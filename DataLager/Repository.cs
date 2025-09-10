@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DataLager
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> where T : class
     {
 
         private readonly ApplikationDbContext _context;

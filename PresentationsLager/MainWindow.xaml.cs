@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using DataLager;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,9 +17,15 @@ namespace PresentationsLager
     /// </summary>
     public partial class MainWindow : Window
     {
+        private UnitOfWork _uow;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _uow = new UnitOfWork(); // Här skapas databasen + tabellen Kunder
+
+            MessageBox.Show("Antal kunder: " + _uow.KundRepository.Count());
         }
     }
 }

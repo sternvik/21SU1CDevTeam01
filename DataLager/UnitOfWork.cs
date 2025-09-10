@@ -1,27 +1,27 @@
 ﻿using EntitetsLager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataLager
 {
     public class UnitOfWork
     {
-        public Repository<Kund> KundRepository { get; set; }
         private readonly ApplikationDbContext _context;
+        public Repository<Kund> KundRepository { get; set; }
+
         public UnitOfWork()
         {
             _context = new ApplikationDbContext();
+
+            // Skapa databasen + tabeller om de inte finns
             _context.Database.EnsureCreated();
+
             KundRepository = new Repository<Kund>(_context);
 
+            // Lägg till testdata om tabellen är tom
             if (KundRepository.IsEmpty())
             {
                 Fill();
             }
-
         }
 
         public void Save()
@@ -29,20 +29,18 @@ namespace DataLager
             _context.SaveChanges();
         }
 
-        public void Fill()
+        private void Fill()
         {
-
             if (!KundRepository.IsEmpty())
                 return;
-            //MEDLEM
+
             KundRepository.Add(new Kund
             {
                 Namn = "Oscar Karlsson",
-                Email = "Oscar.Kalrsson@Gmail.com",
+                Email = "Oscar.Karlsson@Gmail.com"
             });
+
             Save();
         }
     }
-
 }
-
