@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EntitetsLager
 {
@@ -8,9 +9,30 @@ namespace EntitetsLager
         public int KundID { get; set; }
 
         [Required]
+        [StringLength(100)]
         public string Namn { get; set; }
 
         [Required]
+        [StringLength(100)]
         public string Email { get; set; }
+
+        [StringLength(20)]
+        public string Telefon { get; set; }
+
+        [ForeignKey("Region")]
+        public int? RegionID { get; set; }
+
+        [ForeignKey("Restaurang")]
+        public int? HemmarestaurangID { get; set; }
+
+        public int LojalitetsPoang { get; set; } = 0;
+
+        [StringLength(10)]
+        public string LojalitetsNiva { get; set; } = "Brons"; // Brons, Silver, Guld
+
+        public DateTime SkapadDatum { get; set; } = DateTime.Now;
+
+        // public virtual Region Region { get; set; }
+        // public virtual Restaurang Hemmarestaurang { get; set; }
     }
 }
