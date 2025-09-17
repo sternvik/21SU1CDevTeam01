@@ -9,11 +9,9 @@ namespace EntitetsLager
         public int BestallningsRadID { get; set; }
 
         [Required]
-        [ForeignKey("Bestallning")]
         public int BestallningsID { get; set; }
 
         [Required]
-        [ForeignKey("Meny")]
         public int MenyID { get; set; }
 
         [Required]
@@ -25,7 +23,7 @@ namespace EntitetsLager
         [Required]
         public decimal Summa { get; set; }
 
-        // public virtual Bestallning Bestallning { get; set; }
-        // public virtual Meny Meny { get; set; }
+        public virtual Bestallning Bestallning { get; set; }
+        public virtual Meny Meny { get; set; }
     }
 }

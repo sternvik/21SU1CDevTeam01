@@ -9,10 +9,8 @@ namespace EntitetsLager
         public int LojalitetsTransaktionsID { get; set; }
 
         [Required]
-        [ForeignKey("Kund")]
         public int KundID { get; set; }
 
-        [ForeignKey("Bestallning")]
         public int? BestallningsID { get; set; }
 
         public int PoangTillagda { get; set; } = 0;
@@ -25,7 +23,7 @@ namespace EntitetsLager
         [Required]
         public DateTime Datum { get; set; }
 
-        // public virtual Kund Kund { get; set; }
-        // public virtual Bestallning Bestallning { get; set; }
+        public virtual Kund Kund { get; set; }
+        public virtual Bestallning Bestallning { get; set; }
     }
 }

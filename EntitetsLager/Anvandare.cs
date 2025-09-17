@@ -20,7 +20,6 @@ namespace EntitetsLager
         [StringLength(100)]
         public string Namn { get; set; }
 
-        [ForeignKey("Restaurang")]
         public int? HemmarestaurangID { get; set; }
 
         [Required]
@@ -29,6 +28,6 @@ namespace EntitetsLager
 
         public bool Aktiv { get; set; } = true;
 
-        // public virtual Restaurang Hemmarestaurang { get; set; }
+        public virtual Restaurang Hemmarestaurang { get; set; }
     }
 }

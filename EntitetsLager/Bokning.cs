@@ -9,18 +9,14 @@ namespace EntitetsLager
         public int BokningsID { get; set; }
 
         [Required]
-        [ForeignKey("Kund")]
         public int KundID { get; set; }
 
         [Required]
-        [ForeignKey("Bord")]
         public int BordID { get; set; }
 
         [Required]
-        [ForeignKey("Restaurang")]
         public int RestaurangID { get; set; }
 
-        [ForeignKey("Anvandare")]
         public int? AnvandarID { get; set; }
 
         [Required]
@@ -42,9 +38,9 @@ namespace EntitetsLager
 
         public DateTime SkapadDatum { get; set; } = DateTime.Now;
 
-        // public virtual Kund Kund { get; set; }
-        // public virtual Bord Bord { get; set; }
-        // public virtual Restaurang Restaurang { get; set; }
-        // public virtual Anvandare Anvandare { get; set; }
+        public virtual Kund Kund { get; set; }
+        public virtual Bord Bord { get; set; }
+        public virtual Restaurang Restaurang { get; set; }
+        public virtual Anvandare Anvandare { get; set; }
     }
 }

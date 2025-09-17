@@ -13,7 +13,6 @@ namespace EntitetsLager
         public string Restaurangnamn { get; set; }
 
         [Required]
-        [ForeignKey("Region")]
         public int RegionID { get; set; }
 
         [StringLength(200)]
@@ -25,6 +24,6 @@ namespace EntitetsLager
         [StringLength(50)]
         public string Oppettider { get; set; } = "10:30-23:00";
 
-        // public virtual Region Region { get; set; }
+        public virtual Region Region { get; set; }
     }
 }

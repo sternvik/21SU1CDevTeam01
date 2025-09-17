@@ -9,7 +9,6 @@ namespace EntitetsLager
         public int BordID { get; set; }
 
         [Required]
-        [ForeignKey("Restaurang")]
         public int RestaurangID { get; set; }
 
         [Required]
@@ -21,6 +20,6 @@ namespace EntitetsLager
         [StringLength(20)]
         public string Status { get; set; } = "Ledigt"; // Ledigt, Bokat, Aktivt, Betalt
 
-        // public virtual Restaurang Restaurang { get; set; }
+        public virtual Restaurang Restaurang { get; set; }
     }
 }

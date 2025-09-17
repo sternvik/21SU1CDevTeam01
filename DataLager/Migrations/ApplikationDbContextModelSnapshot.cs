@@ -61,47 +61,6 @@ namespace DataLager.Migrations
                     b.HasIndex("HemmarestaurangID");
 
                     b.ToTable("Anvandare");
-
-                    b.HasData(
-                        new
-                        {
-                            AnvandarID = 1,
-                            Aktiv = true,
-                            Anvandarnamn = "servitor1",
-                            HemmarestaurangID = 1,
-                            Losenord = "password123",
-                            Namn = "Anna Servitör",
-                            Roll = "Servitör"
-                        },
-                        new
-                        {
-                            AnvandarID = 2,
-                            Aktiv = true,
-                            Anvandarnamn = "admin1",
-                            HemmarestaurangID = 1,
-                            Losenord = "admin123",
-                            Namn = "Erik Admin",
-                            Roll = "Admin"
-                        },
-                        new
-                        {
-                            AnvandarID = 3,
-                            Aktiv = true,
-                            Anvandarnamn = "rchef1",
-                            HemmarestaurangID = 1,
-                            Losenord = "chef123",
-                            Namn = "Maria Restaurangchef",
-                            Roll = "Restaurangchef"
-                        },
-                        new
-                        {
-                            AnvandarID = 4,
-                            Aktiv = true,
-                            Anvandarnamn = "vd",
-                            Losenord = "vd123",
-                            Namn = "Sten Hård",
-                            Roll = "VD"
-                        });
                 });
 
             modelBuilder.Entity("EntitetsLager.Bestallning", b =>
@@ -176,6 +135,9 @@ namespace DataLager.Migrations
                     b.Property<int>("BestallningsID")
                         .HasColumnType("int");
 
+                    b.Property<int>("BestallningsID1")
+                        .HasColumnType("int");
+
                     b.Property<int>("MenyID")
                         .HasColumnType("int");
 
@@ -187,7 +149,7 @@ namespace DataLager.Migrations
 
                     b.HasKey("BestallningsRadID");
 
-                    b.HasIndex("BestallningsID");
+                    b.HasIndex("BestallningsID1");
 
                     b.HasIndex("MenyID");
 
@@ -283,48 +245,6 @@ namespace DataLager.Migrations
                     b.HasIndex("RestaurangID");
 
                     b.ToTable("Bord");
-
-                    b.HasData(
-                        new
-                        {
-                            BordID = 1,
-                            AntalPlatser = 2,
-                            Bordkod = "STH001",
-                            RestaurangID = 1,
-                            Status = "Ledigt"
-                        },
-                        new
-                        {
-                            BordID = 2,
-                            AntalPlatser = 4,
-                            Bordkod = "STH002",
-                            RestaurangID = 1,
-                            Status = "Ledigt"
-                        },
-                        new
-                        {
-                            BordID = 3,
-                            AntalPlatser = 6,
-                            Bordkod = "STH003",
-                            RestaurangID = 1,
-                            Status = "Ledigt"
-                        },
-                        new
-                        {
-                            BordID = 4,
-                            AntalPlatser = 2,
-                            Bordkod = "GBG001",
-                            RestaurangID = 2,
-                            Status = "Ledigt"
-                        },
-                        new
-                        {
-                            BordID = 5,
-                            AntalPlatser = 4,
-                            Bordkod = "GBG002",
-                            RestaurangID = 2,
-                            Status = "Ledigt"
-                        });
                 });
 
             modelBuilder.Entity("EntitetsLager.Kund", b =>
@@ -446,68 +366,6 @@ namespace DataLager.Migrations
                     b.HasKey("MenyID");
 
                     b.ToTable("Menyer");
-
-                    b.HasData(
-                        new
-                        {
-                            MenyID = 1,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "Traditionella svenska köttbullar med potatismos",
-                            Kategori = "Mat",
-                            Pris = 165m,
-                            Rattnamn = "Klassisk köttbullar"
-                        },
-                        new
-                        {
-                            MenyID = 2,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "Husmarinerad gravlax med hovmästarsås",
-                            Kategori = "Mat",
-                            Pris = 185m,
-                            Rattnamn = "Gravlax"
-                        },
-                        new
-                        {
-                            MenyID = 3,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "Varierar dagligen",
-                            Kategori = "Mat",
-                            Pris = 125m,
-                            Rattnamn = "Dagens lunch"
-                        },
-                        new
-                        {
-                            MenyID = 4,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "50cl",
-                            Kategori = "Alkoholhaltig dryck",
-                            Pris = 75m,
-                            Rattnamn = "Öl (stor stark)"
-                        },
-                        new
-                        {
-                            MenyID = 5,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "Bryggkaffe",
-                            Kategori = "Alkoholfri dryck",
-                            Pris = 35m,
-                            Rattnamn = "Kaffe"
-                        },
-                        new
-                        {
-                            MenyID = 6,
-                            Aktiv = true,
-                            ArGrundmeny = true,
-                            Beskrivning = "Coca-Cola, Fanta eller Sprite",
-                            Kategori = "Alkoholfri dryck",
-                            Pris = 45m,
-                            Rattnamn = "Läsk"
-                        });
                 });
 
             modelBuilder.Entity("EntitetsLager.Region", b =>
@@ -529,32 +387,6 @@ namespace DataLager.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Regioner");
-
-                    b.HasData(
-                        new
-                        {
-                            RegionID = 1,
-                            AntalRestauranger = 2,
-                            Regionnamn = "Norr"
-                        },
-                        new
-                        {
-                            RegionID = 2,
-                            AntalRestauranger = 7,
-                            Regionnamn = "Öst"
-                        },
-                        new
-                        {
-                            RegionID = 3,
-                            AntalRestauranger = 5,
-                            Regionnamn = "Väst"
-                        },
-                        new
-                        {
-                            RegionID = 4,
-                            AntalRestauranger = 4,
-                            Regionnamn = "Syd"
-                        });
                 });
 
             modelBuilder.Entity("EntitetsLager.Restaurang", b =>
@@ -590,38 +422,7 @@ namespace DataLager.Migrations
 
                     b.HasKey("RestaurangID");
 
-                    b.HasIndex("RegionID");
-
                     b.ToTable("Restauranger");
-
-                    b.HasData(
-                        new
-                        {
-                            RestaurangID = 1,
-                            Adress = "Kungsgatan 1, Stockholm",
-                            Oppettider = "10:30-23:00",
-                            RegionID = 2,
-                            Restaurangnamn = "RestoNation Stockholm City",
-                            Telefon = "08-123456"
-                        },
-                        new
-                        {
-                            RestaurangID = 2,
-                            Adress = "Avenyn 10, Göteborg",
-                            Oppettider = "10:30-23:00",
-                            RegionID = 3,
-                            Restaurangnamn = "RestoNation Göteborg",
-                            Telefon = "031-789012"
-                        },
-                        new
-                        {
-                            RestaurangID = 3,
-                            Adress = "Stortorget 5, Malmö",
-                            Oppettider = "10:30-23:00",
-                            RegionID = 4,
-                            Restaurangnamn = "RestoNation Malmö",
-                            Telefon = "040-345678"
-                        });
                 });
 
             modelBuilder.Entity("EntitetsLager.RestaurangMeny", b =>
@@ -781,7 +582,7 @@ namespace DataLager.Migrations
                 {
                     b.HasOne("EntitetsLager.Bestallning", "Bestallning")
                         .WithMany()
-                        .HasForeignKey("BestallningsID")
+                        .HasForeignKey("BestallningsID1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -870,17 +671,6 @@ namespace DataLager.Migrations
                     b.Navigation("Bestallning");
 
                     b.Navigation("Kund");
-                });
-
-            modelBuilder.Entity("EntitetsLager.Restaurang", b =>
-                {
-                    b.HasOne("EntitetsLager.Region", "Region")
-                        .WithMany()
-                        .HasForeignKey("RegionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Region");
                 });
 
             modelBuilder.Entity("EntitetsLager.RestaurangMeny", b =>

@@ -9,15 +9,12 @@ namespace EntitetsLager
         public int TransaktionsID { get; set; }
 
         [Required]
-        [ForeignKey("Bestallning")]
         public int BestallningsID { get; set; }
 
         [Required]
-        [ForeignKey("Restaurang")]
         public int RestaurangID { get; set; }
 
         [Required]
-        [ForeignKey("Anvandare")]
         public int AnvandarID { get; set; }
 
         [Required]
@@ -35,8 +32,8 @@ namespace EntitetsLager
         [Required]
         public decimal TotalSumma { get; set; }
 
-        // public virtual Bestallning Bestallning { get; set; }
-        // public virtual Restaurang Restaurang { get; set; }
-        // public virtual Anvandare Anvandare { get; set; }
+        public virtual Bestallning Bestallning { get; set; }
+        public virtual Restaurang Restaurang { get; set; }
+        public virtual Anvandare Anvandare { get; set; }
     }
 }

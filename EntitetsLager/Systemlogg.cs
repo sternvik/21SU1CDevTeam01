@@ -8,7 +8,6 @@ namespace EntitetsLager
         [Key]
         public int LoggID { get; set; }
 
-        [ForeignKey("Anvandare")]
         public int? AnvandarID { get; set; }
 
         [Required]
@@ -28,6 +27,6 @@ namespace EntitetsLager
         [StringLength(45)]
         public string IPAdress { get; set; }
 
-        // public virtual Anvandare Anvandare { get; set; }
+        public virtual Anvandare Anvandare { get; set; }
     }
 }

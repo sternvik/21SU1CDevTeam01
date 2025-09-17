@@ -8,19 +8,15 @@ namespace EntitetsLager
         [Key]
         public int BestallningsID { get; set; }
 
-        [ForeignKey("Bokning")]
         public int? BokningsID { get; set; } // null för lunch
 
         [Required]
-        [ForeignKey("Kund")]
         public int KundID { get; set; }
 
         [Required]
-        [ForeignKey("Restaurang")]
         public int RestaurangID { get; set; }
 
         [Required]
-        [ForeignKey("Anvandare")]
         public int AnvandarID { get; set; }
 
         [Required]
@@ -43,9 +39,9 @@ namespace EntitetsLager
         [Required]
         public TimeSpan Tid { get; set; }
 
-        // public virtual Bokning Bokning { get; set; }
-        // public virtual Kund Kund { get; set; }
-        // public virtual Restaurang Restaurang { get; set; }
-        // public virtual Anvandare Anvandare { get; set; }
+        public virtual Bokning Bokning { get; set; }
+        public virtual Kund Kund { get; set; }
+        public virtual Restaurang Restaurang { get; set; }
+        public virtual Anvandare AnvandareBeh { get; set; }
     }
 }

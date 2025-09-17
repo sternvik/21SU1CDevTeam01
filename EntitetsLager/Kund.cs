@@ -19,10 +19,8 @@ namespace EntitetsLager
         [StringLength(20)]
         public string Telefon { get; set; }
 
-        [ForeignKey("Region")]
         public int? RegionID { get; set; }
 
-        [ForeignKey("Restaurang")]
         public int? HemmarestaurangID { get; set; }
 
         public int LojalitetsPoang { get; set; } = 0;
@@ -32,7 +30,7 @@ namespace EntitetsLager
 
         public DateTime SkapadDatum { get; set; } = DateTime.Now;
 
-        // public virtual Region Region { get; set; }
-        // public virtual Restaurang Hemmarestaurang { get; set; }
+        public virtual Region Region { get; set; }
+        public virtual Restaurang Hemmarestaurang { get; set; }
     }
 }
