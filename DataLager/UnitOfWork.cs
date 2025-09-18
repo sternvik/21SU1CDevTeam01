@@ -53,6 +53,11 @@ namespace DataLager
             _context.SaveChanges();
         }
 
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
         private void Fill()
         {
             if (!KundRepository.IsEmpty())

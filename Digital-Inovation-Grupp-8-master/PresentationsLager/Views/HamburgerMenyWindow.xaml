@@ -1,0 +1,54 @@
+﻿<Window x:Class="PresentationsLager.Views.HamburgerMenyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PresentationsLager.Views"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        mc:Ignorable="d"
+        Title="HamburgerMenyWindow" Height="650" Width="300"
+        Background="White"
+        >
+    <Window.DataContext>
+        <vm:HamburgerMenuViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#60c3b6"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="BorderBrush" Value="#60c3b6" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#60c3b6" />
+                    <Setter Property="Foreground" Value="LightGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Meny" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#60c3b6"/>
+            <Button Content="Min profil" Height="25" Width="150" Command="{Binding}" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Mina Pass" Height="25" Width="150" Command="{Binding MinaPassCommand}" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Tillgängliga pass" Height="25" Width="150" Command="{Binding MedlemMenyCommand }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Andra Medlemmar" Height="25" Width="150" Command="{Binding }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Events" Height="25" Width="150" Command="{Binding }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Klubbar" Height="25" Width="150" Command="{Binding }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Support" Height="25" Width="150" Command="{Binding }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Inställningar" Height="25" Width="150" Command="{Binding }" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+            <Button Content="Logga ut" Height="25" Width="150" Command="{Binding LoggaUtCommand}" Style="{StaticResource MenuButtonStyle}" Margin="0,5,0,5"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

@@ -10,7 +10,10 @@
       "Bash(dotnet ef database:*)",
       "Bash(dotnet ef migrations:*)",
       "Bash(rm:*)",
-      "Bash(dotnet run:*)"
+      "Bash(dotnet run:*)",
+      "Bash(dotnet build)",
+      "Bash(dir \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\EntitetsLager\")",
+      "Bash(dir \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\AffärsLager\\Controllers\")"
     ],
     "deny": [],
     "ask": []

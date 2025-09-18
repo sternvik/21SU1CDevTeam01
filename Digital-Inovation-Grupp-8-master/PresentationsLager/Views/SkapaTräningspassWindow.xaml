@@ -1,0 +1,67 @@
+﻿<Window x:Class="PresentationsLager.Views.SkapaTräningspassWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PresentationsLager.Views"
+        mc:Ignorable="d"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        Title="SkapaTräningspassWindow" Height="650" Width="300">
+
+    <Window.DataContext>
+        <vm:SkapaTräningspassViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#60c3b6"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="BorderBrush" Value="#60c3b6" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#60c3b6" />
+                    <Setter Property="Foreground" Value="LightGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="9*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Button Content="Meny"
+    Style="{StaticResource MenuButtonStyle}"
+    Command="{Binding MenyKnappCommand}"
+    HorizontalAlignment="Left"
+    VerticalAlignment="Bottom"
+    Margin="0,10,0,10"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Button Content="Skapa Träningpass"
+            Style="{StaticResource MenuButtonStyle}"
+            Command="{Binding SkapaTräningspassCommand}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Margin="0,10,0,10"/>
+        </Grid>
+    </Grid>
+</Window>
