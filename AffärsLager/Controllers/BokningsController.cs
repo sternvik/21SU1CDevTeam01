@@ -29,6 +29,56 @@ namespace AffärsLager.Controllers
             };
         }
 
+        public List<BordMedStatus> HamtaAllaBordMedStatus(int restaurangId, DateTime datum, TimeSpan tid, int antalGaster)
+        {
+            try
+            {
+                // Hämta alla bord för restaurangen
+                var allaBord = _unitOfWork.BordRepository.GetAll()
+                    .Where(b => b.RestaurangID == restaurangId)
+                    .ToList();
+
+                // Hämta endast bokningar som överlappar MER ÄN bara gränsen
+                // En bokning kolliderar om den har gemensam tid med vår slot
+                var vadTidSlut = tid.Add(TimeSpan.FromHours(2));
+                var bokadeBord = _unitOfWork.BokningRepository.GetAll()
+                    .Where(b => b.RestaurangID == restaurangId &&
+                               b.Datum.Date == datum.Date &&
+                               b.Status != "Avbokad")
+                    .ToList()
+                    .Where(b =>
+                    {
+                        var bokningSlut = b.Tid.Add(TimeSpan.FromHours(2));
+                        // Kollision: deras start < vårt slut OCH deras slut > vårt start
+                        return b.Tid < vadTidSlut && bokningSlut > tid;
+                    })
+                    .Select(b => new { b.BordID, b.Tid })
+                    .ToList();
+
+                var bokadeBordIds = bokadeBord.Select(b => b.BordID).ToHashSet();
+
+                return allaBord.Select(bord =>
+                {
+                    var bokning = bokadeBord.FirstOrDefault(b => b.BordID == bord.BordID);
+                    var arLedigt = !bokadeBordIds.Contains(bord.BordID);
+
+                    return new BordMedStatus
+                    {
+                        BordID = bord.BordID,
+                        Bordkod = bord.Bordkod,
+                        AntalPlatser = bord.AntalPlatser,
+                        ArLedigt = arLedigt,
+                        ArLampligt = bord.AntalPlatser >= antalGaster,
+                        BokadTid = bokning?.Tid
+                    };
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Fel vid hämtning av bord med status: {ex.Message}", ex);
+            }
+        }
+
         public List<Bord> HamtaLedigaBord(int restaurangId, DateTime datum, TimeSpan tid, int antalGaster)
         {
             try
@@ -39,13 +89,18 @@ namespace AffärsLager.Controllers
                     .ToList();
 
                 // Kontrollera vilka bord som är lediga under den önskade tiden (2 timmar)
+                var vadTidSlut = tid.Add(TimeSpan.FromHours(2));
                 var bokadeBord = _unitOfWork.BokningRepository.GetAll()
                     .Where(b => b.RestaurangID == restaurangId &&
                                b.Datum.Date == datum.Date &&
-                               b.Status != "Avbokad" &&
-                               // Kontrollera överlappning med 2-timmars slot
-                               ((b.Tid <= tid && b.Tid.Add(TimeSpan.FromHours(2)) > tid) ||
-                                (b.Tid < tid.Add(TimeSpan.FromHours(2)) && b.Tid.Add(TimeSpan.FromHours(2)) >= tid.Add(TimeSpan.FromHours(2)))))
+                               b.Status != "Avbokad")
+                    .ToList()
+                    .Where(b =>
+                    {
+                        var bokningSlut = b.Tid.Add(TimeSpan.FromHours(2));
+                        // Kollision: deras start < vårt slut OCH deras slut > vårt start
+                        return b.Tid < vadTidSlut && bokningSlut > tid;
+                    })
                     .Select(b => b.BordID)
                     .ToList();
 
@@ -87,10 +142,18 @@ namespace AffärsLager.Controllers
                 if (!tillgangligaTider.Contains(bokning.Tid))
                     throw new ArgumentException("Vald tid är inte tillgänglig för bokning");
 
-                // Kontrollera att bordet är ledigt
-                var ledigaBord = HamtaLedigaBord(bokning.RestaurangID, bokning.Datum, bokning.Tid, bokning.AntalGaster);
-                if (!ledigaBord.Any(b => b.BordID == bokning.BordID))
+                // Kontrollera att bordet är ledigt - använd korrekt antal gäster för färglogik men tillåt alla bokningar
+                var bordMedStatus = HamtaAllaBordMedStatus(bokning.RestaurangID, bokning.Datum, bokning.Tid, bokning.AntalGaster);
+                var valdtBord = bordMedStatus.FirstOrDefault(b => b.BordID == bokning.BordID);
+
+                if (valdtBord == null)
+                    throw new InvalidOperationException($"Bord med ID {bokning.BordID} finns inte på restaurang {bokning.RestaurangID}");
+
+                if (!valdtBord.ArLedigt)
                     throw new InvalidOperationException("Valt bord är inte ledigt under den önskade tiden");
+
+                if (!valdtBord.ArLampligt)
+                    throw new InvalidOperationException($"Bordet har bara {valdtBord.AntalPlatser} platser men {bokning.AntalGaster} gäster ska placeras");
 
                 // Sätt standardvärden
                 bokning.Status = "Bokad";
@@ -140,5 +203,15 @@ namespace AffärsLager.Controllers
                 throw new Exception($"Fel vid hämtning av bokning: {ex.Message}", ex);
             }
         }
+    }
+
+    public class BordMedStatus
+    {
+        public int BordID { get; set; }
+        public string Bordkod { get; set; } = string.Empty;
+        public int AntalPlatser { get; set; }
+        public bool ArLedigt { get; set; }
+        public bool ArLampligt { get; set; }
+        public TimeSpan? BokadTid { get; set; }
     }
 }

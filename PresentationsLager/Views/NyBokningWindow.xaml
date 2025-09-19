@@ -245,24 +245,62 @@
                     </Grid.RowDefinitions>
 
                     <!-- Tables Header -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                        <TextBlock Text="LEDIGA BORD"
-                                   FontFamily="Montserrat"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="#102c48"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding AntalLedigaBord, StringFormat=' ({0} lediga)'}"
-                                   FontFamily="Inter"
-                                   FontSize="14"
-                                   Foreground="#A3B18A"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0"/>
+                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="BORDÖVERSIKT"
+                                       FontFamily="Montserrat"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding AntalLedigaBord, StringFormat=' ({0} lediga)'}"
+                                       FontFamily="Inter"
+                                       FontSize="14"
+                                       Foreground="#A3B18A"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- Date and Time Info -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="📅 "
+                                       FontSize="14"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ValtDatum, StringFormat='{}{0:dddd, d MMMM yyyy}'}"
+                                       FontFamily="Inter"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#102c48"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,15,0"/>
+                            <TextBlock Text="🕐 "
+                                       FontSize="14"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ValdTid.DisplayText}"
+                                       FontFamily="Inter"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="#102c48"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Legend -->
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <Border Background="#A3B18A" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
+                                <TextBlock Text="Lämpligt" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            </Border>
+                            <Border Background="#F39C12" CornerRadius="2" Padding="4,2" Margin="0,0,8,0">
+                                <TextBlock Text="För litet" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            </Border>
+                            <Border Background="#E74C3C" CornerRadius="2" Padding="4,2">
+                                <TextBlock Text="Bokat" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Tables List as Cards -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding LedigaBord}">
+                        <ItemsControl ItemsSource="{Binding AllaBord}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal"/>
@@ -318,12 +356,22 @@
                                                     Padding="5,2"
                                                     HorizontalAlignment="Center"
                                                     Margin="0,2,0,0">
-                                                <TextBlock Text="{Binding StatusText}"
-                                                           FontFamily="Inter"
-                                                           FontSize="9"
-                                                           FontWeight="Bold"
-                                                           Foreground="White"
-                                                           HorizontalAlignment="Center"/>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding StatusText}"
+                                                               FontFamily="Inter"
+                                                               FontSize="9"
+                                                               FontWeight="Bold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding BokningsTidText}"
+                                                               FontFamily="Inter"
+                                                               FontSize="8"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               Visibility="{Binding BokningsTidText, Converter={x:Static conv:StringToVisibilityConverter.Instance}}"
+                                                               Margin="0,1,0,0"/>
+                                                </StackPanel>
                                             </Border>
                                         </StackPanel>
                                     </Border>

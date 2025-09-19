@@ -58,6 +58,15 @@ namespace DataLager
             await _context.SaveChangesAsync();
         }
 
+        public void RefreshContext()
+        {
+            // Tvinga EF Core att ladda om data från databasen
+            foreach (var entry in _context.ChangeTracker.Entries())
+            {
+                entry.Reload();
+            }
+        }
+
         private void Fill()
         {
             if (!KundRepository.IsEmpty())

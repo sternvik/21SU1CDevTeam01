@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels
@@ -53,7 +54,7 @@ namespace PresentationsLager.ViewModels
         private ObservableCollection<int> antalGasterOptions = new();
 
         [ObservableProperty]
-        private ObservableCollection<BordViewModel> ledigaBord = new();
+        private ObservableCollection<BordViewModel> allaBord = new();
 
         public Action? CloseAction { get; set; }
 
@@ -121,36 +122,75 @@ namespace PresentationsLager.ViewModels
             UpdateLedigaBord();
         }
 
-        private void UpdateLedigaBord()
+        private void UpdateLedigaBord(bool refreshFromDatabase = false)
         {
             try
             {
-                LedigaBord.Clear();
+                AllaBord.Clear();
                 AntalLedigaBord = 0;
 
                 if (!ValtDatum.HasValue || ValdTid == null || _inloggadAnvandare?.HemmarestaurangID == null)
                     return;
 
-                var ledigaBordLista = _bokningsController.HamtaLedigaBord(
+                // Tvinga uppdatering av databas-cache endast när det behövs
+                if (refreshFromDatabase)
+                {
+                    _unitOfWork.RefreshContext();
+                }
+
+                var bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
                     _inloggadAnvandare.HemmarestaurangID.Value,
                     ValtDatum.Value,
                     ValdTid.Tid,
                     ValtAntalGaster);
 
-                foreach (var bord in ledigaBordLista)
+                foreach (var bord in bordMedStatus)
                 {
-                    var isLampligt = bord.AntalPlatser >= ValtAntalGaster;
-                    LedigaBord.Add(new BordViewModel
+                    string statusText;
+                    string statusColor;
+                    string? bokningsTidText = null;
+
+                    if (!bord.ArLedigt)
+                    {
+                        // Visa vilken tid bordet är bokat för
+                        if (bord.BokadTid.HasValue)
+                        {
+                            var startTid = bord.BokadTid.Value;
+                            var slutTid = startTid.Add(TimeSpan.FromHours(2));
+                            statusText = "Bokat";
+                            bokningsTidText = $"{startTid:hh\\:mm}-{slutTid:hh\\:mm}";
+                        }
+                        else
+                        {
+                            statusText = "Bokat";
+                        }
+                        statusColor = "#E74C3C"; // Röd för bokade bord
+                    }
+                    else if (bord.ArLampligt)
+                    {
+                        statusText = "Lämpligt";
+                        statusColor = "#A3B18A"; // Grön för lämpliga bord
+                    }
+                    else
+                    {
+                        statusText = "För litet";
+                        statusColor = "#F39C12"; // Orange för för små bord
+                    }
+
+                    AllaBord.Add(new BordViewModel
                     {
                         BordID = bord.BordID,
                         Bordkod = bord.Bordkod,
                         AntalPlatser = bord.AntalPlatser,
-                        StatusText = isLampligt ? "Lämpligt" : "För litet",
-                        StatusColor = isLampligt ? "#A3B18A" : "#E74C3C"
+                        StatusText = statusText,
+                        StatusColor = statusColor,
+                        ArLedigt = bord.ArLedigt,
+                        ArLampligt = bord.ArLampligt,
+                        BokningsTidText = bokningsTidText
                     });
                 }
 
-                AntalLedigaBord = LedigaBord.Count;
+                AntalLedigaBord = AllaBord.Count(b => b.ArLedigt);
             }
             catch (Exception ex)
             {
@@ -186,8 +226,22 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
+                // Kontrollera att bordet är ledigt
+                if (!bordViewModel.ArLedigt)
+                {
+                    StatusMessage = "Detta bord är redan bokat för den valda tiden";
+                    return;
+                }
+
+                // Kontrollera att bordet är tillräckligt stort
+                if (!bordViewModel.ArLampligt)
+                {
+                    StatusMessage = $"Bordet har bara {bordViewModel.AntalPlatser} platser men {ValtAntalGaster} gäster ska placeras";
+                    return;
+                }
+
                 // Avmarkera alla andra bord
-                foreach (var bord in LedigaBord)
+                foreach (var bord in AllaBord)
                 {
                     bord.IsSelected = false;
                 }
@@ -195,7 +249,6 @@ namespace PresentationsLager.ViewModels
                 // Markera det valda bordet
                 bordViewModel.IsSelected = true;
                 ValtBord = bordViewModel;
-
                 StatusMessage = string.Empty;
             }
             catch (Exception ex)
@@ -260,26 +313,18 @@ namespace PresentationsLager.ViewModels
 
                 if (skapad)
                 {
-                    var result = MessageBox.Show(
-                        $"Bokning skapad framgångsrikt!\n\n" +
-                        $"Kund: {ValdKund.Namn}\n" +
-                        $"Datum: {ValtDatum:yyyy-MM-dd}\n" +
-                        $"Tid: {ValdTid.DisplayText}\n" +
-                        $"Bord: {ValtBord.Bordkod} ({ValtBord.AntalPlatser} platser)\n" +
-                        $"Antal gäster: {ValtAntalGaster}\n\n" +
-                        "Vill du skapa en ny bokning?",
-                        "Bokning skapad",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Information);
+                    // Uppdatera bordvyn direkt för att visa den nya bokningen
+                    UpdateLedigaBord(refreshFromDatabase: true);
 
-                    if (result == MessageBoxResult.Yes)
+                    // Rensa bara bord och specialinformation, behåll kund
+                    ValtBord = null;
+                    Specialinformation = string.Empty;
+                    StatusMessage = string.Empty;
+
+                    // Avmarkera alla bord
+                    foreach (var bord in AllaBord)
                     {
-                        // Rensa formuläret för ny bokning
-                        RensaFormular();
-                    }
-                    else
-                    {
-                        CloseAction?.Invoke();
+                        bord.IsSelected = false;
                     }
                 }
             }
@@ -299,6 +344,12 @@ namespace PresentationsLager.ViewModels
             ValtBord = null;
             Specialinformation = string.Empty;
             StatusMessage = string.Empty;
+
+            // Rensa bordmarkeringar
+            foreach (var bord in AllaBord)
+            {
+                bord.IsSelected = false;
+            }
         }
 
         [RelayCommand]
@@ -325,7 +376,10 @@ namespace PresentationsLager.ViewModels
         public string Bordkod { get; set; } = string.Empty;
         public int AntalPlatser { get; set; }
         public string StatusText { get; set; } = string.Empty;
-        public string StatusColor { get; set; } = "#A3B18A"; // Green for available
+        public string StatusColor { get; set; } = "#A3B18A";
+        public bool ArLedigt { get; set; } = true;
+        public bool ArLampligt { get; set; } = true;
+        public string? BokningsTidText { get; set; }
 
         [ObservableProperty]
         private bool isSelected = false;
