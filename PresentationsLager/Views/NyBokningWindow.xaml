@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
         mc:Ignorable="d"
         Title="RestoNation - Ny Bokning"
         WindowState="Maximized"
@@ -259,33 +260,77 @@
                                    Margin="10,0,0,0"/>
                     </StackPanel>
 
-                    <!-- Tables List -->
-                    <DataGrid Grid.Row="1"
-                              ItemsSource="{Binding LedigaBord}"
-                              SelectedItem="{Binding ValtBord}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              CanUserResizeRows="False"
-                              GridLinesVisibility="Horizontal"
-                              HeadersVisibility="Column"
-                              FontFamily="Inter"
-                              FontSize="12">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Bordkod"
-                                                Binding="{Binding Bordkod}"
-                                                Width="120"
-                                                IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Antal platser"
-                                                Binding="{Binding AntalPlatser}"
-                                                Width="100"
-                                                IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Status"
-                                                Binding="{Binding StatusText}"
-                                                Width="*"
-                                                IsReadOnly="True"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <!-- Tables List as Cards -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding LedigaBord}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="White"
+                                            BorderBrush="{Binding IsSelected, Converter={x:Static conv:BoolToBrushConverter.Instance}}"
+                                            BorderThickness="3"
+                                            CornerRadius="10"
+                                            Margin="8"
+                                            MinWidth="140"
+                                            Height="120"
+                                            Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick"
+                                                          Command="{Binding DataContext.ValjBordCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="3" Opacity="0.3"/>
+                                        </Border.Effect>
+
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <!-- Table Icon -->
+                                            <TextBlock Text="🪑"
+                                                       FontSize="24"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,5,0,5"/>
+
+                                            <!-- Table Code -->
+                                            <TextBlock Text="{Binding Bordkod}"
+                                                       FontFamily="Inter"
+                                                       FontSize="12"
+                                                       FontWeight="Bold"
+                                                       Foreground="#102c48"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,0,0,2"/>
+
+                                            <!-- Capacity -->
+                                            <TextBlock Text="{Binding AntalPlatser, StringFormat={}{0} platser}"
+                                                       FontFamily="Inter"
+                                                       FontSize="10"
+                                                       Foreground="#666"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,0,0,2"/>
+
+                                            <!-- Status -->
+                                            <Border Background="{Binding StatusColor}"
+                                                    CornerRadius="3"
+                                                    Padding="5,2"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,2,0,0">
+                                                <TextBlock Text="{Binding StatusText}"
+                                                           FontFamily="Inter"
+                                                           FontSize="9"
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>

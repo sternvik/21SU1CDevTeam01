@@ -35,7 +35,7 @@ namespace PresentationsLager.ViewModels
         private string valdKundText = "Ingen kund vald";
 
         [ObservableProperty]
-        private Bord? valtBord;
+        private BordViewModel? valtBord;
 
         [ObservableProperty]
         private string specialinformation = string.Empty;
@@ -139,12 +139,14 @@ namespace PresentationsLager.ViewModels
 
                 foreach (var bord in ledigaBordLista)
                 {
+                    var isLampligt = bord.AntalPlatser >= ValtAntalGaster;
                     LedigaBord.Add(new BordViewModel
                     {
                         BordID = bord.BordID,
                         Bordkod = bord.Bordkod,
                         AntalPlatser = bord.AntalPlatser,
-                        StatusText = bord.AntalPlatser >= ValtAntalGaster ? "Lämpligt" : "För litet"
+                        StatusText = isLampligt ? "Lämpligt" : "För litet",
+                        StatusColor = isLampligt ? "#A3B18A" : "#E74C3C"
                     });
                 }
 
@@ -176,6 +178,29 @@ namespace PresentationsLager.ViewModels
             catch (Exception ex)
             {
                 StatusMessage = $"Fel vid öppning av kundsökning: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private void ValjBord(BordViewModel bordViewModel)
+        {
+            try
+            {
+                // Avmarkera alla andra bord
+                foreach (var bord in LedigaBord)
+                {
+                    bord.IsSelected = false;
+                }
+
+                // Markera det valda bordet
+                bordViewModel.IsSelected = true;
+                ValtBord = bordViewModel;
+
+                StatusMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid val av bord: {ex.Message}";
             }
         }
 
@@ -294,11 +319,15 @@ namespace PresentationsLager.ViewModels
         public string DisplayText { get; set; } = string.Empty;
     }
 
-    public class BordViewModel
+    public partial class BordViewModel : ObservableObject
     {
         public int BordID { get; set; }
         public string Bordkod { get; set; } = string.Empty;
         public int AntalPlatser { get; set; }
         public string StatusText { get; set; } = string.Empty;
+        public string StatusColor { get; set; } = "#A3B18A"; // Green for available
+
+        [ObservableProperty]
+        private bool isSelected = false;
     }
 }
