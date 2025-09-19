@@ -66,9 +66,17 @@ namespace PresentationsLager.ViewModels
             InitializeData();
         }
 
-        public void Initialize(Anvandare anvandare)
+        public void Initialize(Anvandare anvandare, Kund? forvaldKund = null)
         {
             _inloggadAnvandare = anvandare;
+
+            // Sätt förvald kund om en angavs
+            if (forvaldKund != null)
+            {
+                ValdKund = forvaldKund;
+                ValdKundText = $"{forvaldKund.Namn} - {forvaldKund.Telefon}";
+            }
+
             UpdateLedigaBord();
         }
 

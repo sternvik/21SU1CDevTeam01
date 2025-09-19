@@ -25,6 +25,9 @@ namespace PresentationsLager.ViewModels
         [ObservableProperty]
         private int bestallningarIdag = 0;
 
+        // Håll koll på senast valda kund för enklare arbetsflöde
+        public Kund? SenastValdaKund { get; set; }
+
         public Action? CloseAction { get; set; }
 
         public ServitorMainWindowViewModel()
@@ -52,8 +55,14 @@ namespace PresentationsLager.ViewModels
             {
                 if (InloggadAnvandare != null)
                 {
-                    var nyBokningWindow = new NyBokningWindow(InloggadAnvandare);
-                    nyBokningWindow.ShowDialog();
+                    var nyBokningWindow = new NyBokningWindow(InloggadAnvandare, SenastValdaKund);
+                    var result = nyBokningWindow.ShowDialog();
+
+                    // Uppdatera senast valda kund om en ny kund valdes i bokningsfönstret
+                    if (nyBokningWindow.DataContext is NyBokningWindowViewModel viewModel && viewModel.ValdKund != null)
+                    {
+                        SenastValdaKund = viewModel.ValdKund;
+                    }
                 }
                 else
                 {
@@ -81,7 +90,13 @@ namespace PresentationsLager.ViewModels
             try
             {
                 var kundSearchWindow = new KundSearchWindow();
-                kundSearchWindow.ShowDialog();
+                var result = kundSearchWindow.ShowDialog();
+
+                // Spara vald kund för senare användning
+                if (kundSearchWindow.DataContext is KundSearchWindowViewModel viewModel && viewModel.ValdKund != null)
+                {
+                    SenastValdaKund = viewModel.ValdKund;
+                }
             }
             catch (Exception ex)
             {
