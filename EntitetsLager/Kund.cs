@@ -12,12 +12,11 @@ namespace EntitetsLager
         [StringLength(100)]
         public string Namn { get; set; }
 
-        [Required]
         [StringLength(100)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [StringLength(20)]
-        public string Telefon { get; set; }
+        public string? Telefon { get; set; }
 
         public int? RegionID { get; set; }
 

@@ -1,0 +1,253 @@
+<Window x:Class="PresentationsLager.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        mc:Ignorable="d"
+        Title="RestoNation - Restauranghanteringssystem"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:LoginWindowViewModel/>
+    </Window.DataContext>
+
+    <!-- Fullscreen gradient background -->
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main login panel -->
+        <Border Grid.Column="1" Grid.Row="1"
+                Background="White"
+                CornerRadius="15"
+                BorderBrush="#102c48"
+                BorderThickness="2">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Direction="315" ShadowDepth="10" Opacity="0.3"/>
+            </Border.Effect>
+
+            <Grid Margin="50">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header Section -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,30">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="36"
+                               FontWeight="Bold"
+                               Foreground="#102c48"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,8"/>
+
+                    <TextBlock Text="RESTAURANGHANTERINGSSYSTEM"
+                               FontFamily="Inter"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#A3B18A"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
+
+                    <Rectangle Height="2"
+                               Fill="#F4B942"
+                               Width="150"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Logga in för att komma åt ditt restaurangsystem"
+                               FontFamily="Inter"
+                               FontSize="14"
+                               Foreground="#2E2E2E"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,0"/>
+                </StackPanel>
+
+                <!-- Login Form -->
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" MaxWidth="400">
+
+                    <!-- Username Field -->
+                    <TextBlock Text="ANVÄNDARNAMN"
+                               FontFamily="Inter"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="#102c48"
+                               Margin="0,20,0,5"/>
+                    <TextBox Text="{Binding Anvandarnamn, UpdateSourceTrigger=PropertyChanged}"
+                             Height="35"
+                             FontFamily="Inter"
+                             FontSize="14"
+                             Padding="12,8"
+                             BorderBrush="#102c48"
+                             BorderThickness="1"
+                             Background="White"
+                             Margin="0,0,0,15"/>
+
+                    <!-- Password Field -->
+                    <TextBlock Text="LÖSENORD"
+                               FontFamily="Inter"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="#102c48"
+                               Margin="0,0,0,5"/>
+                    <PasswordBox x:Name="PasswordBox"
+                                Height="35"
+                                FontFamily="Inter"
+                                FontSize="14"
+                                BorderBrush="#102c48"
+                                BorderThickness="1"
+                                Background="White"
+                                PasswordChanged="PasswordBox_PasswordChanged"
+                                Margin="0,0,0,20"/>
+
+                    <!-- Login Button -->
+                    <Button Content="LOGGA IN"
+                            Command="{Binding LoggaInCommand}"
+                            Height="45"
+                            FontFamily="Montserrat"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,0,10">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E6A83A"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#D9971F"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Exit Button -->
+                    <Button Content="AVSLUTA"
+                            Command="{Binding AvslutaCommand}"
+                            Height="35"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Background="#2E2E2E"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#404040"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Status message -->
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontFamily="Inter"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="Red"
+                               HorizontalAlignment="Center"
+                               Margin="0,10,0,10"/>
+
+                    <!-- Test help -->
+                    <Button Content="Visa testanvändare för utveckling"
+                            Command="{Binding VisaTestAnvandareCommand}"
+                            Height="25"
+                            FontFamily="Inter"
+                            FontSize="10"
+                            Background="Transparent"
+                            Foreground="#A3B18A"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Footer -->
+        <TextBlock Grid.Column="1" Grid.Row="2"
+                   Text="© 2024 RestoNation AB - Svensk restaurangkedja med fokus på hållbara och lokalt producerade råvaror"
+                   FontFamily="Inter"
+                   FontSize="12"
+                   Foreground="#102c48"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,30"/>
+
+        <!-- Top info bar -->
+        <Border Grid.ColumnSpan="3" Grid.Row="0"
+                Background="#102c48"
+                Height="60"
+                VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="RestoNation AB - 18 restauranger i 4 regioner"
+                           FontFamily="Inter"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           Margin="0,0,30,0"/>
+                <TextBlock Text="•"
+                           FontSize="16"
+                           Foreground="#F4B942"
+                           Margin="0,0,30,0"/>
+                <TextBlock Text="Klassisk svensk husmanskost med moderna influenser"
+                           FontFamily="Inter"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="White"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

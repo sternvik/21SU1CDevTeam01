@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLager
 {
-    public class UnitOfWork
+    public class UnitOfWork : IDisposable
     {
         private readonly ApplikationDbContext _context;
         public Repository<Kund> KundRepository { get; set; }
@@ -186,6 +186,11 @@ namespace DataLager
             });
 
             Save();
+        }
+
+        public void Dispose()
+        {
+            _context?.Dispose();
         }
     }
 }

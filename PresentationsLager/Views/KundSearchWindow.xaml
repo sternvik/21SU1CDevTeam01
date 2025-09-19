@@ -1,0 +1,422 @@
+<Window x:Class="PresentationsLager.Views.KundSearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
+        mc:Ignorable="d"
+        Title="RestoNation - Kunder"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:KundSearchWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="KUNDER"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="TILLBAKA"
+                            Command="{Binding TillbakaCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel - Search and Create -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1"
+                    Margin="0,0,20,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="30">
+                        <!-- Search Section -->
+                        <TextBlock Text="SÖK KUND"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Search by phone -->
+                        <TextBlock Text="Telefonnummer:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SokTelefon, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,15"/>
+
+                        <!-- Search by name -->
+                        <TextBlock Text="Namn:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SokNamn, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,15"/>
+
+                        <!-- Search by email -->
+                        <TextBlock Text="E-post:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SokEmail, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,20"/>
+
+                        <Button Content="SÖK"
+                                Command="{Binding SokKundCommand}"
+                                Height="45"
+                                FontFamily="Montserrat"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Background="#F4B942"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Margin="0,0,0,30"/>
+
+                        <!-- Separator -->
+                        <Rectangle Height="2"
+                                   Fill="#A3B18A"
+                                   Margin="0,0,0,30"/>
+
+                        <!-- Create New Customer Section -->
+                        <TextBlock Text="SKAPA NY KUND"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Name -->
+                        <TextBlock Text="Namn: *"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding NyKundNamn, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,15"/>
+
+                        <!-- Phone -->
+                        <TextBlock Text="Telefonnummer: *"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding NyKundTelefon, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,15"/>
+
+                        <!-- Email -->
+                        <TextBlock Text="E-post:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding NyKundEmail, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="35"
+                                 FontSize="14"
+                                 Padding="10,8"
+                                 BorderBrush="#102c48"
+                                 BorderThickness="1"
+                                 Margin="0,0,0,15"/>
+
+                        <!-- Region -->
+                        <TextBlock Text="Region:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Regioner}"
+                                  SelectedItem="{Binding ValdRegion}"
+                                  DisplayMemberPath="Regionnamn"
+                                  Height="35"
+                                  FontSize="14"
+                                  Padding="10,8"
+                                  BorderBrush="#102c48"
+                                  BorderThickness="1"
+                                  Margin="0,0,0,15"/>
+
+                        <!-- Home Restaurant -->
+                        <TextBlock Text="Hemmarestaurang:"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}"
+                                  SelectedItem="{Binding ValdRestaurang}"
+                                  DisplayMemberPath="Restaurangnamn"
+                                  Height="35"
+                                  FontSize="14"
+                                  Padding="10,8"
+                                  BorderBrush="#102c48"
+                                  BorderThickness="1"
+                                  Margin="0,0,0,20"/>
+
+                        <Button Content="SKAPA KUND"
+                                Command="{Binding SkapaKundCommand}"
+                                Height="45"
+                                FontFamily="Montserrat"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Background="#A3B18A"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+
+                        <!-- Status message -->
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontFamily="Inter"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   Foreground="Red"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,15,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel - Search Results -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Results Header -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                        <TextBlock Text="SÖKRESULTAT"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding AntalHittadeKunder, StringFormat=' ({0} träffar)'}"
+                                   FontFamily="Inter"
+                                   FontSize="14"
+                                   Foreground="#A3B18A"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Customer List -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding HittadeKunder}"
+                              SelectedItem="{Binding ValdKund}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserResizeRows="False"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              FontFamily="Inter"
+                              FontSize="12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Namn"
+                                                Binding="{Binding Namn}"
+                                                Width="*"
+                                                IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Telefon"
+                                                Binding="{Binding Telefon}"
+                                                Width="120"
+                                                IsReadOnly="True"/>
+                            <DataGridTextColumn Header="E-post"
+                                                Binding="{Binding Email}"
+                                                Width="180"
+                                                IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Lojalitetspoäng"
+                                                Binding="{Binding LojalitetsPoang}"
+                                                Width="100"
+                                                IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Nivå"
+                                                Binding="{Binding LojalitetsNiva}"
+                                                Width="80"
+                                                IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Customer Details -->
+                    <Border Grid.Row="2"
+                            Background="#F7F4EF"
+                            BorderBrush="#A3B18A"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Margin="0,20,0,0"
+                            Visibility="{Binding ValdKund, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
+
+                        <StackPanel Margin="20">
+                            <TextBlock Text="KUNDDETALJER"
+                                       FontFamily="Montserrat"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding ValdKund.Namn, StringFormat='Namn: {0}'}"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding ValdKund.Telefon, StringFormat='Telefon: {0}'}"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding ValdKund.Email, StringFormat='E-post: {0}'}"
+                                               FontFamily="Inter"
+                                               FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding ValdKund.LojalitetsPoang, StringFormat='Lojalitetspoäng: {0}'}"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="#F4B942"
+                                               Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding ValdKund.LojalitetsNiva, StringFormat='Nivå: {0}'}"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="#F4B942"
+                                               Margin="0,0,0,10"/>
+                                    <Button Content="VÄLJ KUND"
+                                            Command="{Binding ValjKundCommand}"
+                                            Height="30"
+                                            FontFamily="Inter"
+                                            FontSize="11"
+                                            FontWeight="Bold"
+                                            Background="#F4B942"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            Cursor="Hand"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <TextBlock Text="Kundsökning - Sök befintliga kunder eller skapa nya"
+                       FontFamily="Inter"
+                       FontSize="12"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window>

@@ -13,7 +13,12 @@
       "Bash(dotnet run:*)",
       "Bash(dotnet build)",
       "Bash(dir \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\EntitetsLager\")",
-      "Bash(dir \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\AffärsLager\\Controllers\")"
+      "Bash(dir \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\AffärsLager\\Controllers\")",
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet new:*)",
+      "Bash(sqlcmd:*)"
     ],
     "deny": [],
     "ask": []

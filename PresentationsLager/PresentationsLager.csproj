@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DataLager\DataLager.csproj" />
     <ProjectReference Include="..\EntitetsLager\EntitetsLager.csproj" />
+    <ProjectReference Include="..\AffärsLager\AffärsLager.csproj" />
   </ItemGroup>
 
 </Project>
