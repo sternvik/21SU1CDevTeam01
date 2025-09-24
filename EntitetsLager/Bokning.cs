@@ -28,7 +28,7 @@ namespace EntitetsLager
         public int AntalGaster { get; set; }
 
         [StringLength(500)]
-        public string Specialinformation { get; set; }
+        public string? Specialinformation { get; set; }
 
         [StringLength(20)]
         public string BokningsTyp { get; set; } // Telefon, Online, På plats
@@ -43,6 +43,6 @@ namespace EntitetsLager
         public virtual Restaurang Restaurang { get; set; }
         public virtual Anvandare Anvandare { get; set; }
 
-        public virtual ICollection<Bestallning> Bestallningar { get; set; }
+        public virtual ICollection<Bestallning> Bestallningar { get; set; } = new List<Bestallning>();
     }
 }

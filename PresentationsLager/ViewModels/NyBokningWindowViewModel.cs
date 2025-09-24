@@ -132,17 +132,30 @@ namespace PresentationsLager.ViewModels
                 if (!ValtDatum.HasValue || ValdTid == null || _inloggadAnvandare?.HemmarestaurangID == null)
                     return;
 
+                IEnumerable<BordMedStatus> bordMedStatus;
+
                 // Tvinga uppdatering av databas-cache endast när det behövs
                 if (refreshFromDatabase)
                 {
-                    _unitOfWork.RefreshContext();
+                    // Skapa en helt ny UnitOfWork för att säkerställa färska data från databasen
+                    using (var freshUnitOfWork = new UnitOfWork())
+                    {
+                        var freshBokningsController = new BokningsController(freshUnitOfWork);
+                        bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
+                            _inloggadAnvandare.HemmarestaurangID.Value,
+                            ValtDatum.Value,
+                            ValdTid.Tid,
+                            ValtAntalGaster);
+                    }
                 }
-
-                var bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
-                    _inloggadAnvandare.HemmarestaurangID.Value,
-                    ValtDatum.Value,
-                    ValdTid.Tid,
-                    ValtAntalGaster);
+                else
+                {
+                    bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
+                        _inloggadAnvandare.HemmarestaurangID.Value,
+                        ValtDatum.Value,
+                        ValdTid.Tid,
+                        ValtAntalGaster);
+                }
 
                 foreach (var bord in bordMedStatus)
                 {

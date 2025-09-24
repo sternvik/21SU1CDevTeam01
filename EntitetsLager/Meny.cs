@@ -25,7 +25,7 @@ namespace EntitetsLager
 
         public bool Aktiv { get; set; } = true;
 
-        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; }
-        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; }
+        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; } = new List<RestaurangMeny>();
+        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; } = new List<BestallningsRad>();
     }
 }

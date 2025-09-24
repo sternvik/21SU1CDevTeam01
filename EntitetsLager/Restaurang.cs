@@ -26,10 +26,10 @@ namespace EntitetsLager
 
         public virtual Region Region { get; set; }
 
-        public virtual ICollection<Bord> Bord { get; set; }
-        public virtual ICollection<Bokning> Bokningar { get; set; }
-        public virtual ICollection<Bestallning> Bestallningar { get; set; }
-        public virtual ICollection<Anvandare> Anvandare { get; set; }
-        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; }
+        public virtual ICollection<Bord> Bord { get; set; } = new List<Bord>();
+        public virtual ICollection<Bokning> Bokningar { get; set; } = new List<Bokning>();
+        public virtual ICollection<Bestallning> Bestallningar { get; set; } = new List<Bestallning>();
+        public virtual ICollection<Anvandare> Anvandare { get; set; } = new List<Anvandare>();
+        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; } = new List<RestaurangMeny>();
     }
 }

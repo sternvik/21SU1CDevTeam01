@@ -44,7 +44,7 @@ namespace EntitetsLager
         public virtual Restaurang Restaurang { get; set; }
         public virtual Anvandare AnvandareBeh { get; set; }
 
-        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; }
-        public virtual ICollection<Transaktion> Transaktioner { get; set; }
+        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; } = new List<BestallningsRad>();
+        public virtual ICollection<Transaktion> Transaktioner { get; set; } = new List<Transaktion>();
     }
 }

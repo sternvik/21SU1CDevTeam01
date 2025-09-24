@@ -33,50 +33,50 @@ namespace DataLager
             // Bokning relationships
             modelBuilder.Entity<Bokning>()
                 .HasOne(b => b.Restaurang)
-                .WithMany()
+                .WithMany(r => r.Bokningar)
                 .HasForeignKey(b => b.RestaurangID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bokning>()
                 .HasOne(b => b.Kund)
-                .WithMany()
+                .WithMany(k => k.Bokningar)
                 .HasForeignKey(b => b.KundID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bokning>()
                 .HasOne(b => b.Bord)
-                .WithMany()
+                .WithMany(bord => bord.Bokningar)
                 .HasForeignKey(b => b.BordID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bokning>()
                 .HasOne(b => b.Anvandare)
-                .WithMany()
+                .WithMany(a => a.Bokningar)
                 .HasForeignKey(b => b.AnvandarID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             // Bestallning relationships
             modelBuilder.Entity<Bestallning>()
                 .HasOne(b => b.Restaurang)
-                .WithMany()
+                .WithMany(r => r.Bestallningar)
                 .HasForeignKey(b => b.RestaurangID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bestallning>()
                 .HasOne(b => b.Kund)
-                .WithMany()
+                .WithMany(k => k.Bestallningar)
                 .HasForeignKey(b => b.KundID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bestallning>()
                 .HasOne(b => b.AnvandareBeh)
-                .WithMany()
+                .WithMany(a => a.Bestallningar)
                 .HasForeignKey(b => b.AnvandarID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Bestallning>()
                 .HasOne(b => b.Bokning)
-                .WithMany()
+                .WithMany(bok => bok.Bestallningar)
                 .HasForeignKey(b => b.BokningsID)
                 .OnDelete(DeleteBehavior.NoAction);
 
@@ -95,44 +95,44 @@ namespace DataLager
 
             modelBuilder.Entity<Transaktion>()
                 .HasOne(t => t.Bestallning)
-                .WithMany()
+                .WithMany(b => b.Transaktioner)
                 .HasForeignKey(t => t.BestallningsID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             // Other relationships
             modelBuilder.Entity<Bord>()
                 .HasOne(b => b.Restaurang)
-                .WithMany()
+                .WithMany(r => r.Bord)
                 .HasForeignKey(b => b.RestaurangID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<RestaurangMeny>()
                 .HasOne(rm => rm.Restaurang)
-                .WithMany()
+                .WithMany(r => r.RestaurangMenyer)
                 .HasForeignKey(rm => rm.RestaurangID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<RestaurangMeny>()
                 .HasOne(rm => rm.Meny)
-                .WithMany()
+                .WithMany(m => m.RestaurangMenyer)
                 .HasForeignKey(rm => rm.MenyID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<BestallningsRad>()
                 .HasOne(br => br.Bestallning)
-                .WithMany()
+                .WithMany(b => b.BestallningsRader)
                 .HasForeignKey(br => br.BestallningsID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<BestallningsRad>()
                 .HasOne(br => br.Meny)
-                .WithMany()
+                .WithMany(m => m.BestallningsRader)
                 .HasForeignKey(br => br.MenyID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<LojalitetsTransaktion>()
                 .HasOne(lt => lt.Kund)
-                .WithMany()
+                .WithMany(k => k.LojalitetsTransaktioner)
                 .HasForeignKey(lt => lt.KundID)
                 .OnDelete(DeleteBehavior.NoAction);
 
@@ -144,8 +144,34 @@ namespace DataLager
 
             modelBuilder.Entity<Systemlogg>()
                 .HasOne(s => s.Anvandare)
-                .WithMany()
+                .WithMany(a => a.Systemloggar)
                 .HasForeignKey(s => s.AnvandarID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Lägg till Region-relationer
+            modelBuilder.Entity<Restaurang>()
+                .HasOne(r => r.Region)
+                .WithMany(reg => reg.Restauranger)
+                .HasForeignKey(r => r.RegionID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Kund>()
+                .HasOne(k => k.Region)
+                .WithMany(reg => reg.Kunder)
+                .HasForeignKey(k => k.RegionID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Lägg till Anvandare-relationer
+            modelBuilder.Entity<Anvandare>()
+                .HasOne(a => a.Hemmarestaurang)
+                .WithMany(r => r.Anvandare)
+                .HasForeignKey(a => a.HemmarestaurangID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Kund>()
+                .HasOne(k => k.Hemmarestaurang)
+                .WithMany()
+                .HasForeignKey(k => k.HemmarestaurangID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             base.OnModelCreating(modelBuilder);

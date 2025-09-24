@@ -22,6 +22,6 @@ namespace EntitetsLager
 
         public virtual Restaurang Restaurang { get; set; }
 
-        public virtual ICollection<Bokning> Bokningar { get; set; }
+        public virtual ICollection<Bokning> Bokningar { get; set; } = new List<Bokning>();
     }
 }
