@@ -42,5 +42,7 @@ namespace EntitetsLager
         public virtual Bord Bord { get; set; }
         public virtual Restaurang Restaurang { get; set; }
         public virtual Anvandare Anvandare { get; set; }
+
+        public virtual ICollection<Bestallning> Bestallningar { get; set; }
     }
 }

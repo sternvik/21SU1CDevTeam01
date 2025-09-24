@@ -1,0 +1,37 @@
+﻿<Window x:Class="Presentationslager.MedlemshanteringWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="MedlemshanteringWindow" Height="450" Width="800"
+        Background="#6AB">
+
+    <Window.DataContext>
+        <vm:MedlemshanteringViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <TextBlock Text="Medlemshantering" Margin="0,-150,0,0" VerticalAlignment="Center" 
+                   HorizontalAlignment="Center" FontSize="24" FontWeight="Bold"/>
+
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,60,0,0">
+            <Button Content="Lägg till medlem" Height="25" Width="200" Margin="0,10,0,0" 
+                    Command="{Binding ÖppnaLäggTillMedlemCommand}"/>
+
+            <Button Content="Uppdatera medlem" Height="25" Width="200" Margin="0,10,0,0" 
+                    Command="{Binding ÖppnaUppdateraMedlemCommand}"/>
+
+            <Button Content="Ta bort medlem" Height="25" Width="200" Margin="0,10,0,0" 
+                    Command="{Binding ÖppnaTaBortMedlemCommand}"/>
+
+            <Button Content="Visa medlemskapets status" Height="25" Width="200" Margin="0,10,0,0" 
+                    Command="{Binding ÖppnaVisaMedlemStatusCommand}"/>
+
+            <Button Content="Tillbaka" Height="25" Width="200" Margin="0,10,0,0" 
+                    Command="{Binding TillbakaCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

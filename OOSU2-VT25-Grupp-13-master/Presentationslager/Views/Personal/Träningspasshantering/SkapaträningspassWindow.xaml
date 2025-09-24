@@ -1,0 +1,95 @@
+﻿<Window x:Class="Presentationslager.Personal.Träningspasshantering.SkapaträningspassWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="SkapaträningspassWindow" Height="450" Width="800"
+        Background="#6ab">
+
+    <Window.DataContext>
+        <vm:SkapaTräningspassViewModel/>
+    </Window.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titel -->
+        <TextBlock Text="Skapa Träningspass" FontSize="25" FontWeight="Bold"
+                   HorizontalAlignment="Center" Margin="0,10,0,10"/>
+
+        <!-- Huvudlayout -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Vänster sida: Tränarval -->
+            <StackPanel Grid.Column="0" Margin="10">
+                <TextBlock Text="Specialiseringsfilter:" FontWeight="Bold"/>
+                <ComboBox ItemsSource="{Binding Specialiseringar}" 
+                          SelectedItem="{Binding ValdSpecialisering, Mode=TwoWay}" Height="25"/>
+
+
+                <TextBlock Text="Tillgängliga tränare:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <DataGrid ItemsSource="{Binding TränareLista}" 
+                          SelectedItem="{Binding ValdTränare, Mode=TwoWay}" Height="200"/>
+            </StackPanel>
+
+            <!-- Höger sida: Träningspassinformation -->
+            <StackPanel Grid.Column="1" Margin="10">
+                <TextBlock Text="Träningspass information" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Tränare:" Grid.Row="0" Grid.Column="0"/>
+                    <TextBox Text="{Binding ValdTränare.Namn, Mode=OneWay}" IsReadOnly="True" Height="25" Grid.Row="0" Grid.Column="1"/>
+
+                    <TextBlock Text="Aktivitet:" Grid.Row="1" Grid.Column="0"/>
+                    <TextBox Text="{Binding ValdTränare.Specialisering, Mode=OneWay}" IsReadOnly="True" Height="25" Grid.Row="1" Grid.Column="1"/>
+
+                    <TextBlock Text="Plats:" FontWeight="Bold"  Grid.Row="2" Grid.Column="0"/>
+                    <ComboBox ItemsSource="{Binding Platser}" SelectedItem="{Binding TräningspassM.Plats, Mode=TwoWay}" Grid.Row="2" Grid.Column="1"/>
+
+                    <TextBlock Text="Starttid:" FontWeight="Bold" Grid.Row="3" Grid.Column="0"/>
+                    <ComboBox ItemsSource="{Binding Tider}" SelectedItem="{Binding TräningspassM.Tid, Mode=TwoWay}" Grid.Row="3" Grid.Column="1"/>
+
+                    <TextBlock Text="Datum:" FontWeight="Bold" Grid.Row="4" Grid.Column="0"/>
+                    <DatePicker SelectedDate="{Binding TräningspassM.Datum, Mode=TwoWay}" Grid.Row="4" Grid.Column="1"/>
+
+                    <TextBlock Text="Max antal deltagare:" FontWeight="Bold" Grid.Row="5" Grid.Column="0"/>
+                    <TextBox IsReadOnly="True" Text="{Binding TräningspassM.MaxDeltagare, Mode=OneWay}" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,0,0,85" Grid.RowSpan="2" Width="291" />
+
+                    <TextBlock Text="Beskrivning:" FontWeight="Bold" Grid.Row="6" Grid.Column="0" Margin="0,5,0,0"/>
+                    <TextBox Text="{Binding TräningspassM.Beskrivning, UpdateSourceTrigger=PropertyChanged}" Grid.Row="6" Grid.Column="1" Height="80" Margin="0,5,0,0"/>
+                    
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <!-- Knappar -->
+        <UniformGrid Grid.Row="2" Columns="2" HorizontalAlignment="Center">
+            <Button Content="Spara" Command="{Binding SparaTräningspassCommand}" Width="200" Height="25" Margin="0,0,50,0"/>
+            <Button Content="Tillbaka" Command="{Binding TillbakaCommand}"/>
+        </UniformGrid>
+    </Grid>
+</Window>

@@ -24,5 +24,8 @@ namespace EntitetsLager
         public bool ArGrundmeny { get; set; } = true;
 
         public bool Aktiv { get; set; } = true;
+
+        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; }
+        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; }
     }
 }

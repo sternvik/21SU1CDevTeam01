@@ -1,0 +1,68 @@
+﻿<Window x:Class="Presentationslager.Personal.Träningspasshantering.HanteradeltagareWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager.Personal.Träningspasshantering"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="HanteradeltagareWindow" Height="450" Width="800"
+        Background="#6ab">
+    
+    <Window.DataContext>
+        <vm:HanteradeltagareViewModel/>
+    </Window.DataContext>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titel -->
+        <TextBlock Text="Hantera deltagare" FontSize="25" FontWeight="Bold" 
+                   HorizontalAlignment="Center" Margin="0,10,0,10"/>
+
+        <!-- Huvudlayout -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Vänster sida: Aktivitetsfilter och träningspass -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Aktivitetsfilter:" FontWeight="Bold"/>
+                <ComboBox Height="25" ItemsSource="{Binding Specialiseringar}" SelectedItem="{Binding ValdSpecialisering, Mode=TwoWay}"/>
+
+                <TextBlock Text="Tillgängliga träningspass:" FontWeight="Bold" Margin="0,10,0,0"/>
+                <DataGrid Height="200" ItemsSource="{Binding TräningspassLista}" SelectedItem="{Binding ValdTräningspass, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <!-- Höger sida: Deltagarehantering -->
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Nuvarande Deltagare" FontWeight="Bold" 
+                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                <ListBox ItemsSource="{Binding Deltagare}" SelectedItem="{Binding ValdDeltagare}"
+                 DisplayMemberPath="Namn" Height="150" Width="300"/>
+
+                <Button Content="Ta bort vald deltagare" Command="{Binding TaBortDeltagareCommand}" Height="25" Width="200" 
+                        HorizontalAlignment="Center" Margin="0,10,0,0"/>
+
+                <TextBlock Text="Lägg till ny deltagare" FontWeight="Bold" 
+                           HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                <ComboBox ItemsSource="{Binding TillgängligaMedlemmar}" DisplayMemberPath="Namn"
+                 Width="300" Height="25" SelectedItem="{Binding ValdMedlem, Mode=TwoWay}"/>
+
+                <Button Content="Lägg till Deltagare" Command="{Binding LäggTillDeltagareCommand}" Height="25" Width="200" 
+                        HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Tillbaka-knapp -->
+        <Button Name="TillbakaButton" Content="Tillbaka" Command="{Binding TillbakaCommand}"  
+                Height="25" Width="200" HorizontalAlignment="Center" 
+                Grid.Row="2"/>
+    </Grid>
+</Window>

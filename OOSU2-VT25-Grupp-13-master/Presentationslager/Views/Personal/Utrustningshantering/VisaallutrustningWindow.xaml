@@ -1,0 +1,30 @@
+﻿<Window x:Class="Presentationslager.Personal.Utrustningshantering.VisaallutrustningWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager.Personal.Utrustningshantering"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="VisaallutrustningWindow" Height="450" Width="800"
+        Background="#6ab">
+
+    <Window.DataContext>
+        <vm:TaBortUtrustningViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Visa all utrustning" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                <TextBlock Text="Kategorifilter:" FontWeight="Bold"/>
+                <ComboBox ItemsSource="{Binding Kategorier}" Height="25" Width="200" SelectedItem="{Binding ValdKategori, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <DataGrid  ItemsSource="{Binding UtrustningLista}" Width="400" Height="250" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <Button Content="Tillbaka" Height="25" Width="200" HorizontalAlignment="Center" Command="{Binding TillbakaCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

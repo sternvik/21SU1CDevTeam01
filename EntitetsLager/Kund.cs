@@ -31,5 +31,9 @@ namespace EntitetsLager
 
         public virtual Region Region { get; set; }
         public virtual Restaurang Hemmarestaurang { get; set; }
+
+        public virtual ICollection<Bokning> Bokningar { get; set; }
+        public virtual ICollection<Bestallning> Bestallningar { get; set; }
+        public virtual ICollection<LojalitetsTransaktion> LojalitetsTransaktioner { get; set; }
     }
 }

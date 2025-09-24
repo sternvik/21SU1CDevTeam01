@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\tennis-7932067_1280.jpg" />
+    <None Remove="Views\da5zmdm1.xym~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AffärsLager\AffärsLager.csproj" />
+    <ProjectReference Include="..\Entiteter\EntitetsLager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\tennis-7932067_1280.jpg" />
+  </ItemGroup>
+
+</Project>

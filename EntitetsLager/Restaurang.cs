@@ -25,5 +25,11 @@ namespace EntitetsLager
         public string Oppettider { get; set; } = "10:30-23:00";
 
         public virtual Region Region { get; set; }
+
+        public virtual ICollection<Bord> Bord { get; set; }
+        public virtual ICollection<Bokning> Bokningar { get; set; }
+        public virtual ICollection<Bestallning> Bestallningar { get; set; }
+        public virtual ICollection<Anvandare> Anvandare { get; set; }
+        public virtual ICollection<RestaurangMeny> RestaurangMenyer { get; set; }
     }
 }

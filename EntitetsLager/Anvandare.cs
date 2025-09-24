@@ -29,5 +29,9 @@ namespace EntitetsLager
         public bool Aktiv { get; set; } = true;
 
         public virtual Restaurang Hemmarestaurang { get; set; }
+
+        public virtual ICollection<Bokning> Bokningar { get; set; }
+        public virtual ICollection<Bestallning> Bestallningar { get; set; }
+        public virtual ICollection<Systemlogg> Systemloggar { get; set; }
     }
 }
