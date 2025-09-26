@@ -31,7 +31,7 @@ namespace EntitetsLager
 
         public bool Betald { get; set; } = false;
 
-        public int PoangTilldelas { get; set; } // 10 lunch/avhämtning, 15 middag
+        public int PoangTilldelas { get; set; } // 10 poäng för lunch/avhämtning, 15 för middag
 
         [Required]
         public DateTime Datum { get; set; }
