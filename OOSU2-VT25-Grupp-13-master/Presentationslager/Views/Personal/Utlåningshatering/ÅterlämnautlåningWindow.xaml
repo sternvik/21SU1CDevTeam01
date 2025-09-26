@@ -1,0 +1,56 @@
+﻿<Window x:Class="Presentationslager.Personal.Utlåningshatering.ÅterlämnautlåningWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager.Personal.Utlåningshatering"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="ÅterlämnautlåningWindow" Height="450" Width="800"
+        Background="#6ab"
+        >
+    <Window.DataContext>
+        <vm:ÅterlämnaUtlåningViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        
+        <!--Titel-->
+        <TextBlock Text="Återlämna utlåning" FontSize="25" FontWeight="bold" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+
+
+        <Grid Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Tillängliga utlåningar:" FontWeight="Bold" />
+
+                <DataGrid ItemsSource="{Binding AllaUtlåningar}" Height="200" Width="350" SelectedItem="{Binding ValdUtlåning}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Vald utlåningsinformation" FontWeight="Bold"/>
+
+                <TextBlock Text="Medlem som har lånat:"/>
+                <TextBox Text="{Binding ValdMedlem.Namn, Mode=OneWay}" Height="25" Width="200" IsReadOnly="True"/>
+
+                <TextBlock Text="Utlånad utrustning:"/>
+                <TextBox Text="{Binding ValdUtrustning.Namn, Mode=OneWay}" Height="25" Width="200" IsReadOnly="True"/>
+
+                <TextBlock Text="Välj återlämningsdatum:"/>
+                <DatePicker SelectedDate="{Binding Återlämningsdatum, Mode=TwoWay}" Height="25" Width="200"/>
+
+                <Button Content="Spara Återlämning" Height="25" Width="200" Command="{Binding SparaÅterlämningCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <Button Content="Tillbaka" Height="25" Width="200" Command="{Binding TillbakaCommand}" Grid.Row="1"/>
+    </Grid>
+</Window>

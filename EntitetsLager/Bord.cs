@@ -21,5 +21,7 @@ namespace EntitetsLager
         public string Status { get; set; } = "Ledigt"; // Ledigt, Bokat, Aktivt, Betalt
 
         public virtual Restaurang Restaurang { get; set; }
+
+        public virtual ICollection<Bokning> Bokningar { get; set; } = new List<Bokning>();
     }
 }

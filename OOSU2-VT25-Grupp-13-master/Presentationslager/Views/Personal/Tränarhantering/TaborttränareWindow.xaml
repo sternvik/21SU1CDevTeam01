@@ -1,0 +1,37 @@
+﻿<Window x:Class="Presentationslager.Personal.Tränarhantering.TaborttränareWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="TaborttränareWindow" Height="450" Width="800"
+        Background="#6ab">
+
+    <Window.DataContext>
+        <vm:TaBortTränareViewModel/>
+    </Window.DataContext>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="9*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Ta bort tränare" FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Tillgängliga tränare:" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+            <DataGrid ItemsSource="{Binding TränareList}" SelectedItem="{Binding SelectedTränare, Mode=TwoWay}" 
+                      Width="700" Height="240" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <TextBlock Text="Vald tränare:" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+            <TextBox Text="{Binding SelectedTränare.Namn}" IsReadOnly="True" Height="25" Width="200" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="1" Orientation="Horizontal">
+            <Button Content="Ta bort" Width="200" Height="25" Command="{Binding TaBortTränareCommand}" Margin="0,0,50,0"/>
+            <Button Content="Tillbaka" Width="200" Height="25" Command="{Binding TillbakaCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -60,11 +60,8 @@ namespace DataLager
 
         public void RefreshContext()
         {
-            // Tvinga EF Core att ladda om data från databasen
-            foreach (var entry in _context.ChangeTracker.Entries())
-            {
-                entry.Reload();
-            }
+            // Rensa alla tracked entities för att tvinga EF att hämta färska data från databasen
+            _context.ChangeTracker.Clear();
         }
 
         private void Fill()

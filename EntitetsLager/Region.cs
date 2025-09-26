@@ -12,5 +12,8 @@ namespace EntitetsLager
         public string Regionnamn { get; set; }
 
         public int AntalRestauranger { get; set; }
+
+        public virtual ICollection<Restaurang> Restauranger { get; set; } = new List<Restaurang>();
+        public virtual ICollection<Kund> Kunder { get; set; } = new List<Kund>();
     }
 }

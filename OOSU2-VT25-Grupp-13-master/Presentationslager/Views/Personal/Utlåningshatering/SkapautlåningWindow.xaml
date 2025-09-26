@@ -1,0 +1,72 @@
+﻿<Window x:Class="Presentationslager.Personal.Utlåningshatering.SkapautlåningWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager.Personal.Utlåningshatering"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="SkapautlåningWindow" Height="450" Width="800"
+        Background="#6ab"
+        >
+    <Window.DataContext>
+        <vm:SkapaUtlåningViewModel/>
+    </Window.DataContext>
+
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        
+        <!--Titel-->
+        <TextBlock Text="Skapa utlåning" FontSize="25" FontWeight="bold" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Vald Medlem:" FontWeight="Bold" TextAlignment="Center"/>
+                <TextBox Text="{Binding ValdMedlem.Namn, Mode=OneWay}"  Width="200" Height="25" IsReadOnly="True"/>
+                <DataGrid ItemsSource="{Binding AllaMedlemmar}" Height="150" Width="300" SelectedItem="{Binding ValdMedlem}"/>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Vald Utrustning:" FontWeight="Bold" TextAlignment="Center"/>
+                <TextBox Text="{Binding ValdUtrustning.Namn, Mode=OneWay}" Width="200" Height="25" IsReadOnly="True"/>
+                <DataGrid ItemsSource="{Binding AllUtrustning}" Height="150" Width="300" SelectedItem="{Binding ValdUtrustning}"/>
+            </StackPanel>
+
+
+        </Grid>
+
+        <Grid  Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel HorizontalAlignment="Center" Grid.Column="0">
+                <TextBlock Text="Utlåningsdatum:" FontWeight="Bold"/>
+                <DatePicker SelectedDate="{Binding Utlåningsdatum, Mode=TwoWay}" Height="25" Width="200"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                <TextBlock Text="Återlämnningsdatum (kan lämnas tom):" FontWeight="Bold"/>
+                <DatePicker SelectedDate="{Binding Återlämningsdatum, Mode=TwoWay}" Height="25" Width="200"/>
+            </StackPanel>
+            
+        </Grid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Spara Lån" Height="25" Width="200" Command="{Binding SparaLånCommand}" Margin="0,0,50,0"/>
+            <Button Content="Tillbaka" Height="25" Width="200" Command="{Binding TillbakaCommand}"/>
+        </StackPanel>
+     </Grid>
+
+
+</Window>

@@ -43,5 +43,8 @@ namespace EntitetsLager
         public virtual Kund Kund { get; set; }
         public virtual Restaurang Restaurang { get; set; }
         public virtual Anvandare AnvandareBeh { get; set; }
+
+        public virtual ICollection<BestallningsRad> BestallningsRader { get; set; } = new List<BestallningsRad>();
+        public virtual ICollection<Transaktion> Transaktioner { get; set; } = new List<Transaktion>();
     }
 }

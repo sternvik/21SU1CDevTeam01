@@ -1,0 +1,28 @@
+﻿<Window x:Class="Presentationslager.Personal.Utrustningshantering.UtrustningshanteringWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Presentationslager.Personal.Utrustningshantering"
+        xmlns:vm="clr-namespace:Presentationslager.ViewModels"
+        mc:Ignorable="d"
+        Title="UtrustningshanteringWindow" Height="450" Width="800"
+        Background="#6ab">
+
+
+    <Window.DataContext>
+        <vm:UtrustningshanteringsViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <TextBlock Text="Utrustningshantering" FontSize="25" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,-210,0,0"/>
+
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,0">
+            <Button Content="Registrera utrustning" Height="25" Width="200" Command="{Binding RegistreraUtrustningCommand}"/>
+            <Button Content="Uppdatera utrustning" Height="25" Width="200" Margin="0,10,0,0" Command="{Binding UppdateraUtrustningCommand}"/>
+            <Button Content="Ta bort utrustning" Height="25" Width="200" Margin="0,10,0,0" Command="{Binding TaBortUtrustningCommand}"/>
+            <Button Content="Visa all utrustning" Height="25" Width="200" Margin="0,10,0,0" Command="{Binding VisaAllUtrustningCommand}"/>
+            <Button Content="Tillbaka" Height="25" Width="200" Margin="0,10,0,0" Command="{Binding TillbakaCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>
