@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataLager;
 using EntitetsLager;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace PresentationsLager.ViewModels
         private readonly KundController _kundController;
         private readonly RegionController _regionController;
         private readonly RestaurangController _restaurangController;
-        private readonly UnitOfWork _unitOfWork;
+        private readonly ExtraController _extraController;
 
         [ObservableProperty]
         private string sokTelefon = string.Empty;
@@ -63,10 +64,10 @@ namespace PresentationsLager.ViewModels
 
         public KundSearchWindowViewModel()
         {
-            _unitOfWork = new UnitOfWork();
-            _kundController = new KundController(_unitOfWork);
-            _regionController = new RegionController(_unitOfWork);
-            _restaurangController = new RestaurangController(_unitOfWork);
+            _kundController = new KundController();
+            _regionController = new RegionController();
+            _restaurangController = new RestaurangController();
+            _extraController = new ExtraController();
 
             LoadRegioner();
         }
@@ -242,7 +243,7 @@ namespace PresentationsLager.ViewModels
         public void Dispose()
         {
             // Se till att DbContext disposas korrekt för att frigöra databas-resurser
-            _unitOfWork?.Dispose();
+            _extraController.Dispose();
         }
     }
 }

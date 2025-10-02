@@ -8,12 +8,7 @@ namespace AffärsLager.Controllers
 {
     public class BordController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public BordController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         public List<Bord> HamtaBordForRestaurang(int restaurangId)
         {

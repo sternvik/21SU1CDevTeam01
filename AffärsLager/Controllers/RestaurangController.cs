@@ -8,12 +8,7 @@ namespace AffärsLager.Controllers
 {
     public class RestaurangController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public RestaurangController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         public List<Restaurang> HamtaAllaRestauranger()
         {

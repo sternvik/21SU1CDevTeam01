@@ -98,12 +98,11 @@ namespace PresentationsLager.ViewModels
 
         public BokningsDetaljerWindowViewModel()
         {
-            var unitOfWork = new UnitOfWork();
-            _bokningsController = new BokningsController(unitOfWork);
-            _kundController = new KundController(unitOfWork);
-            _anvandareController = new AnvandareController(unitOfWork);
-            _menyController = new MenyController(unitOfWork);
-            _bestallningsController = new BestallningsController(unitOfWork);
+            _bokningsController = new BokningsController();
+            _kundController = new KundController();
+            _anvandareController = new AnvandareController();
+            _menyController = new MenyController();
+            _bestallningsController = new BestallningsController();
         }
 
         public void Initialize(BordMedStatus bordStatus, Anvandare anvandare)
@@ -126,8 +125,7 @@ namespace PresentationsLager.ViewModels
         public void Initialize(Bokning bokning, Anvandare anvandare)
         {
             // Skapa en enkel BordMedStatus från bokningen
-            var unitOfWork = new UnitOfWork();
-            var bordController = new BordController(unitOfWork);
+            var bordController = new BordController();
             var bord = bordController.HamtaBordMedId(bokning.BordID);
 
             if (bord != null)

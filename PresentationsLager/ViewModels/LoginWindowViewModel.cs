@@ -27,8 +27,7 @@ namespace PresentationsLager.ViewModels
 
         public LoginWindowViewModel()
         {
-            var unitOfWork = new UnitOfWork();
-            _anvandareController = new AnvandareController(unitOfWork);
+            _anvandareController = new AnvandareController();
         }
 
         [RelayCommand]

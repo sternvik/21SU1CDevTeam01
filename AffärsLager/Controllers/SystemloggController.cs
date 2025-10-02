@@ -5,12 +5,7 @@ namespace AffärsLager.Controllers
 {
     public class SystemloggController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public SystemloggController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         // TODO: Implementera systemlogglogik
     }

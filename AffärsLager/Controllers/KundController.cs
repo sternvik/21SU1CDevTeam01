@@ -8,12 +8,7 @@ namespace AffärsLager.Controllers
 {
     public class KundController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public KundController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         public List<Kund> SokKunder(string? telefon = null, string? namn = null, string? email = null)
         {

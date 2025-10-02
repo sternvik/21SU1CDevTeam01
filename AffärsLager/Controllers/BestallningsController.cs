@@ -8,12 +8,7 @@ namespace AffärsLager.Controllers
 {
     public class BestallningsController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public BestallningsController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         public Bestallning? HamtaBefintligBestallningForBokning(int bokningsId)
         {

@@ -5,12 +5,7 @@ namespace AffärsLager.Controllers
 {
     public class BestallningsRadController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public BestallningsRadController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         // TODO: Implementera beställningsradlogik
     }

@@ -17,7 +17,7 @@ namespace PresentationsLager.ViewModels
     {
         private readonly BokningsController _bokningsController;
         private readonly BordController _bordController;
-        private readonly UnitOfWork _unitOfWork;
+        private readonly ExtraController _extraController;
         private Anvandare? _inloggadAnvandare;
 
         [ObservableProperty]
@@ -60,9 +60,9 @@ namespace PresentationsLager.ViewModels
 
         public NyBokningWindowViewModel()
         {
-            _unitOfWork = new UnitOfWork();
-            _bokningsController = new BokningsController(_unitOfWork);
-            _bordController = new BordController(_unitOfWork);
+            _bokningsController = new BokningsController();
+            _bordController = new BordController();
+            _extraController = new ExtraController();
 
             InitializeData();
         }
@@ -184,15 +184,12 @@ namespace PresentationsLager.ViewModels
                 if (refreshFromDatabase)
                 {
                     // Skapa en helt ny UnitOfWork för att säkerställa färska data från databasen
-                    using (var freshUnitOfWork = new UnitOfWork())
-                    {
-                        var freshBokningsController = new BokningsController(freshUnitOfWork);
-                        bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
-                            _inloggadAnvandare.HemmarestaurangID.Value,
-                            ValtDatum.Value,
-                            ValdTid.Tid,
-                            ValtAntalGaster);
-                    }
+                    var freshBokningsController = new BokningsController();
+                    bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
+                        _inloggadAnvandare.HemmarestaurangID.Value,
+                        ValtDatum.Value,
+                        ValdTid.Tid,
+                        ValtAntalGaster);
                 }
                 else
                 {
@@ -363,9 +360,8 @@ namespace PresentationsLager.ViewModels
 
                 // Skapa bokning med en fresh UnitOfWork för att undvika cache-problem
                 bool skapad;
-                using (var freshUnitOfWork = new UnitOfWork())
                 {
-                    var freshBokningsController = new BokningsController(freshUnitOfWork);
+                    var freshBokningsController = new BokningsController();
 
                     var bokning = new Bokning
                     {
@@ -438,7 +434,7 @@ namespace PresentationsLager.ViewModels
                 Bokning? bokning;
                 using (var freshUnitOfWork = new UnitOfWork())
                 {
-                    var freshBokningsController = new BokningsController(freshUnitOfWork);
+                    var freshBokningsController = new BokningsController();
                     bokning = freshBokningsController.HamtaBokningForBord(
                         bordViewModel.BordID,
                         ValtDatum.Value,
@@ -473,7 +469,7 @@ namespace PresentationsLager.ViewModels
 
         public void Dispose()
         {
-            _unitOfWork?.Dispose();
+            _extraController.Dispose();
         }
     }
 

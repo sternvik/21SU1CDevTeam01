@@ -8,12 +8,7 @@ namespace AffärsLager.Controllers
 {
     public class BokningsController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public BokningsController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         public List<TimeSpan> HamtaTillgangligaTider()
         {

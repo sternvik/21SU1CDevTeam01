@@ -1,3 +1,4 @@
+
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -38,9 +39,8 @@ namespace PresentationsLager.ViewModels
 
         public BokningsHanteringWindowViewModel()
         {
-            var unitOfWork = new UnitOfWork();
-            _bokningsController = new BokningsController(unitOfWork);
-            _restaurangController = new RestaurangController(unitOfWork);
+            _bokningsController = new BokningsController();
+            _restaurangController = new RestaurangController();
 
             InitializeTillgangligaTider();
         }

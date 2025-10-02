@@ -5,12 +5,7 @@ namespace AffärsLager.Controllers
 {
     public class RestaurangMenyController
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public RestaurangMenyController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private UnitOfWork _unitOfWork = new UnitOfWork();
 
         // TODO: Implementera restaurangmenylogik
     }

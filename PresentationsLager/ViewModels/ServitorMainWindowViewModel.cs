@@ -32,8 +32,7 @@ namespace PresentationsLager.ViewModels
 
         public ServitorMainWindowViewModel()
         {
-            var unitOfWork = new UnitOfWork();
-            _anvandareController = new AnvandareController(unitOfWork);
+            _anvandareController = new AnvandareController();
         }
 
         public void Initialize(Anvandare anvandare)

@@ -6,14 +6,11 @@ namespace AffärsLager.Controllers
 {
     public class AnvandareController
     {
-        private readonly UnitOfWork _unitOfWork;
+        private UnitOfWork _unitOfWork = new UnitOfWork();
         private static readonly ConcurrentDictionary<int, DateTime> _aktivaSessioner = new();
         private static readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(30);
 
-        public AnvandareController(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        
 
         public bool AutentiseraAnvandare(string anvandarnamn, string losenord)
         {
