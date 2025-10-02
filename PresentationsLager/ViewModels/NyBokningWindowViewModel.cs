@@ -17,8 +17,13 @@ namespace PresentationsLager.ViewModels
     {
         private readonly BokningsController _bokningsController;
         private readonly BordController _bordController;
+        private readonly RestaurangController _restaurangController;
         private readonly UnitOfWork _unitOfWork;
         private Anvandare? _inloggadAnvandare;
+        private int _valdRestaurangId;
+
+        [ObservableProperty]
+        private string restaurangNamn = string.Empty;
 
         [ObservableProperty]
         private DateTime? valtDatum = DateTime.Today;
@@ -63,16 +68,22 @@ namespace PresentationsLager.ViewModels
             _unitOfWork = new UnitOfWork();
             _bokningsController = new BokningsController(_unitOfWork);
             _bordController = new BordController(_unitOfWork);
+            _restaurangController = new RestaurangController(_unitOfWork);
 
             InitializeData();
         }
 
-        public void Initialize(Anvandare anvandare, Kund? forvaldKund = null)
+        public void Initialize(Anvandare anvandare, int restaurangId, Kund? forvaldKund = null)
         {
             try
             {
                 _inloggadAnvandare = anvandare;
+                _valdRestaurangId = restaurangId;
                 StatusMessage = "Initialiserar...";
+
+                // Hämta och visa restaurangnamn
+                var restaurang = _restaurangController.HamtaRestaurangMedId(restaurangId);
+                RestaurangNamn = restaurang?.Restaurangnamn ?? $"Restaurang {restaurangId}";
 
                 // Sätt förvald kund om en angavs
                 if (forvaldKund != null)
@@ -146,9 +157,9 @@ namespace PresentationsLager.ViewModels
                 AllaBord.Clear();
                 AntalLedigaBord = 0;
 
-                if (_inloggadAnvandare?.HemmarestaurangID == null)
+                if (_valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Ingen restaurang angiven för användaren";
+                    StatusMessage = "Ingen restaurang angiven";
                     return;
                 }
 
@@ -156,7 +167,7 @@ namespace PresentationsLager.ViewModels
                 if (!ValtDatum.HasValue || ValdTid == null)
                 {
                     StatusMessage = "DEBUG: Visar bara bord utan filtrering";
-                    var allaBordEnkelt = _bordController.HamtaBordForRestaurang(_inloggadAnvandare.HemmarestaurangID.Value);
+                    var allaBordEnkelt = _bordController.HamtaBordForRestaurang(_valdRestaurangId);
 
                     foreach (var bord in allaBordEnkelt)
                     {
@@ -188,7 +199,7 @@ namespace PresentationsLager.ViewModels
                     {
                         var freshBokningsController = new BokningsController(freshUnitOfWork);
                         bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
-                            _inloggadAnvandare.HemmarestaurangID.Value,
+                            _valdRestaurangId,
                             ValtDatum.Value,
                             ValdTid.Tid,
                             ValtAntalGaster);
@@ -197,7 +208,7 @@ namespace PresentationsLager.ViewModels
                 else
                 {
                     bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
-                        _inloggadAnvandare.HemmarestaurangID.Value,
+                        _valdRestaurangId,
                         ValtDatum.Value,
                         ValdTid.Tid,
                         ValtAntalGaster);
@@ -355,9 +366,9 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                if (_inloggadAnvandare?.HemmarestaurangID == null)
+                if (_valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Ingen restaurang angiven för användaren";
+                    StatusMessage = "Ingen restaurang angiven";
                     return;
                 }
 
@@ -371,7 +382,7 @@ namespace PresentationsLager.ViewModels
                     {
                         KundID = ValdKund.KundID,
                         BordID = ValtBord.BordID,
-                        RestaurangID = _inloggadAnvandare.HemmarestaurangID.Value,
+                        RestaurangID = _valdRestaurangId,
                         AnvandarID = _inloggadAnvandare.AnvandarID,
                         Datum = ValtDatum.Value,
                         Tid = ValdTid.Tid,

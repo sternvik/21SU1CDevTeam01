@@ -52,6 +52,17 @@
                                FontWeight="Bold"
                                Foreground="#F4B942"
                                VerticalAlignment="Center"/>
+                    <TextBlock Text=" | "
+                               FontSize="18"
+                               Foreground="#A3B18A"
+                               VerticalAlignment="Center"
+                               Margin="10,0"/>
+                    <TextBlock Text="{Binding RestaurangNamn}"
+                               FontFamily="Inter"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="#A3B18A"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
