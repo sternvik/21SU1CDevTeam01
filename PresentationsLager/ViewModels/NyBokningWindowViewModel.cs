@@ -69,16 +69,33 @@ namespace PresentationsLager.ViewModels
 
         public void Initialize(Anvandare anvandare, Kund? forvaldKund = null)
         {
-            _inloggadAnvandare = anvandare;
-
-            // Sätt förvald kund om en angavs
-            if (forvaldKund != null)
+            try
             {
-                ValdKund = forvaldKund;
-                ValdKundText = $"{forvaldKund.Namn} - {forvaldKund.Telefon}";
-            }
+                _inloggadAnvandare = anvandare;
+                StatusMessage = "Initialiserar...";
 
-            UpdateLedigaBord();
+                // Sätt förvald kund om en angavs
+                if (forvaldKund != null)
+                {
+                    ValdKund = forvaldKund;
+                    ValdKundText = $"{forvaldKund.Namn} - {forvaldKund.Telefon}";
+                }
+
+                // Säkerställ att standardvärden är satta innan vi uppdaterar borden
+                if (ValtDatum == null)
+                    ValtDatum = DateTime.Today;
+
+                if (ValdTid == null && TillgangligaTider.Any())
+                    ValdTid = TillgangligaTider.FirstOrDefault();
+
+                StatusMessage = "Välj datum, tid och kund för att skapa bokningar. Klicka på bokade bord för check-in/ut.";
+
+                UpdateLedigaBord();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid initialisering: {ex.Message}";
+            }
         }
 
         private void InitializeData()
@@ -129,8 +146,37 @@ namespace PresentationsLager.ViewModels
                 AllaBord.Clear();
                 AntalLedigaBord = 0;
 
-                if (!ValtDatum.HasValue || ValdTid == null || _inloggadAnvandare?.HemmarestaurangID == null)
+                if (_inloggadAnvandare?.HemmarestaurangID == null)
+                {
+                    StatusMessage = "Ingen restaurang angiven för användaren";
                     return;
+                }
+
+                // Försök först bara hämta bord utan att filtrera på datum/tid
+                if (!ValtDatum.HasValue || ValdTid == null)
+                {
+                    StatusMessage = "DEBUG: Visar bara bord utan filtrering";
+                    var allaBordEnkelt = _bordController.HamtaBordForRestaurang(_inloggadAnvandare.HemmarestaurangID.Value);
+
+                    foreach (var bord in allaBordEnkelt)
+                    {
+                        AllaBord.Add(new BordViewModel
+                        {
+                            BordID = bord.BordID,
+                            Bordkod = bord.Bordkod,
+                            AntalPlatser = bord.AntalPlatser,
+                            StatusText = "Okänd",
+                            StatusColor = "#A3B18A",
+                            ArLedigt = true,
+                            ArLampligt = true,
+                            BokningsTidText = null
+                        });
+                    }
+
+                    AntalLedigaBord = AllaBord.Count;
+                    StatusMessage = $"DEBUG: Visar {AllaBord.Count} bord utan filtrering";
+                    return;
+                }
 
                 IEnumerable<BordMedStatus> bordMedStatus;
 
@@ -170,14 +216,20 @@ namespace PresentationsLager.ViewModels
                         {
                             var startTid = bord.BokadTid.Value;
                             var slutTid = startTid.Add(TimeSpan.FromHours(2));
-                            statusText = "Bokat";
                             bokningsTidText = $"{startTid:hh\\:mm}-{slutTid:hh\\:mm}";
+                        }
+
+                        // Hantera olika bokningsstatus
+                        if (bord.BordStatus == "På plats")
+                        {
+                            statusText = "På plats";
+                            statusColor = "#3498DB"; // Blå för kunder på plats
                         }
                         else
                         {
                             statusText = "Bokat";
+                            statusColor = "#E74C3C"; // Röd för bokade bord
                         }
-                        statusColor = "#E74C3C"; // Röd för bokade bord
                     }
                     else if (bord.ArLampligt)
                     {
@@ -204,6 +256,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 AntalLedigaBord = AllaBord.Count(b => b.ArLedigt);
+                StatusMessage = "Välj datum, tid och kund för att skapa bokningar. Klicka på bokade bord för check-in/ut.";
             }
             catch (Exception ex)
             {
@@ -239,14 +292,14 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                // Kontrollera att bordet är ledigt
+                // Om bordet är bokat, visa bokningsdetaljer
                 if (!bordViewModel.ArLedigt)
                 {
-                    StatusMessage = "Detta bord är redan bokat för den valda tiden";
+                    VisaBokningsDetaljer(bordViewModel);
                     return;
                 }
 
-                // Kontrollera att bordet är tillräckligt stort
+                // För lediga bord - kontrollera att bordet är tillräckligt stort
                 if (!bordViewModel.ArLampligt)
                 {
                     StatusMessage = $"Bordet har bara {bordViewModel.AntalPlatser} platser men {ValtAntalGaster} gäster ska placeras";
@@ -308,21 +361,27 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                // Skapa ny bokning
-                var bokning = new Bokning
+                // Skapa bokning med en fresh UnitOfWork för att undvika cache-problem
+                bool skapad;
+                using (var freshUnitOfWork = new UnitOfWork())
                 {
-                    KundID = ValdKund.KundID,
-                    BordID = ValtBord.BordID,
-                    RestaurangID = _inloggadAnvandare.HemmarestaurangID.Value,
-                    AnvandarID = _inloggadAnvandare.AnvandarID,
-                    Datum = ValtDatum.Value,
-                    Tid = ValdTid.Tid,
-                    AntalGaster = ValtAntalGaster,
-                    Specialinformation = string.IsNullOrWhiteSpace(Specialinformation) ? null : Specialinformation.Trim(),
-                    BokningsTyp = "På plats"
-                };
+                    var freshBokningsController = new BokningsController(freshUnitOfWork);
 
-                bool skapad = _bokningsController.SkapaBokning(bokning);
+                    var bokning = new Bokning
+                    {
+                        KundID = ValdKund.KundID,
+                        BordID = ValtBord.BordID,
+                        RestaurangID = _inloggadAnvandare.HemmarestaurangID.Value,
+                        AnvandarID = _inloggadAnvandare.AnvandarID,
+                        Datum = ValtDatum.Value,
+                        Tid = ValdTid.Tid,
+                        AntalGaster = ValtAntalGaster,
+                        Specialinformation = string.IsNullOrWhiteSpace(Specialinformation) ? null : Specialinformation.Trim(),
+                        BokningsTyp = "På plats"
+                    };
+
+                    skapad = freshBokningsController.SkapaBokning(bokning);
+                }
 
                 if (skapad)
                 {
@@ -362,6 +421,47 @@ namespace PresentationsLager.ViewModels
             foreach (var bord in AllaBord)
             {
                 bord.IsSelected = false;
+            }
+        }
+
+        private void VisaBokningsDetaljer(BordViewModel bordViewModel)
+        {
+            try
+            {
+                if (!ValtDatum.HasValue || ValdTid == null || _inloggadAnvandare?.HemmarestaurangID == null)
+                {
+                    StatusMessage = "Kan inte visa bokningsdetaljer - saknar datum/tid information";
+                    return;
+                }
+
+                // Hämta bokningen med en fresh UnitOfWork för att säkerställa senaste statusen från databasen
+                Bokning? bokning;
+                using (var freshUnitOfWork = new UnitOfWork())
+                {
+                    var freshBokningsController = new BokningsController(freshUnitOfWork);
+                    bokning = freshBokningsController.HamtaBokningForBord(
+                        bordViewModel.BordID,
+                        ValtDatum.Value,
+                        ValdTid.Tid);
+                }
+
+                if (bokning == null)
+                {
+                    StatusMessage = "Kunde inte hitta bokning för detta bord";
+                    return;
+                }
+
+                // Öppna bokningsdetaljer fönstret
+                var bokningsDetaljerWindow = new BokningsDetaljerWindow(bokning, _inloggadAnvandare);
+
+                var result = bokningsDetaljerWindow.ShowDialog();
+
+                // Uppdatera bordvyn efter att fönstret stängts (alltid med fresh data från databasen)
+                UpdateLedigaBord(refreshFromDatabase: true);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid visning av bokningsdetaljer: {ex.Message}";
             }
         }
 

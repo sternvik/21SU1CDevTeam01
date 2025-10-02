@@ -77,6 +77,7 @@ namespace PresentationsLager.ViewModels
             }
         }
 
+
         [RelayCommand]
         private void NyBestallning()
         {

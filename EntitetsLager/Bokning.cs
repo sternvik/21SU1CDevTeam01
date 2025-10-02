@@ -31,10 +31,10 @@ namespace EntitetsLager
         public string? Specialinformation { get; set; }
 
         [StringLength(20)]
-        public string BokningsTyp { get; set; } // Telefon, Online, På plats
+        public string BokningsTyp { get; set; } // Telefon, Online, På plJag ats
 
         [StringLength(20)]
-        public string Status { get; set; } = "Bokad"; // Bokad, Bekräftad, Avslutad, Avbokad
+        public string Status { get; set; } = "Bokad"; // Bokad, Bekräftad, På plats, Avslutad, Avbokad
 
         public DateTime SkapadDatum { get; set; } = DateTime.Now;
 

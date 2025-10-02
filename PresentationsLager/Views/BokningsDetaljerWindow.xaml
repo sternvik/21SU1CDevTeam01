@@ -1,0 +1,559 @@
+<Window x:Class="PresentationsLager.Views.BokningsDetaljerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
+        mc:Ignorable="d"
+        Title="RestoNation - Bokningsdetaljer"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:BokningsDetaljerWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🍽️"
+                               FontSize="24"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="BOKNINGSDETALJER"
+                               FontFamily="Montserrat"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <Border Grid.Row="1"
+                Background="White"
+                Margin="40"
+                CornerRadius="10"
+                BorderBrush="#102c48"
+                BorderThickness="2">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+            </Border.Effect>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="40" Height="800">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Section: Customer and Booking Info -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column -->
+                        <StackPanel Grid.Column="0">
+                    <!-- Table Info -->
+                    <Border Background="#F7F4EF"
+                            CornerRadius="5"
+                            Padding="15"
+                            Margin="0,0,0,20"
+                            BorderBrush="#102c48"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="BORDSINFORMATION"
+                                       FontFamily="Montserrat"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Bordkod:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding BordStatus.Bordkod}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Platser:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BordStatus.AntalPlatser}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Status:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BordStatus.BordStatus}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Booking Info -->
+                    <Border Background="#F7F4EF"
+                            CornerRadius="5"
+                            Padding="15"
+                            Margin="0,0,0,20"
+                            BorderBrush="#102c48"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="BOKNINGSINFORMATION"
+                                       FontFamily="Montserrat"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Datum:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Bokning.Datum, StringFormat='dd/MM/yyyy'}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Tid:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" FontFamily="Inter" FontSize="12" Margin="0,0,0,5">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} - {1}">
+                                            <Binding Path="Bokning.Tid" StringFormat="hh\:mm"/>
+                                            <Binding Path="SlutTid" StringFormat="hh\:mm"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Antal gäster:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Bokning.AntalGaster}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Bokningstyp:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Bokning.BokningsTyp}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Status:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Bokning.Status}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Specialinfo:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Bokning.Specialinformation}" FontFamily="Inter" FontSize="12" TextWrapping="Wrap"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    </StackPanel>
+
+                    <!-- Right Column -->
+                    <StackPanel Grid.Column="2">
+                    <!-- Customer Info -->
+                    <Border Background="#F7F4EF"
+                            CornerRadius="5"
+                            Padding="15"
+                            Margin="0,0,0,20"
+                            BorderBrush="#102c48"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="KUNDINFORMATION"
+                                       FontFamily="Montserrat"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Namn:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding KundNamn}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Telefon:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding KundTelefon}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Email:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding KundEmail}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Lojalitetsnivå:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
+                                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding LojalitetsNiva}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942" Margin="0,0,5,0"/>
+                                    <TextBlock Text="(" FontFamily="Inter" FontSize="12"/>
+                                    <TextBlock Text="{Binding LojalitetsPoang}" FontFamily="Inter" FontSize="12"/>
+                                    <TextBlock Text=" poäng)" FontFamily="Inter" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Server Info -->
+                    <Border Background="#F7F4EF"
+                            CornerRadius="5"
+                            Padding="15"
+                            BorderBrush="#102c48"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="SERVITÖR &amp; TIDSSTÄMPLAR"
+                                       FontFamily="Montserrat"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Bokad av:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding BokadAv}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Skapad:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Bokning.SkapadDatum, StringFormat='dd/MM/yyyy HH:mm'}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Check-in:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CheckInInfo}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Check-out:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CheckOutInfo}" FontFamily="Inter" FontSize="12"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    </StackPanel>
+                    </Grid>
+
+                    <!-- Menu Section (only visible when customer is checked in) -->
+                    <Border Grid.Row="2"
+                            Background="#F7F4EF"
+                            CornerRadius="5"
+                            Padding="20"
+                            BorderBrush="#102c48"
+                            BorderThickness="1"
+                            Visibility="{Binding VisaMeny, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Menu Items -->
+                            <StackPanel Grid.Column="0">
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="MENY &amp; BESTÄLLNING"
+                                               FontFamily="Montserrat"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               Foreground="#102c48"
+                                               VerticalAlignment="Center"/>
+
+                                    <ComboBox Grid.Column="2"
+                                              ItemsSource="{Binding MenyKategorier}"
+                                              SelectedItem="{Binding ValdMenyKategori}"
+                                              FontFamily="Inter"
+                                              FontSize="12"
+                                              Height="30"
+                                              Background="White"
+                                              BorderBrush="#102c48"
+                                              BorderThickness="1"/>
+                                </Grid>
+
+                                <ScrollViewer Height="250" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding FiltrerdeMenyvaror}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="White"
+                                                        CornerRadius="5"
+                                                        Padding="15"
+                                                        Margin="0,0,0,8"
+                                                        BorderBrush="#A3B18A"
+                                                        BorderThickness="1">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="40"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <StackPanel Grid.Column="0">
+                                                            <TextBlock Text="{Binding Rattnamn}"
+                                                                       FontFamily="Inter"
+                                                                       FontSize="14"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="#102c48"/>
+                                                            <TextBlock Text="{Binding Beskrivning}"
+                                                                       FontFamily="Inter"
+                                                                       FontSize="12"
+                                                                       Foreground="#666666"
+                                                                       TextWrapping="Wrap"
+                                                                       Margin="0,2,0,0"/>
+                                                            <TextBlock Text="{Binding Kategori}"
+                                                                       FontFamily="Inter"
+                                                                       FontSize="10"
+                                                                       Foreground="#F4B942"
+                                                                       FontStyle="Italic"
+                                                                       Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding Pris, StringFormat='{}{0:F0} kr'}"
+                                                                   FontFamily="Inter"
+                                                                   FontSize="14"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#102c48"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Center"/>
+
+                                                        <Button Grid.Column="2"
+                                                                Content="+"
+                                                                Command="{Binding DataContext.LaggTillIMenyCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Width="30"
+                                                                Height="30"
+                                                                FontSize="16"
+                                                                FontWeight="Bold"
+                                                                Background="#A3B18A"
+                                                                Foreground="White"
+                                                                BorderThickness="0"
+                                                                Cursor="Hand"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+
+                            <!-- Order Summary -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="BESTÄLLNING"
+                                           FontFamily="Montserrat"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           Foreground="#102c48"
+                                           Margin="0,0,0,15"/>
+
+                                <Border Background="White"
+                                        CornerRadius="5"
+                                        Padding="15"
+                                        BorderBrush="#102c48"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding Bestallning}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F7F4EF"
+                                                                CornerRadius="3"
+                                                                Padding="10"
+                                                                Margin="0,0,0,5">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+
+                                                                <Grid Grid.Row="0">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="30"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{Binding Rattnamn}"
+                                                                               FontFamily="Inter"
+                                                                               FontSize="12"
+                                                                               FontWeight="Bold"/>
+
+                                                                    <Button Grid.Column="1"
+                                                                            Content="-"
+                                                                            Command="{Binding DataContext.TaBortFranBestallningCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                            CommandParameter="{Binding}"
+                                                                            Width="20"
+                                                                            Height="20"
+                                                                            FontSize="12"
+                                                                            FontWeight="Bold"
+                                                                            Background="#E74C3C"
+                                                                            Foreground="White"
+                                                                            BorderThickness="0"
+                                                                            Cursor="Hand"/>
+                                                                </Grid>
+
+                                                                <Grid Grid.Row="1" Margin="0,5,0,0">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{Binding Antal}"
+                                                                               FontFamily="Inter"
+                                                                               FontSize="11"
+                                                                               Foreground="#666666"/>
+
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text=" st × "
+                                                                               FontFamily="Inter"
+                                                                               FontSize="11"
+                                                                               Foreground="#666666"/>
+
+                                                                    <TextBlock Grid.Column="2"
+                                                                               Text="{Binding Totalpris, StringFormat='{}{0:F0} kr'}"
+                                                                               FontFamily="Inter"
+                                                                               FontSize="11"
+                                                                               FontWeight="Bold"
+                                                                               Foreground="#102c48"/>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+
+                                        <!-- Total -->
+                                        <Border Background="#102c48"
+                                                CornerRadius="3"
+                                                Padding="10"
+                                                Margin="0,10,0,0">
+                                            <Grid>
+                                                <TextBlock Text="TOTALT:"
+                                                           FontFamily="Montserrat"
+                                                           FontSize="12"
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Left"/>
+                                                <TextBlock Text="{Binding Totalpris, StringFormat='{}{0:F0} kr'}"
+                                                           FontFamily="Montserrat"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="#F4B942"
+                                                           HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                <!-- Check-in Button -->
+                <Button Content="CHECK IN"
+                        Command="{Binding CheckInCommand}"
+                        Height="40"
+                        Width="120"
+                        FontFamily="Montserrat"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Background="#F4B942"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,10,0"
+                        Visibility="{Binding VisaCheckIn, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                <!-- Check-out Button -->
+                <Button Content="CHECK OUT"
+                        Command="{Binding CheckOutCommand}"
+                        Height="40"
+                        Width="120"
+                        FontFamily="Montserrat"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Background="#102c48"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,10,0"
+                        Visibility="{Binding VisaCheckOut, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                <!-- Avboka Button -->
+                <Button Content="AVBOKA"
+                        Command="{Binding AvbokaCommand}"
+                        Height="40"
+                        Width="120"
+                        FontFamily="Montserrat"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Background="#E74C3C"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,10,0"
+                        Visibility="{Binding VisaAvboka, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                <!-- Close Button -->
+                <Button Content="STÄNG"
+                        Command="{Binding StängCommand}"
+                        Height="40"
+                        Width="80"
+                        FontFamily="Montserrat"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        Background="#A3B18A"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

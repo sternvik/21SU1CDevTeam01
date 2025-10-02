@@ -60,7 +60,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("HemmarestaurangID");
 
-                    b.ToTable("Anvandare");
+                    b.ToTable("Anvandare", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Bestallning", b =>
@@ -118,7 +118,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RestaurangID");
 
-                    b.ToTable("Bestallningar");
+                    b.ToTable("Bestallningar", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.BestallningsRad", b =>
@@ -150,7 +150,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("MenyID");
 
-                    b.ToTable("BestallningsRader");
+                    b.ToTable("BestallningsRader", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Bokning", b =>
@@ -210,7 +210,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RestaurangID");
 
-                    b.ToTable("Bokningar");
+                    b.ToTable("Bokningar", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Bord", b =>
@@ -241,7 +241,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RestaurangID");
 
-                    b.ToTable("Bord");
+                    b.ToTable("Bord", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Kund", b =>
@@ -288,7 +288,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RegionID");
 
-                    b.ToTable("Kunder");
+                    b.ToTable("Kunder", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.LojalitetsTransaktion", b =>
@@ -323,7 +323,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("KundID");
 
-                    b.ToTable("LojalitetsTransaktioner");
+                    b.ToTable("LojalitetsTransaktioner", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Meny", b =>
@@ -360,7 +360,7 @@ namespace DataLager.Migrations
 
                     b.HasKey("MenyID");
 
-                    b.ToTable("Menyer");
+                    b.ToTable("Menyer", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Region", b =>
@@ -381,7 +381,7 @@ namespace DataLager.Migrations
 
                     b.HasKey("RegionID");
 
-                    b.ToTable("Regioner");
+                    b.ToTable("Regioner", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Restaurang", b =>
@@ -419,7 +419,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RegionID");
 
-                    b.ToTable("Restauranger");
+                    b.ToTable("Restauranger", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.RestaurangMeny", b =>
@@ -448,7 +448,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RestaurangID");
 
-                    b.ToTable("RestaurangMenyer");
+                    b.ToTable("RestaurangMenyer", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Systemlogg", b =>
@@ -487,7 +487,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("AnvandarID");
 
-                    b.ToTable("Systemloggar");
+                    b.ToTable("Systemloggar", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Transaktion", b =>
@@ -530,7 +530,7 @@ namespace DataLager.Migrations
 
                     b.HasIndex("RestaurangID");
 
-                    b.ToTable("Transaktioner");
+                    b.ToTable("Transaktioner", (string)null);
                 });
 
             modelBuilder.Entity("EntitetsLager.Anvandare", b =>

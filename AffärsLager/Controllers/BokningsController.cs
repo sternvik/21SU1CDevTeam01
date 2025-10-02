@@ -38,13 +38,12 @@ namespace AffärsLager.Controllers
                     .Where(b => b.RestaurangID == restaurangId)
                     .ToList();
 
-                // Hämta endast bokningar som överlappar MER ÄN bara gränsen
-                // En bokning kolliderar om den har gemensam tid med vår slot
+                // Hämta alla bokningar för valt datum och tid
                 var vadTidSlut = tid.Add(TimeSpan.FromHours(2));
-                var bokadeBord = _unitOfWork.BokningRepository.GetAll()
+                var bokningar = _unitOfWork.BokningRepository.GetAll()
                     .Where(b => b.RestaurangID == restaurangId &&
                                b.Datum.Date == datum.Date &&
-                               b.Status != "Avbokad")
+                               b.Status != "Avbokad" && b.Status != "Avslutad")
                     .ToList()
                     .Where(b =>
                     {
@@ -52,15 +51,18 @@ namespace AffärsLager.Controllers
                         // Kollision: deras start < vårt slut OCH deras slut > vårt start
                         return b.Tid < vadTidSlut && bokningSlut > tid;
                     })
-                    .Select(b => new { b.BordID, b.Tid })
                     .ToList();
-
-                var bokadeBordIds = bokadeBord.Select(b => b.BordID).ToHashSet();
 
                 return allaBord.Select(bord =>
                 {
-                    var bokning = bokadeBord.FirstOrDefault(b => b.BordID == bord.BordID);
-                    var arLedigt = !bokadeBordIds.Contains(bord.BordID);
+                    var bokning = bokningar.FirstOrDefault(b => b.BordID == bord.BordID);
+                    var arLedigt = bokning == null;
+                    var bordStatus = "Ledigt";
+
+                    if (bokning != null)
+                    {
+                        bordStatus = bokning.Status == "På plats" ? "På plats" : "Bokat";
+                    }
 
                     return new BordMedStatus
                     {
@@ -69,7 +71,10 @@ namespace AffärsLager.Controllers
                         AntalPlatser = bord.AntalPlatser,
                         ArLedigt = arLedigt,
                         ArLampligt = bord.AntalPlatser >= antalGaster,
-                        BokadTid = bokning?.Tid
+                        BokadTid = bokning?.Tid,
+                        BordStatus = bordStatus,
+                        BokningsID = bokning?.BokningsID,
+                        Bokning = bokning
                     };
                 }).ToList();
             }
@@ -203,6 +208,106 @@ namespace AffärsLager.Controllers
                 throw new Exception($"Fel vid hämtning av bokning: {ex.Message}", ex);
             }
         }
+
+        public Bokning? HamtaBokningForBord(int bordId, DateTime datum, TimeSpan tid)
+        {
+            try
+            {
+                var vadTidSlut = tid.Add(TimeSpan.FromHours(2));
+                return _unitOfWork.BokningRepository.GetAll()
+                    .Where(b => b.BordID == bordId &&
+                               b.Datum.Date == datum.Date &&
+                               b.Status != "Avbokad")
+                    .ToList()
+                    .FirstOrDefault(b =>
+                    {
+                        var bokningSlut = b.Tid.Add(TimeSpan.FromHours(2));
+                        return b.Tid < vadTidSlut && bokningSlut > tid;
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid hämtning av bokning för bord: {ex.Message}", ex);
+            }
+        }
+
+        public bool CheckInBokning(int bokningsId, int anvandarId)
+        {
+            try
+            {
+                var bokning = HamtaBokningMedId(bokningsId);
+                if (bokning == null)
+                    throw new InvalidOperationException("Bokningen finns inte");
+
+                if (bokning.Status == "På plats")
+                    throw new InvalidOperationException("Bokningen är redan incheckad");
+
+                if (bokning.Status != "Bokad")
+                    throw new InvalidOperationException($"Kan inte checka in bokning med status: {bokning.Status}");
+
+                bokning.Status = "På plats";
+
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid check-in av bokning: {ex.Message}", ex);
+            }
+        }
+
+        public bool CheckOutBokning(int bokningsId, int anvandarId)
+        {
+            try
+            {
+                var bokning = HamtaBokningMedId(bokningsId);
+                if (bokning == null)
+                    throw new InvalidOperationException("Bokningen finns inte");
+
+                if (bokning.Status != "På plats")
+                    throw new InvalidOperationException("Bokningen måste vara incheckad för att kunna checkas ut");
+
+                bokning.Status = "Avslutad";
+
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid check-out av bokning: {ex.Message}", ex);
+            }
+        }
+
+        public bool AvbokaBokning(int bokningsId, int anvandarId)
+        {
+            try
+            {
+                var bokning = HamtaBokningMedId(bokningsId);
+                if (bokning == null)
+                    throw new InvalidOperationException("Bokningen finns inte");
+
+                if (bokning.Status == "Avbokad")
+                    throw new InvalidOperationException("Bokningen är redan avbokad");
+
+                if (bokning.Status == "Avslutad")
+                    throw new InvalidOperationException("Kan inte avboka en avslutad bokning");
+
+                if (bokning.Status == "På plats")
+                    throw new InvalidOperationException("Kan inte avboka en bokning där kunden redan är incheckad");
+
+                if (bokning.Status != "Bokad")
+                    throw new InvalidOperationException($"Kan inte avboka bokning med status: {bokning.Status}");
+
+                bokning.Status = "Avbokad";
+
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid avbokning: {ex.Message}", ex);
+            }
+        }
     }
 
     public class BordMedStatus
@@ -213,5 +318,8 @@ namespace AffärsLager.Controllers
         public bool ArLedigt { get; set; }
         public bool ArLampligt { get; set; }
         public TimeSpan? BokadTid { get; set; }
+        public string BordStatus { get; set; } = "Ledigt"; // Ledigt, Bokat, På plats
+        public int? BokningsID { get; set; }
+        public Bokning? Bokning { get; set; }
     }
 }
