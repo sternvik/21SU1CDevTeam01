@@ -66,6 +66,7 @@ namespace DataLager
 
         private void Fill()
         {
+            // Ny användare: 1/1 "Servitör"
             if (!KundRepository.IsEmpty())
                 return;
 
