@@ -67,12 +67,26 @@
                                FontSize="16"
                                Foreground="#A3B18A"
                                Margin="0,0,20,0"/>
-                    <TextBlock Text="{Binding HemmarestaurangNamn}"
-                               FontFamily="Inter"
-                               FontSize="14"
-                               Foreground="#A3B18A"
-                               VerticalAlignment="Center"
-                               Margin="0,0,20,0"/>
+
+                    <!-- Restaurang Dropdown -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <TextBlock Text="🏠"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0"/>
+                        <ComboBox ItemsSource="{Binding TillgangligaRestauranger}"
+                                  SelectedItem="{Binding ValdRestaurang}"
+                                  DisplayMemberPath="Restaurangnamn"
+                                  Width="200"
+                                  Height="35"
+                                  FontFamily="Inter"
+                                  FontSize="12"
+                                  Foreground="#102c48"
+                                  Background="White"
+                                  BorderBrush="#A3B18A"
+                                  BorderThickness="1"/>
+                    </StackPanel>
+
                     <Button Content="LOGGA UT"
                             Command="{Binding LoggaUtCommand}"
                             Height="35"

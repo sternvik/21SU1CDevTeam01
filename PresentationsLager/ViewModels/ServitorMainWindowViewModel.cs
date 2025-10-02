@@ -5,6 +5,8 @@ using DataLager;
 using EntitetsLager;
 using PresentationsLager.Views;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels
@@ -12,6 +14,7 @@ namespace PresentationsLager.ViewModels
     public partial class ServitorMainWindowViewModel : ObservableObject
     {
         private readonly AnvandareController _anvandareController;
+        private readonly RestaurangController _restaurangController;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
@@ -25,6 +28,12 @@ namespace PresentationsLager.ViewModels
         [ObservableProperty]
         private int bestallningarIdag = 0;
 
+        [ObservableProperty]
+        private ObservableCollection<Restaurang> tillgangligaRestauranger = new();
+
+        [ObservableProperty]
+        private Restaurang? valdRestaurang;
+
         // Håll koll på senast valda kund för enklare arbetsflöde
         public Kund? SenastValdaKund { get; set; }
 
@@ -33,14 +42,27 @@ namespace PresentationsLager.ViewModels
         public ServitorMainWindowViewModel()
         {
             _anvandareController = new AnvandareController();
+            _restaurangController = new RestaurangController();
         }
 
         public void Initialize(Anvandare anvandare)
         {
             InloggadAnvandare = anvandare;
 
-            // Sätt hemmarestaurang namn (för nu bara visa ID, senare hämta från databas)
-            HemmarestaurangNamn = $"Restaurang {anvandare.HemmarestaurangID}";
+            // Ladda alla tillgängliga restauranger
+            var restauranger = _restaurangController.HamtaAllaRestauranger();
+            TillgangligaRestauranger.Clear();
+            foreach (var restaurang in restauranger)
+            {
+                TillgangligaRestauranger.Add(restaurang);
+            }
+
+            // Sätt hemmarestaurang som vald (default vid inloggning)
+            if (anvandare.HemmarestaurangID.HasValue)
+            {
+                ValdRestaurang = TillgangligaRestauranger.FirstOrDefault(r => r.RestaurangID == anvandare.HemmarestaurangID.Value);
+                HemmarestaurangNamn = ValdRestaurang?.Restaurangnamn ?? $"Restaurang {anvandare.HemmarestaurangID}";
+            }
 
             // Mock data för status (senare hämta från databas)
             AktivaBokningar = 5;
@@ -52,9 +74,9 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (InloggadAnvandare != null)
+                if (InloggadAnvandare != null && ValdRestaurang != null)
                 {
-                    var nyBokningWindow = new NyBokningWindow(InloggadAnvandare, SenastValdaKund);
+                    var nyBokningWindow = new NyBokningWindow(InloggadAnvandare, ValdRestaurang.RestaurangID, SenastValdaKund);
                     var result = nyBokningWindow.ShowDialog();
 
                     // Uppdatera senast valda kund om en ny kund valdes i bokningsfönstret
@@ -62,6 +84,11 @@ namespace PresentationsLager.ViewModels
                     {
                         SenastValdaKund = viewModel.ValdKund;
                     }
+                }
+                else if (ValdRestaurang == null)
+                {
+                    MessageBox.Show("Ingen restaurang vald", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else
                 {

@@ -18,7 +18,9 @@
       "Bash(dir:*)",
       "Bash(dotnet build:*)",
       "Bash(dotnet new:*)",
-      "Bash(sqlcmd:*)"
+      "Bash(sqlcmd:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []

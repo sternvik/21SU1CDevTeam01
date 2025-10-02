@@ -17,8 +17,13 @@ namespace PresentationsLager.ViewModels
     {
         private readonly BokningsController _bokningsController;
         private readonly BordController _bordController;
+        private readonly RestaurangController _restaurangController;
         private readonly ExtraController _extraController;
         private Anvandare? _inloggadAnvandare;
+        private int _valdRestaurangId;
+
+        [ObservableProperty]
+        private string restaurangNamn = string.Empty;
 
         [ObservableProperty]
         private DateTime? valtDatum = DateTime.Today;
@@ -62,17 +67,25 @@ namespace PresentationsLager.ViewModels
         {
             _bokningsController = new BokningsController();
             _bordController = new BordController();
+            _restaurangController = new RestaurangController();
             _extraController = new ExtraController();
 
             InitializeData();
         }
 
-        public void Initialize(Anvandare anvandare, Kund? forvaldKund = null)
+        public void Initialize(Anvandare anvandare, int restaurangId, Kund? forvaldKund = null)
         {
             try
             {
                 _inloggadAnvandare = anvandare;
-                StatusMessage = "Initialiserar...";
+                _valdRestaurangId = restaurangId;
+
+                // DEBUG: Visa vilken restaurang som laddas
+                StatusMessage = $"Laddar restaurang ID: {restaurangId}...";
+
+                // Hämta och visa restaurangnamn
+                var restaurang = _restaurangController.HamtaRestaurangMedId(restaurangId);
+                RestaurangNamn = restaurang?.Restaurangnamn ?? $"Restaurang {restaurangId}";
 
                 // Sätt förvald kund om en angavs
                 if (forvaldKund != null)
@@ -146,9 +159,9 @@ namespace PresentationsLager.ViewModels
                 AllaBord.Clear();
                 AntalLedigaBord = 0;
 
-                if (_inloggadAnvandare?.HemmarestaurangID == null)
+                if (_valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Ingen restaurang angiven för användaren";
+                    StatusMessage = "Ingen restaurang angiven";
                     return;
                 }
 
@@ -156,7 +169,7 @@ namespace PresentationsLager.ViewModels
                 if (!ValtDatum.HasValue || ValdTid == null)
                 {
                     StatusMessage = "DEBUG: Visar bara bord utan filtrering";
-                    var allaBordEnkelt = _bordController.HamtaBordForRestaurang(_inloggadAnvandare.HemmarestaurangID.Value);
+                    var allaBordEnkelt = _bordController.HamtaBordForRestaurang(_valdRestaurangId);
 
                     foreach (var bord in allaBordEnkelt)
                     {
@@ -169,7 +182,8 @@ namespace PresentationsLager.ViewModels
                             StatusColor = "#A3B18A",
                             ArLedigt = true,
                             ArLampligt = true,
-                            BokningsTidText = null
+                            BokningsTidText = null,
+                            BokadTid = null
                         });
                     }
 
@@ -186,7 +200,7 @@ namespace PresentationsLager.ViewModels
                     // Skapa en helt ny UnitOfWork för att säkerställa färska data från databasen
                     var freshBokningsController = new BokningsController();
                     bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
-                        _inloggadAnvandare.HemmarestaurangID.Value,
+                        _valdRestaurangId,
                         ValtDatum.Value,
                         ValdTid.Tid,
                         ValtAntalGaster);
@@ -194,7 +208,7 @@ namespace PresentationsLager.ViewModels
                 else
                 {
                     bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
-                        _inloggadAnvandare.HemmarestaurangID.Value,
+                        _valdRestaurangId,
                         ValtDatum.Value,
                         ValdTid.Tid,
                         ValtAntalGaster);
@@ -248,7 +262,8 @@ namespace PresentationsLager.ViewModels
                         StatusColor = statusColor,
                         ArLedigt = bord.ArLedigt,
                         ArLampligt = bord.ArLampligt,
-                        BokningsTidText = bokningsTidText
+                        BokningsTidText = bokningsTidText,
+                        BokadTid = bord.BokadTid
                     });
                 }
 
@@ -352,9 +367,9 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                if (_inloggadAnvandare?.HemmarestaurangID == null)
+                if (_valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Ingen restaurang angiven för användaren";
+                    StatusMessage = "Ingen restaurang angiven";
                     return;
                 }
 
@@ -367,7 +382,7 @@ namespace PresentationsLager.ViewModels
                     {
                         KundID = ValdKund.KundID,
                         BordID = ValtBord.BordID,
-                        RestaurangID = _inloggadAnvandare.HemmarestaurangID.Value,
+                        RestaurangID = _valdRestaurangId,
                         AnvandarID = _inloggadAnvandare.AnvandarID,
                         Datum = ValtDatum.Value,
                         Tid = ValdTid.Tid,
@@ -424,22 +439,35 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (!ValtDatum.HasValue || ValdTid == null || _inloggadAnvandare?.HemmarestaurangID == null)
+                if (!ValtDatum.HasValue || _valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Kan inte visa bokningsdetaljer - saknar datum/tid information";
+                    StatusMessage = "Kan inte visa bokningsdetaljer - saknar datum information";
                     return;
                 }
 
-                // Hämta bokningen med en fresh UnitOfWork för att säkerställa senaste statusen från databasen
-                Bokning? bokning;
-                using (var freshUnitOfWork = new UnitOfWork())
+                // Om bordet har en bokad tid, använd den istället för den valda tiden
+                // Detta är viktigt för att visa rätt bokning när användaren har valt en annan tid i dropdownen
+                TimeSpan bokningsTid;
+                if (bordViewModel.BokadTid.HasValue)
                 {
-                    var freshBokningsController = new BokningsController();
-                    bokning = freshBokningsController.HamtaBokningForBord(
-                        bordViewModel.BordID,
-                        ValtDatum.Value,
-                        ValdTid.Tid);
+                    bokningsTid = bordViewModel.BokadTid.Value;
                 }
+                else if (ValdTid != null)
+                {
+                    bokningsTid = ValdTid.Tid;
+                }
+                else
+                {
+                    StatusMessage = "Kan inte visa bokningsdetaljer - saknar tid information";
+                    return;
+                }
+
+                // Hämta bokningen med en fresh controller för att säkerställa senaste statusen från databasen
+                var freshBokningsController = new BokningsController();
+                var bokning = freshBokningsController.HamtaBokningForBord(
+                    bordViewModel.BordID,
+                    ValtDatum.Value,
+                    bokningsTid);
 
                 if (bokning == null)
                 {
@@ -489,6 +517,7 @@ namespace PresentationsLager.ViewModels
         public bool ArLedigt { get; set; } = true;
         public bool ArLampligt { get; set; } = true;
         public string? BokningsTidText { get; set; }
+        public TimeSpan? BokadTid { get; set; }
 
         [ObservableProperty]
         private bool isSelected = false;

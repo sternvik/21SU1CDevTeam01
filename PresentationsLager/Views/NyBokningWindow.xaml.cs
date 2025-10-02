@@ -7,14 +7,14 @@ namespace PresentationsLager.Views
 {
     public partial class NyBokningWindow : Window
     {
-        public NyBokningWindow(Anvandare anvandare, Kund? forvaldKund = null)
+        public NyBokningWindow(Anvandare anvandare, int restaurangId, Kund? forvaldKund = null)
         {
             InitializeComponent();
 
             if (DataContext is NyBokningWindowViewModel viewModel)
             {
                 viewModel.CloseAction = () => this.Close();
-                viewModel.Initialize(anvandare, forvaldKund);
+                viewModel.Initialize(anvandare, restaurangId, forvaldKund);
             }
         }
 
