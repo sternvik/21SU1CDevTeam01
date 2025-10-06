@@ -48,31 +48,9 @@ namespace PresentationsLager.ViewModels
                 AlaCarteMeny.Clear();
                 Drycker.Clear();
 
-                foreach (var meny in menyer)
-                {
-                    var menyItem = new MenyItemViewModel
-                    {
-                        MenyID = meny.MenyID,
-                        Rattnamn = meny.Rattnamn,
-                        Beskrivning = meny.Beskrivning ?? "",
-                        Pris = meny.Pris,
-                        Kategori = meny.Kategori
-                    };
-
-                    var kategoriLower = meny.Kategori.ToLower();
-                    if (kategoriLower == "dagens lunch")
-                    {
-                        DagensLunch.Add(menyItem);
-                    }
-                    else if (kategoriLower == "à la carte" || kategoriLower == "a la carte")
-                    {
-                        AlaCarteMeny.Add(menyItem);
-                    }
-                    else if (kategoriLower.Contains("dryck"))
-                    {
-                        Drycker.Add(menyItem);
-                    }
-                }
+                
+                // lägg in igen
+                
             }
             catch (Exception ex)
             {
@@ -86,14 +64,5 @@ namespace PresentationsLager.ViewModels
         {
             CloseAction?.Invoke();
         }
-    }
-
-    public partial class MenyItemViewModel : ObservableObject
-    {
-        public int MenyID { get; set; }
-        public string Rattnamn { get; set; } = string.Empty;
-        public string Beskrivning { get; set; } = string.Empty;
-        public decimal Pris { get; set; }
-        public string Kategori { get; set; } = string.Empty;
     }
 }
