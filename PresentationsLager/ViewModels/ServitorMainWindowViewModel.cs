@@ -198,11 +198,10 @@ namespace PresentationsLager.ViewModels
                     _anvandareController.LoggaUtAnvandare(InloggadAnvandare.AnvandarID);
                 }
 
-                // Stäng denna vy och öppna login igen
-                CloseAction?.Invoke();
-
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
+                // Stäng denna vy och öppna login igen
+                CloseAction?.Invoke();
             }
         }
     }
