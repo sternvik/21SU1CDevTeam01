@@ -20,15 +20,6 @@ namespace PresentationsLager.ViewModels
         private Anvandare? inloggadAnvandare;
 
         [ObservableProperty]
-        private string hemmarestaurangNamn = string.Empty;
-
-        [ObservableProperty]
-        private int aktivaBokningar = 0;
-
-        [ObservableProperty]
-        private int bestallningarIdag = 0;
-
-        [ObservableProperty]
         private ObservableCollection<Restaurang> tillgangligaRestauranger = new();
 
         [ObservableProperty]
@@ -61,12 +52,7 @@ namespace PresentationsLager.ViewModels
             if (anvandare.HemmarestaurangID.HasValue)
             {
                 ValdRestaurang = TillgangligaRestauranger.FirstOrDefault(r => r.RestaurangID == anvandare.HemmarestaurangID.Value);
-                HemmarestaurangNamn = ValdRestaurang?.Restaurangnamn ?? $"Restaurang {anvandare.HemmarestaurangID}";
             }
-
-            // Mock data för status (senare hämta från databas)
-            AktivaBokningar = 5;
-            BestallningarIdag = 12;
         }
 
         [RelayCommand]
@@ -136,13 +122,6 @@ namespace PresentationsLager.ViewModels
         private void VisaMeny()
         {
             MessageBox.Show("Visar dagens meny...\n(Kommer att implementeras)", "Meny",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        [RelayCommand]
-        private void Hjälp()
-        {
-            MessageBox.Show("Hjälp och support\n\nKontakta IT-support för hjälp med systemet.", "Hjälp",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

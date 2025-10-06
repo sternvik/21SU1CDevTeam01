@@ -107,7 +107,6 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
@@ -121,38 +120,38 @@
                     CornerRadius="10"
                     Margin="10"
                     BorderBrush="#102c48"
-                    BorderThickness="1">
+                    BorderThickness="2">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
                 </Border.Effect>
                 <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Text="📅"
-                               FontSize="48"
+                               FontSize="64"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
+                               Margin="0,0,0,20"/>
                     <TextBlock Text="BORDSBOKNINGAR"
                                FontFamily="Montserrat"
-                               FontSize="18"
+                               FontSize="22"
                                FontWeight="Bold"
                                Foreground="#102c48"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
+                               Margin="0,0,0,15"/>
                     <TextBlock Text="Hantera bordsreservationer"
                                FontFamily="Inter"
-                               FontSize="12"
+                               FontSize="14"
                                Foreground="#2E2E2E"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
+                               Margin="0,0,0,30"/>
                     <Button Content="ÖPPNA BOKNINGAR"
                             Command="{Binding ÖppnaBokningarCommand}"
-                            Height="45"
+                            Height="50"
                             FontFamily="Inter"
-                            FontSize="12"
+                            FontSize="14"
                             FontWeight="Bold"
                             Background="#F4B942"
                             Foreground="White"
                             BorderThickness="0"
-                            Padding="20,0"
+                            Padding="30,0"
                             Cursor="Hand"/>
                 </StackPanel>
             </Border>
@@ -163,126 +162,81 @@
                     CornerRadius="10"
                     Margin="10"
                     BorderBrush="#102c48"
-                    BorderThickness="1">
+                    BorderThickness="2">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
                 </Border.Effect>
                 <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Text="🍽️"
-                               FontSize="48"
+                               FontSize="64"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
+                               Margin="0,0,0,20"/>
                     <TextBlock Text="BESTÄLLNINGAR"
                                FontFamily="Montserrat"
-                               FontSize="18"
+                               FontSize="22"
                                FontWeight="Bold"
                                Foreground="#102c48"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
+                               Margin="0,0,0,15"/>
                     <TextBlock Text="Registrera mat och dryck"
                                FontFamily="Inter"
-                               FontSize="12"
+                               FontSize="14"
                                Foreground="#2E2E2E"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
+                               Margin="0,0,0,30"/>
                     <Button Content="NY BESTÄLLNING"
                             Command="{Binding NyBestallningCommand}"
-                            Height="45"
+                            Height="50"
                             FontFamily="Inter"
-                            FontSize="12"
+                            FontSize="14"
                             FontWeight="Bold"
                             Background="#F4B942"
                             Foreground="White"
                             BorderThickness="0"
-                            Padding="20,0"
+                            Padding="30,0"
                             Cursor="Hand"/>
                 </StackPanel>
             </Border>
 
             <!-- Kunder Section -->
-            <Border Grid.Column="2" Grid.Row="0"
-                    Background="White"
-                    CornerRadius="10"
-                    Margin="10"
-                    BorderBrush="#102c48"
-                    BorderThickness="1">
-                <Border.Effect>
-                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
-                </Border.Effect>
-                <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Text="👥"
-                               FontSize="48"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
-                    <TextBlock Text="KUNDER"
-                               FontFamily="Montserrat"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="#102c48"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Sök kunder och lojalitetspoäng"
-                               FontFamily="Inter"
-                               FontSize="12"
-                               Foreground="#2E2E2E"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
-                    <Button Content="SÖK KUNDER"
-                            Command="{Binding SökKunderCommand}"
-                            Height="45"
-                            FontFamily="Inter"
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Background="#F4B942"
-                            Foreground="White"
-                            BorderThickness="0"
-                            Padding="20,0"
-                            Cursor="Hand"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Dagens Status Section -->
             <Border Grid.Column="0" Grid.Row="1"
                     Background="White"
                     CornerRadius="10"
                     Margin="10"
                     BorderBrush="#102c48"
-                    BorderThickness="1">
+                    BorderThickness="2">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
                 </Border.Effect>
-                <StackPanel Margin="20">
-                    <TextBlock Text="📊 DAGENS STATUS"
+                <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="👥"
+                               FontSize="64"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+                    <TextBlock Text="KUNDER"
                                FontFamily="Montserrat"
-                               FontSize="16"
+                               FontSize="22"
                                FontWeight="Bold"
                                Foreground="#102c48"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
-                        <TextBlock Text="Aktiva bokningar: "
-                                   FontFamily="Inter"
-                                   FontSize="12"
-                                   Foreground="#2E2E2E"/>
-                        <TextBlock Text="{Binding AktivaBokningar}"
-                                   FontFamily="Inter"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="#F4B942"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="Beställningar idag: "
-                                   FontFamily="Inter"
-                                   FontSize="12"
-                                   Foreground="#2E2E2E"/>
-                        <TextBlock Text="{Binding BestallningarIdag}"
-                                   FontFamily="Inter"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="#F4B942"/>
-                    </StackPanel>
+                               Margin="0,0,0,15"/>
+                    <TextBlock Text="Sök kunder och lojalitetspoäng"
+                               FontFamily="Inter"
+                               FontSize="14"
+                               Foreground="#2E2E2E"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,30"/>
+                    <Button Content="SÖK KUNDER"
+                            Command="{Binding SökKunderCommand}"
+                            Height="50"
+                            FontFamily="Inter"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="30,0"
+                            Cursor="Hand"/>
                 </StackPanel>
             </Border>
 
@@ -292,80 +246,38 @@
                     CornerRadius="10"
                     Margin="10"
                     BorderBrush="#102c48"
-                    BorderThickness="1">
+                    BorderThickness="2">
                 <Border.Effect>
                     <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
                 </Border.Effect>
                 <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Text="📋"
-                               FontSize="48"
+                               FontSize="64"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
+                               Margin="0,0,0,20"/>
                     <TextBlock Text="MENY"
                                FontFamily="Montserrat"
-                               FontSize="18"
+                               FontSize="22"
                                FontWeight="Bold"
                                Foreground="#102c48"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
+                               Margin="0,0,0,15"/>
                     <TextBlock Text="Visa dagens meny och priser"
                                FontFamily="Inter"
-                               FontSize="12"
+                               FontSize="14"
                                Foreground="#2E2E2E"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
+                               Margin="0,0,0,30"/>
                     <Button Content="VISA MENY"
                             Command="{Binding VisaMenyCommand}"
-                            Height="45"
+                            Height="50"
                             FontFamily="Inter"
-                            FontSize="12"
+                            FontSize="14"
                             FontWeight="Bold"
                             Background="#F4B942"
                             Foreground="White"
                             BorderThickness="0"
-                            Padding="20,0"
-                            Cursor="Hand"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Hjälp Section -->
-            <Border Grid.Column="2" Grid.Row="1"
-                    Background="White"
-                    CornerRadius="10"
-                    Margin="10"
-                    BorderBrush="#102c48"
-                    BorderThickness="1">
-                <Border.Effect>
-                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
-                </Border.Effect>
-                <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Text="❓"
-                               FontSize="48"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
-                    <TextBlock Text="HJÄLP"
-                               FontFamily="Montserrat"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="#102c48"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <TextBlock Text="Support och användarguide"
-                               FontFamily="Inter"
-                               FontSize="12"
-                               Foreground="#2E2E2E"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
-                    <Button Content="HJÄLP OCH SUPPORT"
-                            Command="{Binding HjälpCommand}"
-                            Height="45"
-                            FontFamily="Inter"
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Background="#A3B18A"
-                            Foreground="White"
-                            BorderThickness="0"
-                            Padding="20,0"
+                            Padding="30,0"
                             Cursor="Hand"/>
                 </StackPanel>
             </Border>
