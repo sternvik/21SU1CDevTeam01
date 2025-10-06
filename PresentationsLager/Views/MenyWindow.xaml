@@ -1,0 +1,174 @@
+<Window x:Class="PresentationsLager.Views.MenyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        Title="RestoNation - Dagens Meny"
+        WindowState="Maximized"
+        Background="#F7F4EF">
+
+    <Window.DataContext>
+        <vm:MenyWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48" CornerRadius="10" Padding="20" Margin="0,0,0,30">
+            <StackPanel>
+                <TextBlock Text="📋 DAGENS MENY"
+                           FontSize="32" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding RestaurangNamn}"
+                           FontSize="20"
+                           Foreground="#F4B942"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Dagens Lunch -->
+                <Border Background="White" CornerRadius="10" Padding="25" Margin="0,0,0,20"
+                        BorderBrush="#102c48" BorderThickness="2">
+                    <StackPanel>
+                        <TextBlock Text="🍽️ DAGENS LUNCH"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="#102c48" Margin="0,0,0,20"/>
+                        <ItemsControl ItemsSource="{Binding DagensLunch}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
+                                            Padding="10" Margin="0,5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Rattnamn}"
+                                                           FontSize="18" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Beskrivning}"
+                                                           FontSize="14" Foreground="#666"
+                                                           TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Pris, StringFormat='{}{0:F0} kr'}"
+                                                       FontSize="20" FontWeight="Bold"
+                                                       Foreground="#102c48" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- À la carte -->
+                <Border Background="White" CornerRadius="10" Padding="25" Margin="0,0,0,20"
+                        BorderBrush="#102c48" BorderThickness="2">
+                    <StackPanel>
+                        <TextBlock Text="🌟 À LA CARTE"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="#102c48" Margin="0,0,0,20"/>
+                        <ItemsControl ItemsSource="{Binding AlaCarteMeny}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
+                                            Padding="10" Margin="0,5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Rattnamn}"
+                                                           FontSize="18" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Beskrivning}"
+                                                           FontSize="14" Foreground="#666"
+                                                           TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Pris, StringFormat='{}{0:F0} kr'}"
+                                                       FontSize="20" FontWeight="Bold"
+                                                       Foreground="#102c48" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Drycker -->
+                <Border Background="White" CornerRadius="10" Padding="25" Margin="0,0,0,20"
+                        BorderBrush="#102c48" BorderThickness="2">
+                    <StackPanel>
+                        <TextBlock Text="🥤 DRYCKER"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="#102c48" Margin="0,0,0,20"/>
+                        <ItemsControl ItemsSource="{Binding Drycker}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
+                                            Padding="10" Margin="0,5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Rattnamn}"
+                                                           FontSize="18" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Beskrivning}"
+                                                           FontSize="14" Foreground="#666"
+                                                           TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Pris, StringFormat='{}{0:F0} kr'}"
+                                                       FontSize="20" FontWeight="Bold"
+                                                       Foreground="#102c48" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Button Grid.Row="2" Content="STÄNG"
+                Command="{Binding StangCommand}"
+                Background="#102c48" Foreground="White"
+                FontSize="16" FontWeight="Bold"
+                Height="50" Width="200"
+                Cursor="Hand" BorderThickness="0"
+                HorizontalAlignment="Center">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="#102c48"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#F4B942"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</Window>

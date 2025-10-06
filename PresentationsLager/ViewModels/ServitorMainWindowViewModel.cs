@@ -117,8 +117,15 @@ namespace PresentationsLager.ViewModels
                         }
                     }
 
-                    // Öppna beställningsfönster med vald kund
-                    var bestallningsWindow = new BestallningsWindow(InloggadAnvandare, valdKund);
+                    // Öppna beställningsfönster med vald kund och vald restaurang
+                    if (ValdRestaurang == null)
+                    {
+                        MessageBox.Show("Ingen restaurang vald", "Fel",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    var bestallningsWindow = new BestallningsWindow(InloggadAnvandare, valdKund, ValdRestaurang.RestaurangID);
                     bestallningsWindow.ShowDialog();
                 }
                 else
@@ -158,8 +165,23 @@ namespace PresentationsLager.ViewModels
         [RelayCommand]
         private void VisaMeny()
         {
-            MessageBox.Show("Visar dagens meny...\n(Kommer att implementeras)", "Meny",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                if (ValdRestaurang == null)
+                {
+                    MessageBox.Show("Ingen restaurang vald", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var menyWindow = new Views.MenyWindow(ValdRestaurang.RestaurangID);
+                menyWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid öppning av meny: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]

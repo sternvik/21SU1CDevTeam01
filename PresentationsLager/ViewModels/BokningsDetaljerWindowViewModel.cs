@@ -548,22 +548,23 @@ namespace PresentationsLager.ViewModels
                     Menyvaror.Add(menyItem);
 
                     // Lägg till i rätt kategori
-                    switch (meny.Kategori.ToLower())
+                    var kategoriLower = meny.Kategori.ToLower();
+                    if (kategoriLower == "à la carte" || kategoriLower == "a la carte")
                     {
-                        case "à la carte":
-                        case "a la carte":
-                            AlaCarteMenyvaror.Add(menyItem);
-                            break;
-                        case "dagens lunch":
-                            DagensLunchMenyvaror.Add(menyItem);
-                            break;
-                        case "dryck":
-                            DryckMenyvaror.Add(menyItem);
-                            break;
-                        default:
-                            // Om kategori inte matchar, lägg i À la carte som standard
-                            AlaCarteMenyvaror.Add(menyItem);
-                            break;
+                        AlaCarteMenyvaror.Add(menyItem);
+                    }
+                    else if (kategoriLower == "dagens lunch")
+                    {
+                        DagensLunchMenyvaror.Add(menyItem);
+                    }
+                    else if (kategoriLower.Contains("dryck"))
+                    {
+                        DryckMenyvaror.Add(menyItem);
+                    }
+                    else
+                    {
+                        // Om kategori inte matchar, lägg i À la carte som standard
+                        AlaCarteMenyvaror.Add(menyItem);
                     }
                 }
 

@@ -19,6 +19,8 @@ namespace PresentationsLager.ViewModels
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
 
+        private int _restaurangId;
+
         // Navigering mellan steg
         [ObservableProperty]
         private bool visaTypVal = false;
@@ -86,10 +88,11 @@ namespace PresentationsLager.ViewModels
             _lojalitetsController = new LojalitetsTransaktionController();
         }
 
-        public void Initialize(Anvandare anvandare, Kund valdKund)
+        public void Initialize(Anvandare anvandare, Kund valdKund, int restaurangId)
         {
             InloggadAnvandare = anvandare;
             ValdKund = valdKund;
+            _restaurangId = restaurangId;
             VisaTypVal = true; // Visa typval direkt när kund redan är vald
         }
 
@@ -147,17 +150,26 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (InloggadAnvandare?.HemmarestaurangID == null)
+                if (_restaurangId == 0)
+                {
+                    MessageBox.Show("Ingen restaurang vald", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
+                }
 
-                var menyer = _menyController.HamtaMenyvarorForRestaurang(InloggadAnvandare.HemmarestaurangID.Value);
+                var menyer = _menyController.HamtaMenyvarorForRestaurang(_restaurangId);
 
                 FiltrerdeMenyvaror.Clear();
 
                 // Lunch inkluderar Dagens lunch + Dryck
-                foreach (var meny in menyer.Where(m =>
+                // Sortera så dagens lunch kommer först, sedan dryck
+                var lunchMeny = menyer.Where(m =>
                     m.Kategori.ToLower() == "dagens lunch" ||
-                    m.Kategori.ToLower() == "dryck"))
+                    m.Kategori.ToLower().Contains("dryck"))
+                    .OrderBy(m => m.Kategori.ToLower().Contains("dryck") ? 1 : 0)
+                    .ThenBy(m => m.Rattnamn);
+
+                foreach (var meny in lunchMeny)
                 {
                     FiltrerdeMenyvaror.Add(new MenyItemViewModel
                     {
@@ -180,10 +192,7 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (InloggadAnvandare?.HemmarestaurangID == null)
-                    return;
-
-                var menyer = _menyController.HamtaMenyvarorForRestaurang(InloggadAnvandare.HemmarestaurangID.Value);
+                var menyer = _menyController.HamtaMenyvarorForRestaurang(_restaurangId);
 
                 Menyvaror.Clear();
                 AlaCarteMenyvaror.Clear();
@@ -203,21 +212,22 @@ namespace PresentationsLager.ViewModels
 
                     Menyvaror.Add(menyItem);
 
-                    switch (meny.Kategori.ToLower())
+                    var kategoriLower = meny.Kategori.ToLower();
+                    if (kategoriLower == "à la carte" || kategoriLower == "a la carte")
                     {
-                        case "à la carte":
-                        case "a la carte":
-                            AlaCarteMenyvaror.Add(menyItem);
-                            break;
-                        case "dagens lunch":
-                            DagensLunchMenyvaror.Add(menyItem);
-                            break;
-                        case "dryck":
-                            DryckMenyvaror.Add(menyItem);
-                            break;
-                        default:
-                            AlaCarteMenyvaror.Add(menyItem);
-                            break;
+                        AlaCarteMenyvaror.Add(menyItem);
+                    }
+                    else if (kategoriLower == "dagens lunch")
+                    {
+                        DagensLunchMenyvaror.Add(menyItem);
+                    }
+                    else if (kategoriLower.Contains("dryck"))
+                    {
+                        DryckMenyvaror.Add(menyItem);
+                    }
+                    else
+                    {
+                        AlaCarteMenyvaror.Add(menyItem);
                     }
                 }
 
@@ -326,9 +336,9 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (ValdKund == null || InloggadAnvandare?.HemmarestaurangID == null || InloggadAnvandare?.AnvandarID == null)
+                if (ValdKund == null || InloggadAnvandare?.AnvandarID == null)
                 {
-                    MessageBox.Show("Fel: Kund, restaurang eller användare saknas", "Fel",
+                    MessageBox.Show("Fel: Kund eller användare saknas", "Fel",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -474,7 +484,7 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                if (ValdKund == null || InloggadAnvandare?.HemmarestaurangID == null || InloggadAnvandare?.AnvandarID == null)
+                if (ValdKund == null || InloggadAnvandare?.AnvandarID == null)
                     return;
 
                 // Skapa BestallningsRadDto-lista
@@ -490,7 +500,7 @@ namespace PresentationsLager.ViewModels
                 _bestallningsController.SkapaEllerUppdateraBestallning(
                     null, // Ingen BokningsID för lunch/avhämtning
                     ValdKund.KundID,
-                    InloggadAnvandare.HemmarestaurangID.Value,
+                    _restaurangId,
                     InloggadAnvandare.AnvandarID,
                     dtoList,
                     ValdBestallningsTyp,
@@ -509,8 +519,8 @@ namespace PresentationsLager.ViewModels
         [RelayCommand]
         private void TillbakaTillKundsokning()
         {
-            VisaTypVal = false;
-            SokKund();
+            // Stäng fönstret istället för att gå tillbaka till kundsökning
+            CloseAction?.Invoke();
         }
 
         [RelayCommand]
