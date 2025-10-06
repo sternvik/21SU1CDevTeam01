@@ -20,7 +20,12 @@
       "Bash(dotnet new:*)",
       "Bash(sqlcmd:*)",
       "Bash(git fetch:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell:*)",
+      "Bash(for:*)",
+      "Bash(do powershell -Command \"(Get-Content ''$file'') -replace ''Height=\"\"[0-9]+\"\" Width=\"\"[0-9]+\"\"'', ''WindowState=\"\"Maximized\"\"'' -replace ''WindowStartupLocation=\"\"CenterScreen\"\"'', '''' | Set-Content ''$file''\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

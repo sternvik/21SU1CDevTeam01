@@ -93,8 +93,45 @@ namespace PresentationsLager.ViewModels
         [RelayCommand]
         private void NyBestallning()
         {
-            MessageBox.Show("Öppnar beställningssystem...\n(Kommer att implementeras)", "Beställningar",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                if (InloggadAnvandare != null)
+                {
+                    Kund? valdKund = SenastValdaKund;
+
+                    // Om ingen kund är förvald, öppna kundsökning
+                    if (valdKund == null)
+                    {
+                        var kundSearchWindow = new KundSearchWindow();
+                        var result = kundSearchWindow.ShowDialog();
+
+                        if (kundSearchWindow.DataContext is KundSearchWindowViewModel viewModel && viewModel.ValdKund != null)
+                        {
+                            valdKund = viewModel.ValdKund;
+                            SenastValdaKund = valdKund; // Spara för framtida användning
+                        }
+                        else
+                        {
+                            // Användaren avbröt - gör inget
+                            return;
+                        }
+                    }
+
+                    // Öppna beställningsfönster med vald kund
+                    var bestallningsWindow = new BestallningsWindow(InloggadAnvandare, valdKund);
+                    bestallningsWindow.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("Ingen användare inloggad", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid öppning av beställningssystem: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         [RelayCommand]

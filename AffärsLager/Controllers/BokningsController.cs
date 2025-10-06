@@ -212,7 +212,8 @@ namespace AffärsLager.Controllers
                 return _unitOfWork.BokningRepository.GetAll()
                     .Where(b => b.BordID == bordId &&
                                b.Datum.Date == datum.Date &&
-                               b.Status != "Avbokad")
+                               b.Status != "Avbokad" &&
+                               b.Status != "Avslutad")  // Filtrera även bort avslutade bokningar
                     .ToList()
                     .FirstOrDefault(b =>
                     {

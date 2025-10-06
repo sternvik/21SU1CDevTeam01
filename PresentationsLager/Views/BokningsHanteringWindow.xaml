@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="RestoNation - Hantera Bokningar"
         WindowState="Maximized"
-        WindowStartupLocation="CenterScreen"
+        
         ResizeMode="CanResize">
 
     <Window.DataContext>

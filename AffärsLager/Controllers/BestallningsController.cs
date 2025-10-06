@@ -24,16 +24,30 @@ namespace AffärsLager.Controllers
             }
         }
 
-        public Bestallning SkapaEllerUppdateraBestallning(int bokningsId, int kundId, int restaurangId, int anvandarId,
-            List<BestallningsRadDto> bestallningsrader)
+        public Bestallning SkapaEllerUppdateraBestallning(int? bokningsId, int kundId, int restaurangId, int anvandarId,
+            List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null)
         {
             try
             {
                 // Hämta befintlig beställning eller skapa ny
-                var befintligBestallning = HamtaBefintligBestallningForBokning(bokningsId);
+                Bestallning? befintligBestallning = null;
+
+                if (bokningsId.HasValue)
+                {
+                    befintligBestallning = HamtaBefintligBestallningForBokning(bokningsId.Value);
+                }
 
                 if (befintligBestallning == null)
                 {
+                    // Bestäm poäng baserat på typ
+                    int poangTilldelas = bestallningsTyp switch
+                    {
+                        "Lunch" => 10,
+                        "Avhämtning" => 10,
+                        "Middag" => 15,
+                        _ => 0
+                    };
+
                     // Skapa ny beställning
                     befintligBestallning = new Bestallning
                     {
@@ -41,11 +55,11 @@ namespace AffärsLager.Controllers
                         KundID = kundId,
                         RestaurangID = restaurangId,
                         AnvandarID = anvandarId,
-                        BestallningsTyp = "Middag",
-                        Utkorare = "", // Sätt tom sträng istället för null
+                        BestallningsTyp = bestallningsTyp,
+                        Utkorare = utkorare ?? "", // Sätt tom sträng istället för null
                         TotalSumma = 0,
                         Betald = false,
-                        PoangTilldelas = 15, // 15 poäng för middag
+                        PoangTilldelas = poangTilldelas,
                         Datum = DateTime.Today,
                         Tid = DateTime.Now.TimeOfDay
                     };
