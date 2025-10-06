@@ -126,6 +126,53 @@ namespace AffärsLager.Controllers
             }
         }
 
+        public bool UppdateraKund(Kund kund)
+        {
+            try
+            {
+                if (kund == null)
+                    throw new ArgumentNullException(nameof(kund));
+
+                var befintligKund = HamtaKundMedId(kund.KundID);
+                if (befintligKund == null)
+                    throw new InvalidOperationException("Kunden finns inte i databasen");
+
+                // Uppdatera fälten
+                befintligKund.Namn = kund.Namn;
+                befintligKund.Telefon = kund.Telefon;
+                befintligKund.Email = kund.Email;
+                befintligKund.RegionID = kund.RegionID;
+                befintligKund.HemmarestaurangID = kund.HemmarestaurangID;
+                befintligKund.LojalitetsPoang = kund.LojalitetsPoang;
+                befintligKund.LojalitetsNiva = kund.LojalitetsNiva;
+
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid uppdatering av kund: {ex.Message}", ex);
+            }
+        }
+
+        public bool TaBortKund(int kundId)
+        {
+            try
+            {
+                var kund = HamtaKundMedId(kundId);
+                if (kund == null)
+                    throw new InvalidOperationException("Kunden finns inte i databasen");
+
+                _unitOfWork.KundRepository.Remove(kund);
+                _unitOfWork.Save();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid borttagning av kund: {ex.Message}", ex);
+            }
+        }
+
         public bool LaggTillLojalitetsPoang(int kundId, int poang)
         {
             try

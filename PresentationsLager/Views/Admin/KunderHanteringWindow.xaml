@@ -1,0 +1,223 @@
+﻿<Window x:Class="PresentationsLager.Views.Admin.KunderHanteringWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels.Admin"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
+        mc:Ignorable="d"
+        Title="RestoNation - Kunder"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:KunderHanteringWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="KUNDER"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="TILLBAKA"
+                            Command="{Binding TillbakaCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel - Search/Create -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1"
+                    Margin="0,0,20,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="30">
+                        <!-- Sök -->
+                        <TextBlock Text="SÖK KUND" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Telefonnummer:"/>
+                        <TextBox Text="{Binding SokTelefon, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Namn:"/>
+                        <TextBox Text="{Binding SokNamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="E-post:"/>
+                        <TextBox Text="{Binding SokEmail, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <Button Content="SÖK" Command="{Binding SokKundCommand}" Height="40" Background="#F4B942" Foreground="White" BorderThickness="0" Margin="0,0,0,30"/>
+
+                        <Rectangle Height="2" Fill="#A3B18A" Margin="0,0,0,30"/>
+
+                        <!-- Skapa kund -->
+                        <TextBlock Text="SKAPA NY KUND" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Namn: *"/>
+                        <TextBox Text="{Binding NyKundNamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Telefonnummer: *"/>
+                        <TextBox Text="{Binding NyKundTelefon, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="E-post:"/>
+                        <TextBox Text="{Binding NyKundEmail, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Region:"/>
+                        <ComboBox ItemsSource="{Binding Regioner}" SelectedItem="{Binding ValdRegion}" DisplayMemberPath="Regionnamn" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Hemmarestaurang:"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}" SelectedItem="{Binding ValdRestaurang}" DisplayMemberPath="Restaurangnamn" Height="35" Margin="0,0,0,20"/>
+
+                        <Button Content="SKAPA KUND" Command="{Binding SkapaKundCommand}" Height="45" Background="#A3B18A" Foreground="White" BorderThickness="0"/>
+
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel - Redigering -->
+            <Border Grid.Column="1"
+        Background="White"
+        CornerRadius="10"
+        BorderBrush="#102c48"
+        BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Kundlista -->
+                    <DataGrid Grid.Row="0"
+                  ItemsSource="{Binding HittadeKunder}"
+                  SelectedItem="{Binding ValdKund}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  HeadersVisibility="Column"
+                  FontFamily="Inter"
+                  FontSize="12"
+                  Margin="0,0,0,20">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Namn" Binding="{Binding Namn}" Width="*"/>
+                            <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="120"/>
+                            <DataGridTextColumn Header="E-post" Binding="{Binding Email}" Width="180"/>
+                            <DataGridTextColumn Header="Poäng" Binding="{Binding LojalitetsPoang}" Width="80"/>
+                            <DataGridTextColumn Header="Nivå" Binding="{Binding LojalitetsNiva}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Kunddetaljer för redigering -->
+                    <StackPanel Grid.Row="1"
+                    Visibility="{Binding ValdKund, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
+                        <TextBlock Text="REDIGERA KUND" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Namn:"/>
+                        <TextBox Text="{Binding ValdKund.Namn, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Telefon:"/>
+                        <TextBox Text="{Binding ValdKund.Telefon, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="E-post:"/>
+                        <TextBox Text="{Binding ValdKund.Email, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Region:"/>
+                        <ComboBox ItemsSource="{Binding Regioner}" SelectedItem="{Binding ValdKund.Region}" DisplayMemberPath="Regionnamn" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Hemmarestaurang:"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}" SelectedItem="{Binding ValdKund.Hemmarestaurang}" DisplayMemberPath="Restaurangnamn" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Lojalitetspoäng:"/>
+                        <TextBox Text="{Binding ValdKund.LojalitetsPoang, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Lojalitetsnivå:"/>
+                        <ComboBox SelectedItem="{Binding ValdKund.LojalitetsNiva}" Height="30" Margin="0,0,0,10">
+                            <ComboBoxItem Content="Brons"/>
+                            <ComboBoxItem Content="Silver"/>
+                            <ComboBoxItem Content="Guld"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Ändringar sparas automatiskt" FontStyle="Italic" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
+                            <Button Content="STÄNG" Command="{Binding TillbakaCommand}" Height="35" Background="#F4B942" Foreground="White" Margin="0,0,10,0"/>
+                            <Button Content="TA BORT KUND" Command="{Binding TaBortKundCommand}" Height="35" Background="#E53935" Foreground="White"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <TextBlock Text="Kundsökning - Sök befintliga kunder eller skapa nya"
+                       FontFamily="Inter"
+                       FontSize="12"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window>

@@ -3,11 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
 using PresentationsLager.Views;
+using PresentationsLager.Views.Admin;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels
@@ -31,7 +28,6 @@ namespace PresentationsLager.ViewModels
             InloggadAnvandare = anvandare;
         }
 
-
         [RelayCommand]
         private void Stäng()
         {
@@ -46,17 +42,34 @@ namespace PresentationsLager.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                // Logga ut användaren från session
                 if (InloggadAnvandare != null)
-                {
                     _anvandareController.LoggaUtAnvandare(InloggadAnvandare.AnvandarID);
-                }
 
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
-                // Stäng denna vy och öppna login igen
                 CloseAction?.Invoke();
             }
+        }
+
+        [RelayCommand]
+        private void ÖppnaMenyhantering()
+        {
+            var menyWindow = new MenyHanteringWindow();
+            menyWindow.ShowDialog();
+        }
+
+        [RelayCommand]
+        private void HanteraAnvandare()
+        {
+            var anvWindow = new AnvandareHanteringWindow();
+            anvWindow.ShowDialog();
+        }
+
+        [RelayCommand]
+        private void HanteraKunder()
+        {
+            var kunderWindow = new KunderHanteringWindow();
+            kunderWindow.ShowDialog();
         }
     }
 }

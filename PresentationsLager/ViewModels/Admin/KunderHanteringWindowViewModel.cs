@@ -1,16 +1,14 @@
-using AffärsLager.Controllers;
+﻿using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 
-namespace PresentationsLager.ViewModels
+namespace PresentationsLager.ViewModels.Admin
 {
-    public partial class KundSearchWindowViewModel : ObservableObject, IDisposable
+    public partial class KunderHanteringWindowViewModel : ObservableObject
     {
         private readonly KundController _kundController;
         private readonly RegionController _regionController;
@@ -61,7 +59,7 @@ namespace PresentationsLager.ViewModels
 
         public Action? CloseAction { get; set; }
 
-        public KundSearchWindowViewModel()
+        public KunderHanteringWindowViewModel()
         {
             _kundController = new KundController();
             _regionController = new RegionController();
@@ -75,12 +73,9 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                var regionList = _regionController.HamtaAllaRegioner();
                 Regioner.Clear();
-                foreach (var region in regionList)
-                {
+                foreach (var region in _regionController.HamtaAllaRegioner())
                     Regioner.Add(region);
-                }
             }
             catch (Exception ex)
             {
@@ -91,9 +86,7 @@ namespace PresentationsLager.ViewModels
         partial void OnValdRegionChanged(Region? value)
         {
             if (value != null)
-            {
                 LoadRestaurangerForRegion(value.RegionID);
-            }
             else
             {
                 Restauranger.Clear();
@@ -105,12 +98,9 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                var restaurangList = _restaurangController.HamtaRestaurangerForRegion(regionId);
                 Restauranger.Clear();
-                foreach (var restaurang in restaurangList)
-                {
-                    Restauranger.Add(restaurang);
-                }
+                foreach (var r in _restaurangController.HamtaRestaurangerForRegion(regionId))
+                    Restauranger.Add(r);
             }
             catch (Exception ex)
             {
@@ -124,7 +114,6 @@ namespace PresentationsLager.ViewModels
             try
             {
                 StatusMessage = string.Empty;
-
                 if (string.IsNullOrWhiteSpace(SokTelefon) &&
                     string.IsNullOrWhiteSpace(SokNamn) &&
                     string.IsNullOrWhiteSpace(SokEmail))
@@ -133,20 +122,13 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                var resultat = _kundController.SokKunder(SokTelefon, SokNamn, SokEmail);
-
                 HittadeKunder.Clear();
-                foreach (var kund in resultat)
-                {
+                foreach (var kund in _kundController.SokKunder(SokTelefon, SokNamn, SokEmail))
                     HittadeKunder.Add(kund);
-                }
 
                 AntalHittadeKunder = HittadeKunder.Count;
-
                 if (AntalHittadeKunder == 0)
-                {
                     StatusMessage = "Inga kunder hittades med angivna sökkriterier";
-                }
             }
             catch (Exception ex)
             {
@@ -160,7 +142,6 @@ namespace PresentationsLager.ViewModels
             try
             {
                 StatusMessage = string.Empty;
-
                 if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon))
                 {
                     StatusMessage = "Namn och telefonnummer är obligatoriska";
@@ -178,31 +159,19 @@ namespace PresentationsLager.ViewModels
                     SkapadDatum = DateTime.Now
                 };
 
-                bool skapad = _kundController.SkapaKund(nyKund);
-
-                if (skapad)
+                if (_kundController.SkapaKund(nyKund))
                 {
-                    StatusMessage = $"Kund '{nyKund.Namn}' har skapats framgångsrikt";
-
-                    // Rensa formuläret
-                    NyKundNamn = string.Empty;
-                    NyKundTelefon = string.Empty;
-                    NyKundEmail = string.Empty;
+                    StatusMessage = $"Kund '{nyKund.Namn}' skapad framgångsrikt";
+                    NyKundNamn = NyKundTelefon = NyKundEmail = string.Empty;
                     ValdRegion = null;
                     ValdRestaurang = null;
 
-                    // Uppdatera sökningen om det finns sökkriterier
                     if (!string.IsNullOrWhiteSpace(SokTelefon) ||
                         !string.IsNullOrWhiteSpace(SokNamn) ||
                         !string.IsNullOrWhiteSpace(SokEmail))
-                    {
                         SokKund();
-                    }
                 }
-                else
-                {
-                    StatusMessage = "Kunde inte skapa kunden. Kontrollera att telefonnumret inte redan finns.";
-                }
+                else StatusMessage = "Kunde inte skapa kunden. Kontrollera telefonnummer.";
             }
             catch (Exception ex)
             {
@@ -211,24 +180,60 @@ namespace PresentationsLager.ViewModels
         }
 
         [RelayCommand]
-        private void ValjKund()
+        private void RedigeraKund()
         {
-            if (ValdKund != null)
+            if (ValdKund == null)
             {
-                var result = MessageBox.Show(
-                    $"Vill du välja kunden:\n\n{ValdKund.Namn}\nTelefon: {ValdKund.Telefon}\nLojalitetspoäng: {ValdKund.LojalitetsPoang}",
-                    "Välj kund",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
+                StatusMessage = "Ingen kund vald för redigering";
+                return;
+            }
 
-                if (result == MessageBoxResult.Yes)
+            try
+            {
+                ValdKund.RegionID = ValdKund.Region?.RegionID;
+                ValdKund.HemmarestaurangID = ValdKund.Hemmarestaurang?.RestaurangID;
+
+                if (_kundController.UppdateraKund(ValdKund))
                 {
-                    // Här skulle vi kunna skicka tillbaka vald kund till huvudfönstret
-                    // För nu visar vi bara en bekräftelse
-                    MessageBox.Show($"Kund '{ValdKund.Namn}' har valts för aktuell beställning.",
-                        "Kund vald", MessageBoxButton.OK, MessageBoxImage.Information);
+                    StatusMessage = $"Kund '{ValdKund.Namn}' uppdaterad";
+                    SokKund();
+                }
+                else StatusMessage = "Kunde inte uppdatera kunden.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid uppdatering av kund: {ex.Message}";
+            }
+        }
 
-                    CloseAction?.Invoke();
+        [RelayCommand]
+        private void TaBortKund()
+        {
+            if (ValdKund == null)
+            {
+                StatusMessage = "Ingen kund vald för borttagning";
+                return;
+            }
+
+            var result = MessageBox.Show($"Vill du verkligen ta bort kund '{ValdKund.Namn}'?",
+                                         "Bekräfta borttagning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    if (_kundController.TaBortKund(ValdKund.KundID))
+                    {
+                        StatusMessage = $"Kund '{ValdKund.Namn}' borttagen";
+                        HittadeKunder.Remove(ValdKund);
+                        ValdKund = null;
+                        AntalHittadeKunder = HittadeKunder.Count;
+                    }
+                    else StatusMessage = "Kunde inte ta bort kunden.";
+                }
+                catch (Exception ex)
+                {
+                    StatusMessage = $"Fel vid borttagning: {ex.Message}";
                 }
             }
         }
@@ -241,7 +246,6 @@ namespace PresentationsLager.ViewModels
 
         public void Dispose()
         {
-            // Se till att DbContext disposas korrekt för att frigöra databas-resurser
             _extraController.Dispose();
         }
     }
