@@ -93,8 +93,8 @@ namespace PresentationsLager.ViewModels
                         break;
 
                     case "admin":
-                        MessageBox.Show($"Admin-vy kommer snart!\nInloggad som: {anvandare.Namn}",
-                            "Admin", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var adminMainWindow = new AdminMainWindow(anvandare);
+                        adminMainWindow.Show();
                         break;
 
                     case "restaurangchef":

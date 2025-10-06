@@ -1,0 +1,192 @@
+﻿<Window x:Class="PresentationsLager.Views.AdminMainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
+        mc:Ignorable="d"
+        Title="RestoNation - Admin"
+        WindowState="Maximized"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:AdminMainWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Header Bar -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo and Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="ADMIN"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"/>
+                </StackPanel>
+
+                <!-- User Info -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding InloggadAnvandare.Namn}"
+                               FontFamily="Inter"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               Margin="0,0,20,0"/>
+                    <TextBlock Text="|"
+                               FontSize="16"
+                               Foreground="#A3B18A"
+                               Margin="0,0,20,0"/>
+                    <Button Content="LOGGA UT"
+                            Command="{Binding LoggaUtCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Ändra Menyer -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    Margin="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="2">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+                <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="📋"
+                               FontSize="64"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+                    <TextBlock Text="ÄNDRA MENYER"
+                               FontFamily="Montserrat"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#102c48"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
+                    <TextBlock Text="Lägg till, ta bort eller uppdatera maträtter"
+                               FontFamily="Inter"
+                               FontSize="14"
+                               Foreground="#2E2E2E"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,30"/>
+                    <Button Content="HANTERA MENYER"
+                            Command="{Binding HanteraMenyerCommand}"
+                            Height="50"
+                            FontFamily="Inter"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="30,0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Lägg till Användare -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    CornerRadius="10"
+                    Margin="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="2">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+                <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="👤"
+                               FontSize="64"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+                    <TextBlock Text="ANVÄNDARE"
+                               FontFamily="Montserrat"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#102c48"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
+                    <TextBlock Text="Lägg till nya användare som servitör, VD m.fl."
+                               FontFamily="Inter"
+                               FontSize="14"
+                               Foreground="#2E2E2E"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,30"/>
+                    <Button Content="LÄGG TILL ANVÄNDARE"
+                            Command="{Binding LäggTillAnvandareCommand}"
+                            Height="50"
+                            FontFamily="Inter"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="30,0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="RestoNation Administrationspanel"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           Foreground="White"
+                           Margin="0,0,20,0"/>
+                <TextBlock Text="•"
+                           FontSize="12"
+                           Foreground="#F4B942"
+                           Margin="0,0,20,0"/>
+                <TextBlock Text="Version 1.0"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           Foreground="#A3B18A"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
