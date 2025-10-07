@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
+using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -15,47 +16,30 @@ namespace PresentationsLager.ViewModels.Admin
         private readonly RestaurangController _restaurangController;
         private readonly ExtraController _extraController;
 
-        [ObservableProperty]
-        private string sokTelefon = string.Empty;
+        [ObservableProperty] private string sokTelefon = string.Empty;
+        [ObservableProperty] private string sokNamn = string.Empty;
+        [ObservableProperty] private string sokEmail = string.Empty;
 
-        [ObservableProperty]
-        private string sokNamn = string.Empty;
+        [ObservableProperty] private string nyKundNamn = string.Empty;
+        [ObservableProperty] private string nyKundTelefon = string.Empty;
+        [ObservableProperty] private string nyKundEmail = string.Empty;
 
-        [ObservableProperty]
-        private string sokEmail = string.Empty;
+        [ObservableProperty] private Region? valdRegion;
+        [ObservableProperty] private Restaurang? valdRestaurang;
+        [ObservableProperty] private KundModel? valdKund;
+        [ObservableProperty] private string statusMessage = string.Empty;
+        [ObservableProperty] private int antalHittadeKunder = 0;
 
-        [ObservableProperty]
-        private string nyKundNamn = string.Empty;
+        [ObservableProperty] private Region? redigeradRegion;
+        [ObservableProperty] private Restaurang? redigeradRestaurang;
+        [ObservableProperty] private ObservableCollection<Restaurang> redigeringsRestauranger = new();
+        [ObservableProperty] private ObservableCollection<string> lojalitetsNivaer = new() { "Brons", "Silver", "Guld" };
 
-        [ObservableProperty]
-        private string nyKundTelefon = string.Empty;
+        [ObservableProperty] private ObservableCollection<KundModel> hittadeKunder = new();
+        [ObservableProperty] private ObservableCollection<Region> regioner = new();
+        [ObservableProperty] private ObservableCollection<Restaurang> restauranger = new();
 
-        [ObservableProperty]
-        private string nyKundEmail = string.Empty;
-
-        [ObservableProperty]
-        private Region? valdRegion;
-
-        [ObservableProperty]
-        private Restaurang? valdRestaurang;
-
-        [ObservableProperty]
-        private Kund? valdKund;
-
-        [ObservableProperty]
-        private string statusMessage = string.Empty;
-
-        [ObservableProperty]
-        private int antalHittadeKunder = 0;
-
-        [ObservableProperty]
-        private ObservableCollection<Kund> hittadeKunder = new();
-
-        [ObservableProperty]
-        private ObservableCollection<Region> regioner = new();
-
-        [ObservableProperty]
-        private ObservableCollection<Restaurang> restauranger = new();
+        private bool _isLoadingKund = false;
 
         public Action? CloseAction { get; set; }
 
@@ -65,7 +49,6 @@ namespace PresentationsLager.ViewModels.Admin
             _regionController = new RegionController();
             _restaurangController = new RestaurangController();
             _extraController = new ExtraController();
-
             LoadRegioner();
         }
 
@@ -114,6 +97,7 @@ namespace PresentationsLager.ViewModels.Admin
             try
             {
                 StatusMessage = string.Empty;
+
                 if (string.IsNullOrWhiteSpace(SokTelefon) &&
                     string.IsNullOrWhiteSpace(SokNamn) &&
                     string.IsNullOrWhiteSpace(SokEmail))
@@ -124,7 +108,7 @@ namespace PresentationsLager.ViewModels.Admin
 
                 HittadeKunder.Clear();
                 foreach (var kund in _kundController.SokKunder(SokTelefon, SokNamn, SokEmail))
-                    HittadeKunder.Add(kund);
+                    HittadeKunder.Add(KundModel.FromEntity(kund));
 
                 AntalHittadeKunder = HittadeKunder.Count;
                 if (AntalHittadeKunder == 0)
@@ -142,6 +126,7 @@ namespace PresentationsLager.ViewModels.Admin
             try
             {
                 StatusMessage = string.Empty;
+
                 if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon))
                 {
                     StatusMessage = "Namn och telefonnummer är obligatoriska";
@@ -179,30 +164,98 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        [RelayCommand]
-        private void RedigeraKund()
+        partial void OnValdKundChanged(KundModel? kund)
         {
-            if (ValdKund == null)
-            {
-                StatusMessage = "Ingen kund vald för redigering";
+            if (kund == null)
                 return;
-            }
 
             try
             {
-                ValdKund.RegionID = ValdKund.Region?.RegionID;
-                ValdKund.HemmarestaurangID = ValdKund.Hemmarestaurang?.RestaurangID;
+                _isLoadingKund = true; // 👈 Förhindrar att events triggas vid inläsning
 
-                if (_kundController.UppdateraKund(ValdKund))
+                // Region + restaurang för redigering
+                if (kund.RegionID.HasValue)
                 {
-                    StatusMessage = $"Kund '{ValdKund.Namn}' uppdaterad";
-                    SokKund();
+                    RedigeradRegion = Regioner.FirstOrDefault(r => r.RegionID == kund.RegionID.Value);
+                    if (RedigeradRegion != null)
+                        LoadRedigeringsRestauranger(RedigeradRegion.RegionID);
                 }
-                else StatusMessage = "Kunde inte uppdatera kunden.";
+                else
+                {
+                    RedigeringsRestauranger.Clear();
+                    RedigeradRegion = null;
+                }
+
+                if (kund.HemmarestaurangID.HasValue)
+                {
+                    RedigeradRestaurang = RedigeringsRestauranger.FirstOrDefault(r => r.RestaurangID == kund.HemmarestaurangID.Value);
+                }
+                else
+                {
+                    RedigeradRestaurang = null;
+                }
+
+                _isLoadingKund = false;
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Fel vid uppdatering av kund: {ex.Message}";
+                _isLoadingKund = false;
+                StatusMessage = $"Fel vid laddning av kunddata: {ex.Message}";
+            }
+        }
+
+        partial void OnRedigeradRegionChanged(Region? value)
+        {
+            if (_isLoadingKund || ValdKund == null) return;
+
+            try
+            {
+                if (value != null)
+                {
+                    LoadRedigeringsRestauranger(value.RegionID);
+                    ValdKund.RegionID = value.RegionID;
+                    _kundController.UppdateraKund(ValdKund.ToEntity());
+                    StatusMessage = $"Region uppdaterad för '{ValdKund.Namn}'.";
+                }
+                else
+                {
+                    RedigeringsRestauranger.Clear();
+                    ValdKund.RegionID = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid byte av region: {ex.Message}";
+            }
+        }
+
+        partial void OnRedigeradRestaurangChanged(Restaurang? value)
+        {
+            if (_isLoadingKund || ValdKund == null) return;
+
+            try
+            {
+                ValdKund.HemmarestaurangID = value?.RestaurangID;
+                _kundController.UppdateraKund(ValdKund.ToEntity());
+                StatusMessage = $"Hemmarestaurang uppdaterad för '{ValdKund.Namn}'.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid byte av restaurang: {ex.Message}";
+            }
+        }
+
+        private void LoadRedigeringsRestauranger(int regionId)
+        {
+            try
+            {
+                RedigeringsRestauranger.Clear();
+                foreach (var r in _restaurangController.HamtaRestaurangerForRegion(regionId))
+                    RedigeringsRestauranger.Add(r);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid laddning av restauranger: {ex.Message}";
             }
         }
 

@@ -182,20 +182,24 @@
                         <TextBox Text="{Binding ValdKund.Email, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
 
                         <TextBlock Text="Region:"/>
-                        <ComboBox ItemsSource="{Binding Regioner}" SelectedItem="{Binding ValdKund.Region}" DisplayMemberPath="Regionnamn" Height="30" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Regioner}" 
+                        SelectedItem="{Binding RedigeradRegion}" 
+                        DisplayMemberPath="Regionnamn"
+                        Height="30" Margin="0,0,0,5"/>
 
                         <TextBlock Text="Hemmarestaurang:"/>
-                        <ComboBox ItemsSource="{Binding Restauranger}" SelectedItem="{Binding ValdKund.Hemmarestaurang}" DisplayMemberPath="Restaurangnamn" Height="30" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding RedigeringsRestauranger}" 
+                        SelectedItem="{Binding RedigeradRestaurang}" 
+                        DisplayMemberPath="Restaurangnamn"
+                        Height="30" Margin="0,0,0,5"/>
 
                         <TextBlock Text="Lojalitetspoäng:"/>
                         <TextBox Text="{Binding ValdKund.LojalitetsPoang, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
 
                         <TextBlock Text="Lojalitetsnivå:"/>
-                        <ComboBox SelectedItem="{Binding ValdKund.LojalitetsNiva}" Height="30" Margin="0,0,0,10">
-                            <ComboBoxItem Content="Brons"/>
-                            <ComboBoxItem Content="Silver"/>
-                            <ComboBoxItem Content="Guld"/>
-                        </ComboBox>
+                        <ComboBox ItemsSource="{Binding LojalitetsNivaer}"
+                        SelectedItem="{Binding ValdKund.LojalitetsNiva, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Height="30" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Ändringar sparas automatiskt" FontStyle="Italic" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
 
