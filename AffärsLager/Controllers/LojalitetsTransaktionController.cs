@@ -1,5 +1,6 @@
 using EntitetsLager;
 using DataLager;
+using AffärsLager.Services;
 using System;
 using System.Linq;
 
@@ -81,7 +82,7 @@ namespace AffärsLager.Controllers
 
                 // Uppdatera kund
                 kund.LojalitetsPoang = nyttSaldo;
-                kund.LojalitetsNiva = BeraknaLojalitetsNiva(nyttSaldo);
+                kund.LojalitetsNiva = LojalitetsService.BeraknaLojalitetsNiva(nyttSaldo);
 
                 _unitOfWork.Save();
                 return true;
@@ -126,7 +127,7 @@ namespace AffärsLager.Controllers
 
                 // Uppdatera kund
                 kund.LojalitetsPoang = nyttSaldo;
-                kund.LojalitetsNiva = BeraknaLojalitetsNiva(nyttSaldo);
+                kund.LojalitetsNiva = LojalitetsService.BeraknaLojalitetsNiva(nyttSaldo);
 
                 _unitOfWork.Save();
                 return true;
@@ -137,19 +138,6 @@ namespace AffärsLager.Controllers
             }
         }
 
-        /// <summary>
-        /// Beräknar lojalitetsnivå baserat på poäng
-        /// Brons: 0-39p, Silver: 40-74p, Guld: 75+p
-        /// </summary>
-        private string BeraknaLojalitetsNiva(int poang)
-        {
-            if (poang >= 75)
-                return "Guld";
-            else if (poang >= 40)
-                return "Silver";
-            else
-                return "Brons";
-        }
 
         /// <summary>
         /// Hämtar alla transaktioner för en kund
@@ -176,7 +164,49 @@ namespace AffärsLager.Controllers
         public bool KanAnvandaPoangForBetalning(int kundId)
         {
             var poang = HamtaKundsPoang(kundId);
-            return poang >= 100;
+            return LojalitetsService.KanFaGratisLunch(poang);
+        }
+
+        /// <summary>
+        /// Kontrollerar om kund kan få gratis lunch (kräver 100p)
+        /// </summary>
+        public bool KanFaGratisLunch(int kundId)
+        {
+            var poang = HamtaKundsPoang(kundId);
+            return LojalitetsService.KanFaGratisLunch(poang);
+        }
+
+        /// <summary>
+        /// Beräknar rabatt för kund baserat på lojalitetsnivå
+        /// </summary>
+        public decimal BeraknaRabatt(int kundId, decimal totalpris)
+        {
+            var kund = _kundController.HamtaKundMedId(kundId);
+            if (kund == null)
+                return 0m;
+
+            return LojalitetsService.BeraknaRabattBelopp(kund.LojalitetsNiva, totalpris);
+        }
+
+        /// <summary>
+        /// Hämtar beskrivning av kundens förmåner
+        /// </summary>
+        public string HamtaFormanerBeskrivning(int kundId)
+        {
+            var kund = _kundController.HamtaKundMedId(kundId);
+            if (kund == null)
+                return "Inga förmåner";
+
+            return LojalitetsService.HamtaFormanerBeskrivning(kund.LojalitetsNiva);
+        }
+
+        /// <summary>
+        /// Beräknar hur många poäng som krävs för nästa nivå
+        /// </summary>
+        public int PoangTillNastaNiva(int kundId)
+        {
+            var poang = HamtaKundsPoang(kundId);
+            return LojalitetsService.PoangTillNastaNiva(poang);
         }
     }
 }
