@@ -3,10 +3,229 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PresentationsLager.Views.Admin"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels.Admin"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
         mc:Ignorable="d"
-        Title="AnvandareHanteringWindow" Height="450" Width="800">
+        Title="RestoNation - Användare"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:AnvandareHanteringWindowViewModel/>
+    </Window.DataContext>
+
     <Grid>
-        
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="ANVÄNDARE"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="TILLBAKA"
+                            Command="{Binding TillbakaCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1"
+                    Margin="0,0,20,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="30">
+
+                        <!-- Sök -->
+                        <TextBlock Text="SÖK ANVÄNDARE" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Användarnamn:"/>
+                        <TextBox Text="{Binding SokAnvandarnamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Namn:"/>
+                        <TextBox Text="{Binding SokNamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Roll:"/>
+                        <ComboBox ItemsSource="{Binding Roller}" SelectedItem="{Binding SokRoll}" Height="35" Margin="0,0,0,15"/>
+
+                        <Button Content="SÖK" Command="{Binding SokAnvandareCommand}" Height="40" Background="#F4B942" Foreground="White" BorderThickness="0" Margin="0,0,0,30"/>
+
+                        <Rectangle Height="2" Fill="#A3B18A" Margin="0,0,0,30"/>
+
+                        <!-- Skapa ny användare -->
+                        <TextBlock Text="SKAPA NY ANVÄNDARE" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Användarnamn: *"/>
+                        <TextBox Text="{Binding NyAnvandarnamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Lösenord: *"/>
+                        <PasswordBox Height="35" Margin="0,0,0,15" PasswordChanged="PasswordBox_PasswordChanged"/>
+
+                        <TextBlock Text="Bekräfta lösenord: *"/>
+                        <PasswordBox Height="35" Margin="0,0,0,15" PasswordChanged="BekraftaPasswordBox_PasswordChanged"/>
+                       
+
+                        <TextBlock Text="Namn: *"/>
+                        <TextBox Text="{Binding NyNamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Roll:"/>
+                        <ComboBox ItemsSource="{Binding Roller}" SelectedItem="{Binding NyRoll}" Height="35" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Hemmarestaurang:"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}" SelectedItem="{Binding NyValdRestaurang}" DisplayMemberPath="Restaurangnamn" Height="35" Margin="0,0,0,20"/>
+
+                        <CheckBox Content="Aktiv" IsChecked="{Binding NyAktiv}" Margin="0,0,0,15"/>
+
+                        <Button Content="SKAPA ANVÄNDARE" Command="{Binding SkapaAnvandareCommand}" Height="45" Background="#A3B18A" Foreground="White" BorderThickness="0"/>
+
+                        <TextBlock Text="{Binding NyStatusMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Right Panel -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Användarlista -->
+                    <DataGrid Grid.Row="0"
+                              ItemsSource="{Binding HittadeAnvandare}"
+                              SelectedItem="{Binding ValdAnvandare}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              FontFamily="Inter"
+                              FontSize="12"
+                              Margin="0,0,0,20">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Användarnamn" Binding="{Binding Anvandarnamn}" Width="*"/>
+                            <DataGridTextColumn Header="Namn" Binding="{Binding Namn}" Width="160"/>
+                            <DataGridTextColumn Header="Roll" Binding="{Binding Roll}" Width="120"/>
+                            <DataGridTextColumn Header="Restaurang" Binding="{Binding Hemmarestaurang.Restaurangnamn}" Width="160"/>
+                            <DataGridCheckBoxColumn Header="Aktiv" Binding="{Binding Aktiv}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Detaljer / Redigering -->
+                    <StackPanel Grid.Row="1"
+                                Visibility="{Binding ValdAnvandare, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
+
+                        <TextBlock Text="REDIGERA ANVÄNDARE" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Användarnamn:"/>
+                        <TextBox Text="{Binding ValdAnvandare.Anvandarnamn, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Ändra lösenord:" FontWeight="Bold" Margin="0,10,0,5"/>
+                        <TextBlock Text="Nytt lösenord:"/>
+                        <PasswordBox x:Name="ValdNyPasswordBox" Height="30" Margin="0,0,0,5" PasswordChanged="ValdNyPasswordBox_PasswordChanged"/>
+                        <TextBlock Text="Bekräfta nytt lösenord:"/>
+                        <PasswordBox x:Name="ValdBekraftaPasswordBox" Height="30" Margin="0,0,0,10" PasswordChanged="ValdBekraftaPasswordBox_PasswordChanged"/>
+                        <Button Content="SPARA LÖSENORD" Command="{Binding SparaLosenordCommand}" Height="35" Background="#A3B18A" Foreground="White" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Namn:"/>
+                        <TextBox Text="{Binding ValdAnvandare.Namn, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Roll:"/>
+                        <ComboBox ItemsSource="{Binding Roller}" 
+                        SelectedItem="{Binding ValdAnvandare.Roll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                        Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Hemmarestaurang:"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}" 
+                        SelectedItem="{Binding ValdAnvandare.Hemmarestaurang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                        DisplayMemberPath="Restaurangnamn" Height="30" Margin="0,0,0,5"/>
+
+                        <CheckBox Content="Aktiv" IsChecked="{Binding ValdAnvandare.Aktiv, Mode=TwoWay}" Margin="0,5,0,10"/>
+
+                        <TextBlock Text="Ändringar sparas automatiskt" FontStyle="Italic" FontSize="12" Foreground="Gray" Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
+                            <Button Content="STÄNG" Command="{Binding TillbakaCommand}" Height="35" Background="#F4B942" Foreground="White" Margin="0,0,10,0"/>
+                            <Button Content="TA BORT ANVÄNDARE" Command="{Binding TaBortAnvandareCommand}" Height="35" Background="#E53935" Foreground="White"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <TextBlock Text="Användarhantering - Sök, skapa, redigera eller ta bort användare"
+                       FontFamily="Inter"
+                       FontSize="12"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
     </Grid>
 </Window>

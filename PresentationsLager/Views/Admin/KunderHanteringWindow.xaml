@@ -126,7 +126,7 @@
 
                         <Button Content="SKAPA KUND" Command="{Binding SkapaKundCommand}" Height="45" Background="#A3B18A" Foreground="White" BorderThickness="0"/>
 
-                        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                        <TextBlock Text="{Binding NyStatusMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

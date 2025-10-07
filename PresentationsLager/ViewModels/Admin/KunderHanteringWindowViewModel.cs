@@ -34,6 +34,7 @@ namespace PresentationsLager.ViewModels.Admin
         [ObservableProperty] private Restaurang? redigeradRestaurang;
         [ObservableProperty] private ObservableCollection<Restaurang> redigeringsRestauranger = new();
         [ObservableProperty] private ObservableCollection<string> lojalitetsNivaer = new() { "Brons", "Silver", "Guld" };
+        [ObservableProperty] private string nyStatusMessage = string.Empty;
 
         [ObservableProperty] private ObservableCollection<KundModel> hittadeKunder = new();
         [ObservableProperty] private ObservableCollection<Region> regioner = new();
@@ -129,7 +130,7 @@ namespace PresentationsLager.ViewModels.Admin
 
                 if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon))
                 {
-                    StatusMessage = "Namn och telefonnummer är obligatoriska";
+                    NyStatusMessage = "Alla fält markerade med * är obligatoriska.";
                     return;
                 }
 
@@ -146,7 +147,7 @@ namespace PresentationsLager.ViewModels.Admin
 
                 if (_kundController.SkapaKund(nyKund))
                 {
-                    StatusMessage = $"Kund '{nyKund.Namn}' skapad framgångsrikt";
+                    NyStatusMessage = $"Användare '{nyKund.Namn}' skapad.";
                     NyKundNamn = NyKundTelefon = NyKundEmail = string.Empty;
                     ValdRegion = null;
                     ValdRestaurang = null;
@@ -156,53 +157,56 @@ namespace PresentationsLager.ViewModels.Admin
                         !string.IsNullOrWhiteSpace(SokEmail))
                         SokKund();
                 }
-                else StatusMessage = "Kunde inte skapa kunden. Kontrollera telefonnummer.";
+                else NyStatusMessage = "Kunde inte skapa användare.";
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Fel vid skapande av kund: {ex.Message}";
+                NyStatusMessage = $"Fel vid skapande av kund: {ex.Message}";
             }
         }
 
         partial void OnValdKundChanged(KundModel? kund)
         {
-            if (kund == null)
-                return;
+            if (kund == null) return;
+
+            _isLoadingKund = true;
+
+            kund.PropertyChanged += ValdKund_PropertyChanged;
+
+            if (kund.RegionID.HasValue)
+            {
+                RedigeradRegion = Regioner.FirstOrDefault(r => r.RegionID == kund.RegionID.Value);
+                if (RedigeradRegion != null)
+                    LoadRedigeringsRestauranger(RedigeradRegion.RegionID);
+            }
+
+            if (kund.HemmarestaurangID.HasValue)
+                RedigeradRestaurang = RedigeringsRestauranger.FirstOrDefault(r => r.RestaurangID == kund.HemmarestaurangID.Value);
+
+            _isLoadingKund = false;
+        }
+
+        private void ValdKund_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (_isLoadingKund || ValdKund == null) return;
 
             try
             {
-                _isLoadingKund = true; // 👈 Förhindrar att events triggas vid inläsning
-
-                // Region + restaurang för redigering
-                if (kund.RegionID.HasValue)
+                if (e.PropertyName == nameof(ValdKund.Namn) ||
+                    e.PropertyName == nameof(ValdKund.Telefon) ||
+                    e.PropertyName == nameof(ValdKund.Email))
                 {
-                    RedigeradRegion = Regioner.FirstOrDefault(r => r.RegionID == kund.RegionID.Value);
-                    if (RedigeradRegion != null)
-                        LoadRedigeringsRestauranger(RedigeradRegion.RegionID);
+                    _kundController.UppdateraKund(ValdKund.ToEntity());
+                    StatusMessage = "Ändringar sparade.";
                 }
-                else
-                {
-                    RedigeringsRestauranger.Clear();
-                    RedigeradRegion = null;
-                }
-
-                if (kund.HemmarestaurangID.HasValue)
-                {
-                    RedigeradRestaurang = RedigeringsRestauranger.FirstOrDefault(r => r.RestaurangID == kund.HemmarestaurangID.Value);
-                }
-                else
-                {
-                    RedigeradRestaurang = null;
-                }
-
-                _isLoadingKund = false;
             }
             catch (Exception ex)
             {
-                _isLoadingKund = false;
-                StatusMessage = $"Fel vid laddning av kunddata: {ex.Message}";
+                StatusMessage = $"Fel vid sparande: {ex.Message}";
             }
         }
+
+
 
         partial void OnRedigeradRegionChanged(Region? value)
         {

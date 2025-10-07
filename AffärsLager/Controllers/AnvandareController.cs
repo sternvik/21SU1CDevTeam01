@@ -110,6 +110,97 @@ namespace AffärsLager.Controllers
             return _unitOfWork.AnvandareRepository.Find(a => a.Roll == roll && a.Aktiv).ToList();
         }
 
+        public Anvandare? HamtaAnvandareMedId(int anvandarId)
+        {
+            try
+            {
+                return _unitOfWork.AnvandareRepository.FirstOrDefault(a => a.AnvandarID == anvandarId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Fel vid hämtning av användare med ID: {ex.Message}", ex);
+            }
+        }
+
+        public List<Anvandare> SokAnvandare(string? namn = null, string? anvandarnamn = null, string? roll = null)
+        {
+            var query = _unitOfWork.AnvandareRepository.GetAll();
+
+            if (!string.IsNullOrWhiteSpace(namn))
+                query = query.Where(a => a.Namn != null && a.Namn.ToLower().Contains(namn.Trim().ToLower()));
+
+            if (!string.IsNullOrWhiteSpace(anvandarnamn))
+                query = query.Where(a => a.Anvandarnamn != null && a.Anvandarnamn.ToLower().Contains(anvandarnamn.Trim().ToLower()));
+
+            if (!string.IsNullOrWhiteSpace(roll))
+                query = query.Where(a => a.Roll != null && a.Roll.ToLower().Contains(roll.Trim().ToLower()));
+
+            return query.OrderBy(a => a.Namn).ToList();
+        }
+
+        public bool SkapaAnvandare(Anvandare anvandare)
+        {
+            if (anvandare == null || string.IsNullOrWhiteSpace(anvandare.Anvandarnamn) ||
+                string.IsNullOrWhiteSpace(anvandare.Losenord) || string.IsNullOrWhiteSpace(anvandare.Namn) ||
+                string.IsNullOrWhiteSpace(anvandare.Roll))
+                return false;
+
+            var befintlig = _unitOfWork.AnvandareRepository.FirstOrDefault(a => a.Anvandarnamn == anvandare.Anvandarnamn);
+            if (befintlig != null)
+                return false;
+
+            _unitOfWork.AnvandareRepository.Add(anvandare);
+            _unitOfWork.Save();
+
+            var sparad = _unitOfWork.AnvandareRepository.FirstOrDefault(a => a.Anvandarnamn == anvandare.Anvandarnamn);
+            return sparad != null;
+        }
+
+        public bool UppdateraAnvandare(Anvandare anvandare)
+        {
+            if (anvandare == null)
+                return false;
+
+            var befintlig = HamtaAnvandareMedId(anvandare.AnvandarID);
+            if (befintlig == null)
+                return false;
+
+            befintlig.Namn = anvandare.Namn;
+            befintlig.Anvandarnamn = anvandare.Anvandarnamn;
+            befintlig.Losenord = anvandare.Losenord;
+            befintlig.Roll = anvandare.Roll;
+            befintlig.Aktiv = anvandare.Aktiv;
+            befintlig.HemmarestaurangID = anvandare.HemmarestaurangID;
+
+            _unitOfWork.Save();
+            return true;
+        }
+
+        public bool TaBortAnvandare(int anvandarId)
+        {
+            var anv = HamtaAnvandareMedId(anvandarId);
+            if (anv == null)
+                return false;
+
+            _unitOfWork.AnvandareRepository.Remove(anv);
+            _unitOfWork.Save();
+            return true;
+        }
+
+        public bool AndraLosenord(int anvandarId, string nyttLosenord)
+        {
+            if (string.IsNullOrWhiteSpace(nyttLosenord))
+                return false;
+
+            var anvandare = HamtaAnvandareMedId(anvandarId);
+            if (anvandare == null)
+                return false;
+
+            anvandare.Losenord = nyttLosenord.Trim();
+            _unitOfWork.Save();
+            return true;
+        }
+
         private void StaraSession(int anvandarID)
         {
             _aktivaSessioner.AddOrUpdate(anvandarID, DateTime.Now, (key, oldValue) => DateTime.Now);
