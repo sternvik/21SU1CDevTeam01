@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PresentationsLager.ViewModels.Admin;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,12 @@ namespace PresentationsLager.Views.Admin
         public MenyHanteringWindow()
         {
             InitializeComponent();
+
+
+            if (DataContext is MenyHanteringWindowViewModel viewModel)
+            {
+                viewModel.CloseAction = () => this.Close();
+            }
         }
     }
 }

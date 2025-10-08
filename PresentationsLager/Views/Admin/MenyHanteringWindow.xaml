@@ -3,10 +3,219 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PresentationsLager.Views.Admin"
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels.Admin"
+        xmlns:conv="clr-namespace:PresentationsLager.Converters"
         mc:Ignorable="d"
-        Title="MenyHanteringWindow" Height="450" Width="800">
+        Title="RestoNation - Menyhantering"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:MenyHanteringWindowViewModel/>
+    </Window.DataContext>
+
     <Grid>
-        
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="MENYHANTERING"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="TILLBAKA"
+                            Command="{Binding TillbakaCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main content -->
+        <Grid Grid.Row="1" Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Vänsterpanel: sök + skapa -->
+            <Border Grid.Column="0"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1"
+                    Margin="0,0,20,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="30">
+
+                        <!-- Region / restaurang -->
+                        <TextBlock Text="VÄLJ PLATS" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+                        <TextBlock Text="Region:"/>
+                        <ComboBox ItemsSource="{Binding Regioner}" 
+                                  SelectedItem="{Binding ValdRegion}" 
+                                  DisplayMemberPath="RegionNamn"
+                                  Height="35" Margin="0,0,0,10"/>
+                        <TextBlock Text="Restaurang:"/>
+                        <ComboBox ItemsSource="{Binding Restauranger}" 
+                                  SelectedItem="{Binding ValdRestaurang}" 
+                                  DisplayMemberPath="Restaurangnamn"
+                                  Height="35" Margin="0,0,0,15"/>
+
+                        <Button Content="LADDA MENY" Command="{Binding LaddaMenyCommand}" Height="40" Background="#F4B942" Foreground="White" BorderThickness="0" Margin="0,0,0,30"/>
+
+                        <Rectangle Height="2" Fill="#A3B18A" Margin="0,0,0,30"/>
+
+                        <!-- Sök meny -->
+                        <TextBlock Text="SÖK RÄTT" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+                        <TextBlock Text="Rättnamn:"/>
+                        <TextBox Text="{Binding SokRattnamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+                        <TextBlock Text="Kategori:"/>
+                        <TextBox Text="{Binding SokKategori, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+                        <Button Content="SÖK" Command="{Binding SokMenyCommand}" Height="40" Background="#588157" Foreground="White" BorderThickness="0" Margin="0,0,0,30"/>
+
+                        <Rectangle Height="2" Fill="#A3B18A" Margin="0,0,0,30"/>
+
+                        <!-- Skapa ny rätt -->
+                        <TextBlock Text="LÄGG TILL NY RÄTT" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Rättnamn: *"/>
+                        <TextBox Text="{Binding NyRattnamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Beskrivning:"/>
+                        <TextBox Text="{Binding NyBeskrivning, UpdateSourceTrigger=PropertyChanged}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Pris (kr): *"/>
+                        <TextBox Text="{Binding NyPrisText, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Kategori: *"/>
+                        <TextBox Text="{Binding NyKategori, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,10"/>
+
+                        <CheckBox Content="Grundmeny" IsChecked="{Binding NyArGrundmeny}" Margin="0,5,0,5"/>
+                        <CheckBox Content="Aktiv" IsChecked="{Binding NyAktiv}" Margin="0,5,0,20"/>
+
+                        <Button Content="LÄGG TILL RÄTT" Command="{Binding SkapaMenyCommand}" Height="45" Background="#A3B18A" Foreground="White" BorderThickness="0"/>
+
+                        <TextBlock Text="{Binding NyStatusMessage}" Foreground="Red" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Högerpanel: menylista + redigering -->
+            <Border Grid.Column="1"
+                    Background="White"
+                    CornerRadius="10"
+                    BorderBrush="#102c48"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                </Border.Effect>
+
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Lista -->
+                    <DataGrid Grid.Row="0"
+                              ItemsSource="{Binding Menyvaror}"
+                              SelectedItem="{Binding ValdMeny}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              FontFamily="Inter"
+                              FontSize="12"
+                              Margin="0,0,0,20">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Rättnamn" Binding="{Binding Rattnamn}" Width="*"/>
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="150"/>
+                            <DataGridTextColumn Header="Pris (kr)" Binding="{Binding Pris}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Grundmeny" Binding="{Binding ArGrundmeny}" Width="120"/>
+                            <DataGridCheckBoxColumn Header="Aktiv" Binding="{Binding Aktiv}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Redigering -->
+                    <StackPanel Grid.Row="1"
+                                Visibility="{Binding ValdMeny, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
+
+                        <TextBlock Text="REDIGERA RÄTT" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Rättnamn:"/>
+                        <TextBox Text="{Binding ValdMeny.Rattnamn, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Beskrivning:"/>
+                        <TextBox Text="{Binding ValdMeny.Beskrivning, UpdateSourceTrigger=PropertyChanged}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Pris (kr):"/>
+                        <TextBox Text="{Binding ValdMenyPrisText, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Kategori:"/>
+                        <TextBox Text="{Binding ValdMeny.Kategori, UpdateSourceTrigger=PropertyChanged}" Height="30" Margin="0,0,0,5"/>
+
+                        <CheckBox Content="Grundmeny" IsChecked="{Binding ValdMeny.ArGrundmeny}" Margin="0,5,0,5"/>
+                        <CheckBox Content="Aktiv" IsChecked="{Binding ValdMeny.Aktiv}" Margin="0,5,0,15"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="SPARA ÄNDRINGAR" Command="{Binding SparaMenyCommand}" Height="35" Background="#588157" Foreground="White" Margin="0,0,10,0"/>
+                            <Button Content="TA BORT RÄTT" Command="{Binding TaBortMenyCommand}" Height="35" Background="#E53935" Foreground="White"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,15,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <TextBlock Text="Menyhantering - Hantera, sök och skapa nya rätter"
+                       FontFamily="Inter"
+                       FontSize="12"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
     </Grid>
 </Window>
