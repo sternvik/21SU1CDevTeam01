@@ -194,8 +194,20 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 if (e.PropertyName == nameof(ValdKund.Namn) ||
                     e.PropertyName == nameof(ValdKund.Telefon) ||
-                    e.PropertyName == nameof(ValdKund.Email))
+                    e.PropertyName == nameof(ValdKund.Email) ||
+                    e.PropertyName == nameof(ValdKund.LojalitetsPoang) ||
+                    e.PropertyName == nameof(ValdKund.LojalitetsNiva))
                 {
+                    // Om poängen ändras, uppdatera automatiskt nivån
+                    if (e.PropertyName == nameof(ValdKund.LojalitetsPoang))
+                    {
+                        var nyNiva = AffärsLager.Services.LojalitetsService.BeraknaLojalitetsNiva(ValdKund.LojalitetsPoang);
+                        if (ValdKund.LojalitetsNiva != nyNiva)
+                        {
+                            ValdKund.LojalitetsNiva = nyNiva;
+                        }
+                    }
+
                     _kundController.UppdateraKund(ValdKund.ToEntity());
                     StatusMessage = "Ändringar sparade.";
                 }

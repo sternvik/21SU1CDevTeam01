@@ -5,6 +5,9 @@ namespace EntitetsLager
 {
     public class Anvandare
     {
+
+        //hej ny branch 
+
         [Key]
         public int AnvandarID { get; set; }
 

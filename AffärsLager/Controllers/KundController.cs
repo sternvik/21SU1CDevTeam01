@@ -1,5 +1,6 @@
 using DataLager;
 using EntitetsLager;
+using AffärsLager.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -184,7 +185,7 @@ namespace AffärsLager.Controllers
                 kund.LojalitetsPoang += poang;
 
                 // Uppdatera lojalitetsnivå baserat på poäng
-                kund.LojalitetsNiva = BerakknaLojalitetsNiva(kund.LojalitetsPoang);
+                kund.LojalitetsNiva = LojalitetsService.BeraknaLojalitetsNiva(kund.LojalitetsPoang);
 
                 _unitOfWork.Save();
                 return true;
@@ -210,14 +211,5 @@ namespace AffärsLager.Controllers
             }
         }
 
-        private string BerakknaLojalitetsNiva(int poang)
-        {
-            return poang switch
-            {
-                >= 1000 => "Guld",
-                >= 500 => "Silver",
-                _ => "Brons"
-            };
-        }
     }
 }
