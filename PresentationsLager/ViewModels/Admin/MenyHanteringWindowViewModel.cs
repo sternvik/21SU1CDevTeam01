@@ -14,6 +14,7 @@ namespace PresentationsLager.ViewModels.Admin
         private readonly MenyController _menyController = new MenyController();
         private readonly RegionController _regionController = new RegionController();
         private readonly RestaurangController _restaurangController = new RestaurangController();
+        private readonly RestaurangMenyController _restaurangMenyController = new RestaurangMenyController();
 
         [ObservableProperty] private ObservableCollection<Region> regioner = new();
         [ObservableProperty] private ObservableCollection<Restaurang> restauranger = new();
@@ -131,11 +132,41 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
+        partial void OnValdRestaurangChanged(Restaurang? value)
+        {
+            if (value == null)
+            {
+                Menyvaror.Clear();
+                return;
+            }
+
+            try
+            {
+                var list = _restaurangMenyController
+                    .HamtaMenyForRestaurang(value.RestaurangID)
+                    .Select(MenyModel.FromEntity)
+                    .ToList();
+
+                Menyvaror = new ObservableCollection<MenyModel>(list);
+                StatusMessage = $"Meny laddad för {value.Restaurangnamn}.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid laddning av meny: {ex.Message}";
+            }
+        }
+
         [RelayCommand]
         private void SkapaMeny()
         {
             try
             {
+                if (ValdRestaurang == null)
+                {
+                    NyStatusMessage = "Välj restaurang först.";
+                    return;
+                }
+
                 if (string.IsNullOrWhiteSpace(NyRattnamn) ||
                     string.IsNullOrWhiteSpace(NyKategori) ||
                     string.IsNullOrWhiteSpace(NyPrisText))
@@ -146,7 +177,7 @@ namespace PresentationsLager.ViewModels.Admin
 
                 if (!decimal.TryParse(NyPrisText.Replace(',', '.'), out var pris))
                 {
-                    NyStatusMessage = "Pris måste vara ett giltigt tal (ex 129.50).";
+                    NyStatusMessage = "Pris måste vara ett giltigt tal.";
                     return;
                 }
 
@@ -161,18 +192,10 @@ namespace PresentationsLager.ViewModels.Admin
                 };
 
                 _menyController.SkapaMeny(meny);
+                _restaurangMenyController.KopplaMenyTillRestaurang(ValdRestaurang.RestaurangID, meny.MenyID);
 
-                NyStatusMessage = $"Rätten '{meny.Rattnamn}' skapades.";
-
-                NyRattnamn = NyBeskrivning = NyKategori = null;
-                NyPrisText = string.Empty;
-                NyArGrundmeny = true;
-                NyAktiv = true;
-
-                if (ValdRestaurang != null)
-                    LaddaMeny();
-                else
-                    LaddaAllaMenyer();
+                NyStatusMessage = $"Rätten '{meny.Rattnamn}' skapades för {ValdRestaurang.Restaurangnamn}.";
+                OnValdRestaurangChanged(ValdRestaurang);
             }
             catch (Exception ex)
             {
@@ -180,30 +203,18 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        partial void OnValdMenyChanged(MenyModel? meny)
-        {
-            if (meny == null)
-            {
-                ValdMenyPrisText = string.Empty;
-                return;
-            }
-
-            ValdMenyPrisText = meny.Pris.ToString("0.##");
-        }
-
         [RelayCommand]
         private void SparaMeny()
         {
-            if (ValdMeny == null)
+            if (ValdMeny == null || ValdRestaurang == null)
             {
-                StatusMessage = "Ingen rätt vald.";
+                StatusMessage = "Välj restaurang och rätt först.";
                 return;
             }
 
             try
             {
-                if (string.IsNullOrWhiteSpace(ValdMenyPrisText) ||
-                    !decimal.TryParse(ValdMenyPrisText.Replace(',', '.'), out var pris))
+                if (!decimal.TryParse(ValdMenyPrisText.Replace(',', '.'), out var pris))
                 {
                     StatusMessage = "Pris måste vara ett giltigt tal.";
                     return;
@@ -211,17 +222,12 @@ namespace PresentationsLager.ViewModels.Admin
 
                 ValdMeny.Pris = pris;
                 _menyController.UppdateraMeny(ValdMeny.ToEntity());
-
-                if (ValdRestaurang != null)
-                    LaddaMeny();
-                else
-                    LaddaAllaMenyer();
-
                 StatusMessage = $"Rätten '{ValdMeny.Rattnamn}' uppdaterades.";
+                OnValdRestaurangChanged(ValdRestaurang);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Fel vid sparande: {ex.Message}";
+                StatusMessage = $"Fel vid uppdatering: {ex.Message}";
             }
         }
 
