@@ -100,7 +100,9 @@
                         <TextBlock Text="Rättnamn:"/>
                         <TextBox Text="{Binding SokRattnamn, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
                         <TextBlock Text="Kategori:"/>
-                        <TextBox Text="{Binding SokKategori, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
+                        <ComboBox ItemsSource="{Binding Kategorier}"
+                                  SelectedItem="{Binding SokKategori}"
+                                  Height="35" Margin="0,0,0,15"/>
                         <Button Content="SÖK" Command="{Binding SokMenyCommand}" Height="40" Background="#588157" Foreground="White" BorderThickness="0" Margin="0,0,0,30"/>
 
                         <Rectangle Height="2" Fill="#A3B18A" Margin="0,0,0,30"/>
@@ -113,9 +115,9 @@
                         <TextBlock Text="Pris (kr): *"/>
                         <TextBox Text="{Binding NyPrisText, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,10"/>
                         <TextBlock Text="Kategori: *"/>
-                        <TextBox Text="{Binding NyKategori, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,10"/>
-                        <CheckBox Content="Grundmeny" IsChecked="{Binding NyArGrundmeny}" Margin="0,5,0,5"/>
-                        <CheckBox Content="Aktiv" IsChecked="{Binding NyAktiv}" Margin="0,5,0,20"/>
+                        <ComboBox ItemsSource="{Binding Kategorier}"
+                                  SelectedItem="{Binding NyKategori}"
+                                  Height="35" Margin="0,0,0,20"/>
                         <Button Content="LÄGG TILL RÄTT" Command="{Binding SkapaMenyCommand}" Height="45" Background="#A3B18A" Foreground="White" BorderThickness="0"/>
                         <TextBlock Text="{Binding NyStatusMessage}" Foreground="Red" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                     </StackPanel>
@@ -149,10 +151,8 @@
                               Margin="0,0,0,20">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Rättnamn" Binding="{Binding Rattnamn}" Width="*"/>
-                            <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="150"/>
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Kategori}" Width="200"/>
                             <DataGridTextColumn Header="Pris (kr)" Binding="{Binding Pris}" Width="100"/>
-                            <DataGridCheckBoxColumn Header="Grundmeny" Binding="{Binding ArGrundmeny}" Width="120"/>
-                            <DataGridCheckBoxColumn Header="Aktiv" Binding="{Binding Aktiv}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -165,9 +165,9 @@
                         <TextBlock Text="Pris (kr):"/>
                         <TextBox Text="{Binding ValdMenyPrisText}" Height="30" Margin="0,0,0,5"/>
                         <TextBlock Text="Kategori:"/>
-                        <TextBox Text="{Binding ValdMeny.Kategori}" Height="30" Margin="0,0,0,5"/>
-                        <CheckBox Content="Grundmeny" IsChecked="{Binding ValdMeny.ArGrundmeny}" Margin="0,5,0,5"/>
-                        <CheckBox Content="Aktiv" IsChecked="{Binding ValdMeny.Aktiv}" Margin="0,5,0,15"/>
+                        <ComboBox ItemsSource="{Binding Kategorier}"
+                                  SelectedItem="{Binding ValdMeny.Kategori}"
+                                  Height="30" Margin="0,0,0,15"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Content="SPARA ÄNDRINGAR" Command="{Binding SparaMenyCommand}" Height="35" Background="#588157" Foreground="White" Margin="0,0,10,0"/>
                             <Button Content="TA BORT RÄTT" Command="{Binding TaBortMenyCommand}" Height="35" Background="#E53935" Foreground="White"/>

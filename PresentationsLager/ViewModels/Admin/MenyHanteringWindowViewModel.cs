@@ -30,9 +30,15 @@ namespace PresentationsLager.ViewModels.Admin
         [ObservableProperty] private string? nyRattnamn;
         [ObservableProperty] private string? nyBeskrivning;
         [ObservableProperty] private string nyPrisText = string.Empty;
-        [ObservableProperty] private string? nyKategori;
-        [ObservableProperty] private bool nyArGrundmeny = true;
-        [ObservableProperty] private bool nyAktiv = true;
+        [ObservableProperty] private string? nyKategori = "À la carte";
+
+        // Lista med tillgängliga kategorier
+        public List<string> Kategorier { get; } = new List<string>
+        {
+            "À la carte",
+            "Dagens lunch",
+            "Dryck"
+        };
 
         [ObservableProperty] private string valdMenyPrisText = string.Empty;
         [ObservableProperty] private string? nyStatusMessage;
@@ -43,7 +49,6 @@ namespace PresentationsLager.ViewModels.Admin
         public MenyHanteringWindowViewModel()
         {
             LoadRegioner();
-            LaddaAllaMenyer();
         }
 
         private void LoadRegioner()
@@ -78,20 +83,6 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        private void LaddaAllaMenyer()
-        {
-            try
-            {
-                var list = _menyController.HamtaAllaMenyvaror()
-                    .Select(MenyModel.FromEntity)
-                    .ToList();
-                Menyvaror = new ObservableCollection<MenyModel>(list);
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Fel vid laddning av menyer: {ex.Message}";
-            }
-        }
 
         [RelayCommand]
         private void LaddaMeny()
@@ -104,7 +95,7 @@ namespace PresentationsLager.ViewModels.Admin
 
             try
             {
-                var list = _menyController.HamtaMenyvarorForRestaurang(ValdRestaurang.RestaurangID)
+                var list = _restaurangMenyController.HamtaMenyForRestaurang(ValdRestaurang.RestaurangID)
                     .Select(MenyModel.FromEntity)
                     .ToList();
                 Menyvaror = new ObservableCollection<MenyModel>(list);
@@ -119,12 +110,29 @@ namespace PresentationsLager.ViewModels.Admin
         [RelayCommand]
         private void SokMeny()
         {
+            if (ValdRestaurang == null)
+            {
+                StatusMessage = "Välj restaurang först.";
+                return;
+            }
+
             try
             {
-                var list = _menyController.SokMeny(SokRattnamn, SokKategori)
-                    .Select(MenyModel.FromEntity)
-                    .ToList();
+                // Hämta BARA menyer för den valda restaurangen
+                var menyerForRestaurang = _restaurangMenyController.HamtaMenyForRestaurang(ValdRestaurang.RestaurangID);
+
+                // Filtrera på sökkriterier
+                var filtered = menyerForRestaurang.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(SokRattnamn))
+                    filtered = filtered.Where(m => m.Rattnamn.ToLower().Contains(SokRattnamn.Trim().ToLower()));
+
+                if (!string.IsNullOrWhiteSpace(SokKategori))
+                    filtered = filtered.Where(m => m.Kategori.ToLower().Contains(SokKategori.Trim().ToLower()));
+
+                var list = filtered.Select(MenyModel.FromEntity).ToList();
                 Menyvaror = new ObservableCollection<MenyModel>(list);
+                StatusMessage = $"Hittade {list.Count} rätt(er) för {ValdRestaurang.Restaurangnamn}.";
             }
             catch (Exception ex)
             {
@@ -142,7 +150,9 @@ namespace PresentationsLager.ViewModels.Admin
 
             try
             {
-                var list = _restaurangMenyController
+                // Använd ny controller för att undvika EF caching
+                var freshController = new RestaurangMenyController();
+                var list = freshController
                     .HamtaMenyForRestaurang(value.RestaurangID)
                     .Select(MenyModel.FromEntity)
                     .ToList();
@@ -153,6 +163,22 @@ namespace PresentationsLager.ViewModels.Admin
             catch (Exception ex)
             {
                 StatusMessage = $"Fel vid laddning av meny: {ex.Message}";
+            }
+        }
+
+        private void UppdateraMenyLista()
+        {
+            if (ValdRestaurang != null)
+            {
+                OnValdRestaurangChanged(ValdRestaurang);
+            }
+        }
+
+        partial void OnValdMenyChanged(MenyModel? value)
+        {
+            if (value != null)
+            {
+                ValdMenyPrisText = value.Pris.ToString();
             }
         }
 
@@ -181,21 +207,32 @@ namespace PresentationsLager.ViewModels.Admin
                     return;
                 }
 
+                // Skapa ny rätt - ALLTID restaurangspecifik och aktiv
                 var meny = new Meny
                 {
                     Rattnamn = NyRattnamn!.Trim(),
-                    Beskrivning = NyBeskrivning,
+                    Beskrivning = NyBeskrivning?.Trim() ?? string.Empty,
                     Pris = pris,
                     Kategori = NyKategori!.Trim(),
-                    ArGrundmeny = NyArGrundmeny,
-                    Aktiv = NyAktiv
+                    ArGrundmeny = false,
+                    Aktiv = true
                 };
 
                 _menyController.SkapaMeny(meny);
+
+                // MenyID är nu satt efter Save() i SkapaMeny
                 _restaurangMenyController.KopplaMenyTillRestaurang(ValdRestaurang.RestaurangID, meny.MenyID);
 
-                NyStatusMessage = $"Rätten '{meny.Rattnamn}' skapades för {ValdRestaurang.Restaurangnamn}.";
-                OnValdRestaurangChanged(ValdRestaurang);
+                NyStatusMessage = $"Rätten '{meny.Rattnamn}' lades till för {ValdRestaurang.Restaurangnamn}.";
+
+                // Rensa formuläret
+                NyRattnamn = string.Empty;
+                NyBeskrivning = string.Empty;
+                NyPrisText = string.Empty;
+                NyKategori = "À la carte";
+
+                // Uppdatera listan med färska data
+                UppdateraMenyLista();
             }
             catch (Exception ex)
             {
@@ -220,10 +257,41 @@ namespace PresentationsLager.ViewModels.Admin
                     return;
                 }
 
-                ValdMeny.Pris = pris;
-                _menyController.UppdateraMeny(ValdMeny.ToEntity());
-                StatusMessage = $"Rätten '{ValdMeny.Rattnamn}' uppdaterades.";
-                OnValdRestaurangChanged(ValdRestaurang);
+                // Kolla om rätten används av flera restauranger
+                int antalRestauranger = _restaurangMenyController.RaknaAntalRestaurangerSomAnvanderMeny(ValdMeny.MenyID);
+
+                if (antalRestauranger > 1)
+                {
+                    // Skapa en KOPIA av rätten för denna restaurang (påverkar inte andra restauranger)
+                    var nyMeny = new Meny
+                    {
+                        Rattnamn = ValdMeny.Rattnamn,
+                        Beskrivning = ValdMeny.Beskrivning ?? string.Empty,
+                        Pris = pris,
+                        Kategori = ValdMeny.Kategori,
+                        ArGrundmeny = false,
+                        Aktiv = true
+                    };
+
+                    _menyController.SkapaMeny(nyMeny);
+
+                    // Ta bort gamla kopplingen och skapa ny till kopian
+                    _restaurangMenyController.TaBortMenyFranRestaurang(ValdRestaurang.RestaurangID, ValdMeny.MenyID);
+                    _restaurangMenyController.KopplaMenyTillRestaurang(ValdRestaurang.RestaurangID, nyMeny.MenyID);
+
+                    StatusMessage = $"Rätten '{nyMeny.Rattnamn}' uppdaterades för {ValdRestaurang.Restaurangnamn}.";
+                }
+                else
+                {
+                    // Uppdatera direkt (bara denna restaurang använder rätten)
+                    ValdMeny.Pris = pris;
+                    _menyController.UppdateraMeny(ValdMeny.ToEntity());
+
+                    StatusMessage = $"Rätten '{ValdMeny.Rattnamn}' uppdaterades.";
+                }
+
+                // Uppdatera listan med färska data
+                UppdateraMenyLista();
             }
             catch (Exception ex)
             {
@@ -234,22 +302,38 @@ namespace PresentationsLager.ViewModels.Admin
         [RelayCommand]
         private void TaBortMeny()
         {
-            if (ValdMeny == null)
+            if (ValdMeny == null || ValdRestaurang == null)
             {
-                StatusMessage = "Ingen rätt vald för borttagning.";
+                StatusMessage = "Välj restaurang och rätt först.";
                 return;
             }
 
             try
             {
-                _menyController.TaBortMeny(ValdMeny.MenyID);
+                var rattnamn = ValdMeny.Rattnamn;
+                var menyId = ValdMeny.MenyID;
 
-                if (ValdRestaurang != null)
-                    LaddaMeny();
+                // Ta bort RestaurangMeny-kopplingen för denna restaurang
+                _restaurangMenyController.TaBortMenyFranRestaurang(ValdRestaurang.RestaurangID, menyId);
+
+                // Kolla om rätten används av andra restauranger
+                int antalRestauranger = _restaurangMenyController.RaknaAntalRestaurangerSomAnvanderMeny(menyId);
+
+                if (antalRestauranger == 0)
+                {
+                    // Ingen restaurang använder rätten längre - ta bort från databasen helt
+                    _menyController.TaBortMeny(menyId);
+                    StatusMessage = $"Rätten '{rattnamn}' togs bort från {ValdRestaurang.Restaurangnamn} och databasen.";
+                }
                 else
-                    LaddaAllaMenyer();
+                {
+                    StatusMessage = $"Rätten '{rattnamn}' togs bort från {ValdRestaurang.Restaurangnamn}.";
+                }
 
-                StatusMessage = $"Rätten '{ValdMeny.Rattnamn}' togs bort.";
+                ValdMeny = null;
+
+                // Uppdatera listan med färska data
+                UppdateraMenyLista();
             }
             catch (Exception ex)
             {

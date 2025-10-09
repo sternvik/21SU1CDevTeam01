@@ -161,25 +161,42 @@ namespace DataLager
             Save();
 
             // Lägg till komplett Meny med korrekta priser
+            // ALLA seed-menyer är grundmenyer som är aktiva för alla restauranger
+
             // À la carte
-            MenyRepository.Add(new Meny { Rattnamn = "Grillad lax med citronpotatis", Beskrivning = "", Pris = 179m, Kategori = "À la carte" });
-            MenyRepository.Add(new Meny { Rattnamn = "Renskavsgryta med kantareller", Beskrivning = "", Pris = 189m, Kategori = "À la carte" });
-            MenyRepository.Add(new Meny { Rattnamn = "Vegetarisk lasagne", Beskrivning = "", Pris = 165m, Kategori = "À la carte" });
-            MenyRepository.Add(new Meny { Rattnamn = "Biff Tartar med pommes", Beskrivning = "", Pris = 189m, Kategori = "À la carte" });
-            MenyRepository.Add(new Meny { Rattnamn = "Ryggbiff med pom chatue", Beskrivning = "", Pris = 189m, Kategori = "À la carte" });
+            MenyRepository.Add(new Meny { Rattnamn = "Grillad lax med citronpotatis", Beskrivning = "", Pris = 179m, Kategori = "À la carte", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Renskavsgryta med kantareller", Beskrivning = "", Pris = 189m, Kategori = "À la carte", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Vegetarisk lasagne", Beskrivning = "", Pris = 165m, Kategori = "À la carte", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Biff Tartar med pommes", Beskrivning = "", Pris = 189m, Kategori = "À la carte", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Ryggbiff med pom chatue", Beskrivning = "", Pris = 189m, Kategori = "À la carte", ArGrundmeny = true, Aktiv = true });
 
             // Dagens lunch
-            MenyRepository.Add(new Meny { Rattnamn = "Köttbullar med potatismos", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch" });
-            MenyRepository.Add(new Meny { Rattnamn = "Fiskgratäng med dillsås", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch" });
-            MenyRepository.Add(new Meny { Rattnamn = "Ärtsoppa och pannkakor", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch" });
-            MenyRepository.Add(new Meny { Rattnamn = "Fläsk med löksås", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch" });
-            MenyRepository.Add(new Meny { Rattnamn = "Flässkarre och potatis", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch" });
+            MenyRepository.Add(new Meny { Rattnamn = "Köttbullar med potatismos", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Fiskgratäng med dillsås", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Ärtsoppa och pannkakor", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Fläsk med löksås", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Flässkarre och potatis", Beskrivning = "", Pris = 115m, Kategori = "Dagens lunch", ArGrundmeny = true, Aktiv = true });
 
             // Dryck
-            MenyRepository.Add(new Meny { Rattnamn = "Läsk 33cl", Beskrivning = "", Pris = 25m, Kategori = "Alkoholfri dryck" });
-            MenyRepository.Add(new Meny { Rattnamn = "Kaffe/te", Beskrivning = "", Pris = 20m, Kategori = "Alkoholfri dryck" });
-            MenyRepository.Add(new Meny { Rattnamn = "Husets vin (glas)", Beskrivning = "", Pris = 65m, Kategori = "Alkoholhaltig dryck" });
-            MenyRepository.Add(new Meny { Rattnamn = "Öl (tap)", Beskrivning = "", Pris = 55m, Kategori = "Alkoholhaltig dryck" });
+            MenyRepository.Add(new Meny { Rattnamn = "Läsk 33cl", Beskrivning = "", Pris = 25m, Kategori = "Dryck", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Kaffe/te", Beskrivning = "", Pris = 20m, Kategori = "Dryck", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Husets vin (glas)", Beskrivning = "", Pris = 65m, Kategori = "Dryck", ArGrundmeny = true, Aktiv = true });
+            MenyRepository.Add(new Meny { Rattnamn = "Öl (tap)", Beskrivning = "", Pris = 55m, Kategori = "Dryck", ArGrundmeny = true, Aktiv = true });
+            Save();
+
+            // Koppla alla 14 grundmenyer till alla 18 restauranger via RestaurangMeny
+            var allaMenyer = MenyRepository.GetAll().ToList();
+            for (int restaurangId = 1; restaurangId <= 18; restaurangId++)
+            {
+                foreach (var meny in allaMenyer)
+                {
+                    RestaurangMenyRepository.Add(new RestaurangMeny
+                    {
+                        RestaurangID = restaurangId,
+                        MenyID = meny.MenyID
+                    });
+                }
+            }
             Save();
 
             // Lägg till Kund (Oscar Karlsson)

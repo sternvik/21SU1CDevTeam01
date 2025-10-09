@@ -14,8 +14,8 @@ namespace AffärsLager.Controllers
         {
             try
             {
+                // Hämta ALLA menyer (vi använder permanent delete, inte soft delete)
                 return _unitOfWork.MenyRepository.GetAll()
-                    .Where(m => m.Aktiv)
                     .OrderBy(m => m.Kategori)
                     .ThenBy(m => m.Rattnamn)
                     .ToList();
@@ -30,10 +30,15 @@ namespace AffärsLager.Controllers
         {
             try
             {
-                // Hämta antingen grundmeny eller restaurangspecifik meny
+                // Hämta BARA menyer som har RestaurangMeny-koppling för denna restaurang
+                // Använd join för att undvika problem med navigation properties
+                var menyIds = _unitOfWork.RestaurangMenyRepository.GetAll()
+                    .Where(rm => rm.RestaurangID == restaurangId)
+                    .Select(rm => rm.MenyID)
+                    .ToList();
+
                 var menyer = _unitOfWork.MenyRepository.GetAll()
-                    .Where(m => m.Aktiv &&
-                           (m.ArGrundmeny || m.RestaurangMenyer.Any(rm => rm.RestaurangID == restaurangId)))
+                    .Where(m => menyIds.Contains(m.MenyID))
                     .OrderBy(m => m.Kategori)
                     .ThenBy(m => m.Rattnamn)
                     .ToList();
@@ -62,7 +67,7 @@ namespace AffärsLager.Controllers
         {
             try
             {
-                var query = _unitOfWork.MenyRepository.GetAll().Where(m => m.Aktiv);
+                var query = _unitOfWork.MenyRepository.GetAll().AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(rattnamn))
                     query = query.Where(m => m.Rattnamn.ToLower().Contains(rattnamn.Trim().ToLower()));
@@ -96,14 +101,7 @@ namespace AffärsLager.Controllers
                 if (string.IsNullOrWhiteSpace(meny.Kategori))
                     throw new ArgumentException("Kategori är obligatoriskt");
 
-                // Kontrollera om rättnamnet redan finns
-                var befintlig = _unitOfWork.MenyRepository.FirstOrDefault(m =>
-                    m.Rattnamn.ToLower() == meny.Rattnamn.ToLower() && m.Aktiv);
-
-                if (befintlig != null)
-                    throw new InvalidOperationException("En meny med detta rättnamn finns redan");
-
-                meny.Aktiv = true;
+                // Olika restauranger kan ha samma rättnamn - ingen validering
                 _unitOfWork.MenyRepository.Add(meny);
                 _unitOfWork.Save();
 
@@ -136,6 +134,7 @@ namespace AffärsLager.Controllers
                 befintlig.Aktiv = meny.Aktiv;
 
                 _unitOfWork.Save();
+                _unitOfWork.RefreshContext(); // Rensa EF cache för att tvinga färska data vid nästa hämtning
                 return true;
             }
             catch (Exception ex)
@@ -152,9 +151,8 @@ namespace AffärsLager.Controllers
                 if (meny == null)
                     throw new InvalidOperationException("Menyn finns inte i databasen");
 
-                // Soft delete (markera som inaktiv)
-                meny.Aktiv = false;
-
+                // Permanent borttagning från databasen
+                _unitOfWork.MenyRepository.Remove(meny);
                 _unitOfWork.Save();
                 return true;
             }
