@@ -67,7 +67,7 @@
         </Border>
 
         <!-- Main content -->
-        <Grid Grid.Row="1" Margin="40">
+        <Grid Grid.Row="1" Margin="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.2*"/>
                 <ColumnDefinition Width="2*"/>
@@ -76,7 +76,7 @@
             <!-- Vänsterpanel -->
             <Border Grid.Column="0" Background="White" CornerRadius="10" BorderBrush="#102c48" BorderThickness="1" Margin="0,0,20,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="30">
+                    <StackPanel Margin="20">
 
                         <TextBlock Text="VÄLJ PLATS" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
 
@@ -126,7 +126,7 @@
 
             <!-- Högerpanel -->
             <Border Grid.Column="1" Background="White" CornerRadius="10" BorderBrush="#102c48" BorderThickness="1">
-                <Grid Margin="30" Visibility="{Binding ValdRestaurang, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
+                <Grid Margin="20" Visibility="{Binding ValdRestaurang, Converter={x:Static conv:NullToVisibilityConverter.Instance}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>

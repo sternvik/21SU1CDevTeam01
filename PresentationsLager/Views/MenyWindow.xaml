@@ -10,7 +10,7 @@
         <vm:MenyWindowViewModel/>
     </Window.DataContext>
 
-    <Grid Margin="30">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

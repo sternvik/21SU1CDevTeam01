@@ -45,41 +45,43 @@
                 <DropShadowEffect Color="Black" Direction="315" ShadowDepth="10" Opacity="0.3"/>
             </Border.Effect>
 
-            <Grid Margin="50">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Grid Margin="30,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Header Section -->
-                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,30">
+                    <!-- Header Section -->
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,20">
                     <TextBlock Text="RestoNation"
                                FontFamily="Montserrat"
-                               FontSize="36"
+                               FontSize="28"
                                FontWeight="Bold"
                                Foreground="#102c48"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,8"/>
+                               Margin="0,0,0,5"/>
 
                     <TextBlock Text="RESTAURANGHANTERINGSSYSTEM"
                                FontFamily="Inter"
-                               FontSize="14"
+                               FontSize="12"
                                FontWeight="SemiBold"
                                Foreground="#A3B18A"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,15"/>
+                               Margin="0,0,0,10"/>
 
                     <Rectangle Height="2"
                                Fill="#F4B942"
                                Width="150"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,20"/>
+                               Margin="0,0,0,10"/>
 
                     <TextBlock Text="Logga in för att komma åt ditt restaurangsystem"
                                FontFamily="Inter"
-                               FontSize="14"
+                               FontSize="12"
                                Foreground="#2E2E2E"
                                HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
                                Margin="0,0,0,0"/>
                 </StackPanel>
 
@@ -210,8 +212,9 @@
                             BorderThickness="0"
                             Cursor="Hand"/>
 
-                </StackPanel>
-            </Grid>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
         </Border>
 
         <!-- Footer -->

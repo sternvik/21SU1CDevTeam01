@@ -71,7 +71,7 @@
         </Border>
 
         <!-- Main Content -->
-        <Grid Grid.Row="1" Margin="40">
+        <Grid Grid.Row="1" Margin="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="2*"/>
@@ -89,7 +89,7 @@
                 </Border.Effect>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="30">
+                    <StackPanel Margin="20">
 
                         <!-- Sök -->
                         <TextBlock Text="SÖK ANVÄNDARE" FontFamily="Montserrat" FontSize="20" FontWeight="Bold" Foreground="#102c48" Margin="0,0,0,20"/>
@@ -148,7 +148,7 @@
                     <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
                 </Border.Effect>
 
-                <Grid Margin="30">
+                <Grid Margin="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
