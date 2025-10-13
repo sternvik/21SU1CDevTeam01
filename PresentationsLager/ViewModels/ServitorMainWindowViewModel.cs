@@ -97,27 +97,7 @@ namespace PresentationsLager.ViewModels
             {
                 if (InloggadAnvandare != null)
                 {
-                    Kund? valdKund = SenastValdaKund;
-
-                    // Om ingen kund är förvald, öppna kundsökning
-                    if (valdKund == null)
-                    {
-                        var kundSearchWindow = new KundSearchWindow();
-                        var result = kundSearchWindow.ShowDialog();
-
-                        if (kundSearchWindow.DataContext is KundSearchWindowViewModel viewModel && viewModel.ValdKund != null)
-                        {
-                            valdKund = viewModel.ValdKund;
-                            SenastValdaKund = valdKund; // Spara för framtida användning
-                        }
-                        else
-                        {
-                            // Användaren avbröt - gör inget
-                            return;
-                        }
-                    }
-
-                    // Öppna beställningsfönster med vald kund och vald restaurang
+                    // Öppna beställningsfönster - kund väljs alltid inuti fönstret
                     if (ValdRestaurang == null)
                     {
                         MessageBox.Show("Ingen restaurang vald", "Fel",
@@ -125,7 +105,7 @@ namespace PresentationsLager.ViewModels
                         return;
                     }
 
-                    var bestallningsWindow = new BestallningsWindow(InloggadAnvandare, valdKund, ValdRestaurang.RestaurangID);
+                    var bestallningsWindow = new BestallningsWindow(InloggadAnvandare, ValdRestaurang.RestaurangID);
                     bestallningsWindow.ShowDialog();
                 }
                 else

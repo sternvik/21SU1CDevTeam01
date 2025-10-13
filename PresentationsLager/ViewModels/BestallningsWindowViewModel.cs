@@ -88,12 +88,18 @@ namespace PresentationsLager.ViewModels
             _lojalitetsController = new LojalitetsTransaktionController();
         }
 
-        public void Initialize(Anvandare anvandare, Kund valdKund, int restaurangId)
+        public void Initialize(Anvandare anvandare, int restaurangId)
         {
             InloggadAnvandare = anvandare;
-            ValdKund = valdKund;
             _restaurangId = restaurangId;
-            VisaTypVal = true; // Visa typval direkt när kund redan är vald
+
+            // Tvinga alltid användaren att välja kund först
+            VisaTypVal = false;
+            VisaBestallning = false;
+            ValdKund = null;
+
+            // Öppna kundsökning direkt
+            SokKund();
         }
 
         [RelayCommand]

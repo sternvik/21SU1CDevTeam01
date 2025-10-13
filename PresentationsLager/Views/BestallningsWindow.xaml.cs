@@ -6,14 +6,14 @@ namespace PresentationsLager.Views
 {
     public partial class BestallningsWindow : Window
     {
-        public BestallningsWindow(Anvandare anvandare, Kund valdKund, int restaurangId)
+        public BestallningsWindow(Anvandare anvandare, int restaurangId)
         {
             InitializeComponent();
 
             if (DataContext is BestallningsWindowViewModel viewModel)
             {
                 viewModel.CloseAction = Close;
-                viewModel.Initialize(anvandare, valdKund, restaurangId);
+                viewModel.Initialize(anvandare, restaurangId);
             }
         }
     }

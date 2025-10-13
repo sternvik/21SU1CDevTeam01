@@ -178,7 +178,7 @@ namespace PresentationsLager.ViewModels.Admin
         {
             if (value != null)
             {
-                ValdMenyPrisText = value.Pris.ToString();
+                ValdMenyPrisText = value.Pris.ToString(System.Globalization.CultureInfo.InvariantCulture);
             }
         }
 
@@ -201,7 +201,7 @@ namespace PresentationsLager.ViewModels.Admin
                     return;
                 }
 
-                if (!decimal.TryParse(NyPrisText.Replace(',', '.'), out var pris))
+                if (!decimal.TryParse(NyPrisText.Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var pris))
                 {
                     NyStatusMessage = "Pris måste vara ett giltigt tal.";
                     return;
@@ -251,7 +251,7 @@ namespace PresentationsLager.ViewModels.Admin
 
             try
             {
-                if (!decimal.TryParse(ValdMenyPrisText.Replace(',', '.'), out var pris))
+                if (!decimal.TryParse(ValdMenyPrisText.Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var pris))
                 {
                     StatusMessage = "Pris måste vara ett giltigt tal.";
                     return;
