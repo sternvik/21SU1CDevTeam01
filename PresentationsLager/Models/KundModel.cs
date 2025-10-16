@@ -21,18 +21,18 @@ namespace PresentationsLager.Models
         [ObservableProperty] private Region? region;
         [ObservableProperty] private Restaurang? hemmarestaurang;
 
-        public static KundModel FromEntity(Kund k) => new()
+        public static KundModel FromEntity(Kund entity) => new()
         {
-            KundID = k.KundID,
-            Namn = k.Namn,
-            Telefon = k.Telefon,
-            Email = k.Email,
-            LojalitetsPoang = k.LojalitetsPoang,
-            LojalitetsNiva = k.LojalitetsNiva,
-            RegionID = k.RegionID,
-            HemmarestaurangID = k.HemmarestaurangID,
-            Region = k.Region,
-            Hemmarestaurang = k.Hemmarestaurang
+            KundID = entity.KundID,
+            Namn = entity.Namn,
+            Telefon = entity.Telefon,
+            Email = entity.Email,
+            LojalitetsPoang = entity.LojalitetsPoang,
+            LojalitetsNiva = entity.LojalitetsNiva,
+            RegionID = entity.RegionID,
+            HemmarestaurangID = entity.HemmarestaurangID,
+            Region = entity.Region,
+            Hemmarestaurang = entity.Hemmarestaurang
         };
 
         public Kund ToEntity() => new()
