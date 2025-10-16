@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
+using PresentationsLager.Models.PresentationsLager.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
