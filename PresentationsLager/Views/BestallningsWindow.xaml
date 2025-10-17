@@ -3,8 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:PresentationsLager.ViewModels"
         Title="RestoNation - Beställningar"
-        WindowState="Maximized"
-        Background="#F7F4EF">
+        WindowState="Maximized">
+
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F7F4EF" Offset="0"/>
+            <GradientStop Color="#A3B18A" Offset="0.3"/>
+        </LinearGradientBrush>
+    </Window.Background>
 
     <Window.DataContext>
         <vm:BestallningsWindowViewModel/>
@@ -152,9 +158,9 @@
                         Style="{StaticResource StandardButton}"
                         Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/>
 
-                <Button Content="Till kundsökning" Command="{Binding TillKundSokCommand}"
+                <Button Content="Välj kund för beställning" Command="{Binding TillKundSokCommand}"
                         Style="{StaticResource StandardButton}"
-                        Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/>
+                        Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/> 
             </StackPanel>
 
             <!-- Steg 3: Beställningsvy (Lunch eller Avhämtning) -->

@@ -99,6 +99,21 @@
                                    Foreground="#102c48"
                                    Margin="0,0,0,20"/>
 
+
+                        <!-- Search by name -->
+                        <TextBlock Text="Namn:"
+           FontFamily="Inter"
+           FontSize="12"
+           FontWeight="Bold"
+           Foreground="#102c48"
+           Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SokNamn, UpdateSourceTrigger=PropertyChanged}"
+         Height="35"
+         FontSize="14"
+         Padding="10,8"
+         BorderBrush="#102c48"
+         BorderThickness="1"
+         Margin="0,0,0,15"/>
                         <!-- Search by phone -->
                         <TextBlock Text="Telefonnummer:"
                                    FontFamily="Inter"
@@ -114,20 +129,6 @@
                                  BorderThickness="1"
                                  Margin="0,0,0,15"/>
 
-                        <!-- Search by name -->
-                        <TextBlock Text="Namn:"
-                                   FontFamily="Inter"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="#102c48"
-                                   Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding SokNamn, UpdateSourceTrigger=PropertyChanged}"
-                                 Height="35"
-                                 FontSize="14"
-                                 Padding="10,8"
-                                 BorderBrush="#102c48"
-                                 BorderThickness="1"
-                                 Margin="0,0,0,15"/>
 
                         <!-- Search by email -->
                         <TextBlock Text="E-post:"
@@ -200,7 +201,7 @@
                                  Margin="0,0,0,15"/>
 
                         <!-- Email -->
-                        <TextBlock Text="E-post:"
+                        <TextBlock Text="E-post: *"
                                    FontFamily="Inter"
                                    FontSize="12"
                                    FontWeight="Bold"
