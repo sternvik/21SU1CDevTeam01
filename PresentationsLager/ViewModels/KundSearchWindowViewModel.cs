@@ -7,6 +7,7 @@ using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels
@@ -160,13 +161,37 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
+                NyKundTelefon = NyKundTelefon.Trim();
+                NyKundTelefon = NyKundTelefon.Replace(" ", "");
                 StatusMessage = string.Empty;
-
-                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon))
+                string errorMessages = "";
+                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
                 {
-                    StatusMessage = "Namn och telefonnummer är obligatoriska";
-                    return;
+                    errorMessages = "Namn och email får inte vara tomma.";
                 }
+                if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit))
+                {
+                 errorMessages += "\n\nOgiltigt telefonnummer! Skriv bara siffror (7–15 tecken).";
+
+                }
+
+                if (!Regex.IsMatch(NyKundEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    errorMessages += "\n\nOgiltig e-postadress! Ange en giltig adress, t.ex. namn@domän.se.";
+                     
+
+                }
+
+                if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit) || string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
+                {
+                    MessageBox.Show(errorMessages,
+                    "Fel",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                    return;
+
+                }
+
 
                 var nyKund = new Kund
                 {
