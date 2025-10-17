@@ -151,6 +151,10 @@
                 <Button Content="⬅️ TILLBAKA" Command="{Binding TillbakaTillKundsokningCommand}"
                         Style="{StaticResource StandardButton}"
                         Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/>
+
+                <Button Content="Till kundsökning" Command="{Binding TillKundSokCommand}"
+                        Style="{StaticResource StandardButton}"
+                        Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/>
             </StackPanel>
 
             <!-- Steg 3: Beställningsvy (Lunch eller Avhämtning) -->

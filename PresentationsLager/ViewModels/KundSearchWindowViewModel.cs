@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
 using Microsoft.IdentityModel.Tokens;
+using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -225,10 +226,20 @@ namespace PresentationsLager.ViewModels
                 {
                     // Här skulle vi kunna skicka tillbaka vald kund till huvudfönstret
                     // För nu visar vi bara en bekräftelse
-                    MessageBox.Show($"Kund '{ValdKund.Namn}' har valts för aktuell beställning.",
-                        "Kund vald", MessageBoxButton.OK, MessageBoxImage.Information);
+                    //Onödig andra pop-up
+                    /* MessageBox.Show($"Kund '{ValdKund.Namn}' har valts för aktuell beställning.",
+                         "Kund vald", MessageBoxButton.OK, MessageBoxImage.Information); */
+                    ValdKund = ValdKund;
+                    CloseAction?.Invoke();
+                }
+                if  (result == MessageBoxResult.No)
+                    
+                {
+                   
+                    ValdKund = null;
 
                     CloseAction?.Invoke();
+
                 }
             }
         }

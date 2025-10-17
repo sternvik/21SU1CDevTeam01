@@ -94,12 +94,12 @@ namespace PresentationsLager.ViewModels
             _restaurangId = restaurangId;
 
             // Tvinga alltid användaren att välja kund först
-            VisaTypVal = false;
+            VisaTypVal = true;
             VisaBestallning = false;
             ValdKund = null;
 
             // Öppna kundsökning direkt
-            SokKund();
+            //SokKund();
         }
 
         [RelayCommand]
@@ -107,12 +107,14 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
+                ValdKund = null; // Reset vald kund varje gång man klickar på sök kund
                 var kundSearchWindow = new Views.KundSearchWindow();
                 var result = kundSearchWindow.ShowDialog();
 
                 if (kundSearchWindow.DataContext is KundSearchWindowViewModel viewModel && viewModel.ValdKund != null)
                 {
-                    ValdKund = viewModel.ValdKund;
+                  ValdKund = viewModel.ValdKund;
+                   
                     VisaTypVal = true;
                 }
                 // Om ingen kund valdes, stanna på nuvarande vy
@@ -528,6 +530,13 @@ namespace PresentationsLager.ViewModels
             // Stäng fönstret istället för att gå tillbaka till kundsökning
             CloseAction?.Invoke();
         }
+
+        [RelayCommand]
+        private void TillKundSok()
+        {
+            SokKund();
+        }
+
 
         [RelayCommand]
         private void TillbakaTillTypVal()
