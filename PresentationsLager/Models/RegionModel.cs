@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -21,17 +19,15 @@ namespace PresentationsLager.Models
             RegionID = entity.RegionID,
             Regionnamn = entity.Regionnamn,
             AntalRestauranger = entity.AntalRestauranger,
-            Restauranger = new ObservableCollection<RestaurangModel>(entity.Restauranger.Select(RestaurangModel.FromEntity)),
-            Kunder = new ObservableCollection<KundModel>(entity.Kunder.Select(KundModel.FromEntity))
+            Restauranger = new ObservableCollection<RestaurangModel>((entity.Restauranger ?? new List<Restaurang>()).Select(RestaurangModel.FromEntity)),
+            Kunder = new ObservableCollection<KundModel>((entity.Kunder ?? new List<Kund>()).Select(KundModel.FromEntity))
         };
 
         public Region ToEntity() => new()
         {
             RegionID = RegionID,
             Regionnamn = Regionnamn,
-            AntalRestauranger = AntalRestauranger,
-            Restauranger = Restauranger.Select(r => r.ToEntity()).ToList(),
-            Kunder = Kunder.Select(k => k.ToEntity()).ToList()
+            AntalRestauranger = AntalRestauranger
         };
     }
 }

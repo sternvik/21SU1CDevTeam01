@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
-using System;
 
 namespace PresentationsLager.Models
 {
@@ -12,8 +11,8 @@ namespace PresentationsLager.Models
         [ObservableProperty] private int antal;
         [ObservableProperty] private decimal pris;
         [ObservableProperty] private decimal summa;
-        [ObservableProperty] private Bestallning? bestallning;
-        [ObservableProperty] private Meny? meny;
+        [ObservableProperty] private BestallningModel? bestallning;
+        [ObservableProperty] private MenyModel? meny;
 
         public static BestallningsRadModel FromEntity(BestallningsRad entity) => new()
         {
@@ -23,8 +22,8 @@ namespace PresentationsLager.Models
             Antal = entity.Antal,
             Pris = entity.Pris,
             Summa = entity.Summa,
-            Bestallning = entity.Bestallning,
-            Meny = entity.Meny
+            Bestallning = entity.Bestallning != null ? BestallningModel.FromEntity(entity.Bestallning) : null,
+            Meny = entity.Meny != null ? MenyModel.FromEntity(entity.Meny) : null
         };
 
         public BestallningsRad ToEntity() => new()
@@ -34,9 +33,7 @@ namespace PresentationsLager.Models
             MenyID = MenyID,
             Antal = Antal,
             Pris = Pris,
-            Summa = Summa,
-            Bestallning = Bestallning,
-            Meny = Meny
+            Summa = Summa
         };
     }
 }

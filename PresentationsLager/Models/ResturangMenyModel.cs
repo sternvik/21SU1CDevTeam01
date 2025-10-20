@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
-using System;
 
 namespace PresentationsLager.Models
 {
@@ -12,8 +11,8 @@ namespace PresentationsLager.Models
         [ObservableProperty] private decimal? lokalPris;
         [ObservableProperty] private bool tillganglig = true;
 
-        [ObservableProperty] private Restaurang? restaurang;
-        [ObservableProperty] private Meny? meny;
+        [ObservableProperty] private RestaurangModel? restaurang;
+        [ObservableProperty] private MenyModel? meny;
 
         // Mappning från RestaurangMeny (affärslogik) till RestaurangMenyModel
         public static RestaurangMenyModel FromEntity(RestaurangMeny entity) => new()
@@ -23,8 +22,8 @@ namespace PresentationsLager.Models
             MenyID = entity.MenyID,
             LokalPris = entity.LokalPris,
             Tillganglig = entity.Tillganglig,
-            Restaurang = entity.Restaurang,
-            Meny = entity.Meny
+            Restaurang = entity.Restaurang != null ? RestaurangModel.FromEntity(entity.Restaurang) : null,
+            Meny = entity.Meny != null ? MenyModel.FromEntity(entity.Meny) : null
         };
 
         // Mappning från RestaurangMenyModel till RestaurangMeny (affärslogik)
@@ -34,9 +33,7 @@ namespace PresentationsLager.Models
             RestaurangID = RestaurangID,
             MenyID = MenyID,
             LokalPris = LokalPris,
-            Tillganglig = Tillganglig,
-            Restaurang = Restaurang,
-            Meny = Meny
+            Tillganglig = Tillganglig
         };
     }
 }

@@ -107,7 +107,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BordStatus.AntalPlatser}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Status:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BordStatus.BordStatus}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BordStatus.Status}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942"/>
                             </Grid>
                         </StackPanel>
                     </Border>

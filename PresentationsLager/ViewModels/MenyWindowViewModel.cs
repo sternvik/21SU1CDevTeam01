@@ -1,7 +1,6 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using EntitetsLager;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -48,9 +47,35 @@ namespace PresentationsLager.ViewModels
                 AlaCarteMeny.Clear();
                 Drycker.Clear();
 
-                
-                // lägg in igen
-                
+                foreach (var meny in menyer)
+                {
+                    var menyItem = new MenyItemViewModel
+                    {
+                        MenyID = meny.MenyID,
+                        Rattnamn = meny.Rattnamn,
+                        Beskrivning = meny.Beskrivning ?? "",
+                        Pris = meny.Pris,
+                        Kategori = meny.Kategori
+                    };
+
+                    var kategoriLower = meny.Kategori.ToLower();
+                    if (kategoriLower == "dagens lunch")
+                    {
+                        DagensLunch.Add(menyItem);
+                    }
+                    else if (kategoriLower == "à la carte" || kategoriLower == "a la carte")
+                    {
+                        AlaCarteMeny.Add(menyItem);
+                    }
+                    else if (kategoriLower.Contains("dryck"))
+                    {
+                        Drycker.Add(menyItem);
+                    }
+                    else
+                    {
+                        AlaCarteMeny.Add(menyItem);
+                    }
+                }
             }
             catch (Exception ex)
             {

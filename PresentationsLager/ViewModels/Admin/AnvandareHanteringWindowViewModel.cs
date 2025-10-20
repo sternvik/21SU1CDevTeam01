@@ -1,7 +1,6 @@
 ﻿using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using EntitetsLager;
 using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -29,15 +28,15 @@ namespace PresentationsLager.ViewModels.Admin
         [ObservableProperty] private string valdAnvandareNyttLosenord = string.Empty;
         [ObservableProperty] private string valdAnvandareBekraftaLosenord = string.Empty;
 
-        [ObservableProperty] private Restaurang? valdRestaurang;
+        [ObservableProperty] private RestaurangModel? valdRestaurang;
         [ObservableProperty] private AnvandareModel? valdAnvandare;
         [ObservableProperty] private string statusMessage = string.Empty;
 
-        [ObservableProperty] private Restaurang? nyValdRestaurang;
+        [ObservableProperty] private RestaurangModel? nyValdRestaurang;
         [ObservableProperty] private string nyStatusMessage = string.Empty;
 
         [ObservableProperty] private ObservableCollection<AnvandareModel> hittadeAnvandare = new();
-        [ObservableProperty] private ObservableCollection<Restaurang> restauranger = new();
+        [ObservableProperty] private ObservableCollection<RestaurangModel> restauranger = new();
         [ObservableProperty] private ObservableCollection<string> roller = new() { "Servitör", "Admin", "Restaurangchef", "VD" };
 
         private bool _isLoadingUser = false;
@@ -57,7 +56,7 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 restauranger.Clear();
                 foreach (var r in _restaurangController.HamtaAllaRestauranger())
-                    restauranger.Add(r);
+                    restauranger.Add(RestaurangModel.FromEntity(r));
             }
             catch (Exception ex)
             {
@@ -107,7 +106,7 @@ namespace PresentationsLager.ViewModels.Admin
                     return;
                 }
 
-                var ny = new Anvandare
+                var ny = new EntitetsLager.Anvandare
                 {
                     Anvandarnamn = NyAnvandarnamn.Trim(),
                     Losenord = NyLosenord.Trim(),
@@ -136,7 +135,6 @@ namespace PresentationsLager.ViewModels.Admin
                 NyStatusMessage = $"Fel vid skapande: {ex.Message}";
             }
         }
-
 
         [RelayCommand]
         private void SparaLosenord()

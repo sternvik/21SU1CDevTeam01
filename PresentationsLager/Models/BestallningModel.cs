@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
-using PresentationsLager.Models.PresentationsLager.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -23,10 +21,10 @@ namespace PresentationsLager.Models
         [ObservableProperty] private DateTime datum;
         [ObservableProperty] private TimeSpan tid;
 
-        [ObservableProperty] private Bokning? bokning;
-        [ObservableProperty] private Kund? kund;
-        [ObservableProperty] private Restaurang? restaurang;
-        [ObservableProperty] private Anvandare? anvandareBeh;
+        [ObservableProperty] private BokningModel? bokning;
+        [ObservableProperty] private KundModel? kund;
+        [ObservableProperty] private RestaurangModel? restaurang;
+        [ObservableProperty] private AnvandareModel? anvandareBeh;
 
         [ObservableProperty] private ObservableCollection<BestallningsRadModel> bestallningsRader = new();
         [ObservableProperty] private ObservableCollection<TransaktionModel> transaktioner = new();
@@ -45,15 +43,15 @@ namespace PresentationsLager.Models
             PoangTilldelas = entity.PoangTilldelas,
             Datum = entity.Datum,
             Tid = entity.Tid,
-            Bokning = entity.Bokning,
-            Kund = entity.Kund,
-            Restaurang = entity.Restaurang,
-            AnvandareBeh = entity.AnvandareBeh,
+            Bokning = entity.Bokning != null ? BokningModel.FromEntity(entity.Bokning) : null,
+            Kund = entity.Kund != null ? KundModel.FromEntity(entity.Kund) : null,
+            Restaurang = entity.Restaurang != null ? RestaurangModel.FromEntity(entity.Restaurang) : null,
+            AnvandareBeh = entity.AnvandareBeh != null ? AnvandareModel.FromEntity(entity.AnvandareBeh) : null,
             BestallningsRader = new ObservableCollection<BestallningsRadModel>(
-                entity.BestallningsRader.Select(BestallningsRadModel.FromEntity)
+                (entity.BestallningsRader ?? new List<BestallningsRad>()).Select(BestallningsRadModel.FromEntity)
             ),
             Transaktioner = new ObservableCollection<TransaktionModel>(
-                entity.Transaktioner.Select(TransaktionModel.FromEntity)
+                (entity.Transaktioner ?? new List<Transaktion>()).Select(TransaktionModel.FromEntity)
             )
         };
 
@@ -70,13 +68,7 @@ namespace PresentationsLager.Models
             Betald = Betald,
             PoangTilldelas = PoangTilldelas,
             Datum = Datum,
-            Tid = Tid,
-            Bokning = Bokning,
-            Kund = Kund,
-            Restaurang = Restaurang,
-            AnvandareBeh = AnvandareBeh,
-            BestallningsRader = BestallningsRader.Select(br => br.ToEntity()).ToList(),
-            Transaktioner = Transaktioner.Select(t => t.ToEntity()).ToList()
+            Tid = Tid
         };
     }
 }

@@ -1,4 +1,4 @@
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.ViewModels;
 using System.Windows;
 
@@ -6,7 +6,7 @@ namespace PresentationsLager.Views
 {
     public partial class BestallningsWindow : Window
     {
-        public BestallningsWindow(Anvandare anvandare, int restaurangId)
+        public BestallningsWindow(AnvandareModel anvandare, int restaurangId)
         {
             InitializeComponent();
 

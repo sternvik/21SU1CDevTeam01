@@ -1,8 +1,7 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DataLager;
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,7 @@ namespace PresentationsLager.ViewModels
         private readonly BordController _bordController;
         private readonly RestaurangController _restaurangController;
         private readonly ExtraController _extraController;
-        private Anvandare? _inloggadAnvandare;
+        private AnvandareModel? _inloggadAnvandare;
         private int _valdRestaurangId;
 
         [ObservableProperty]
@@ -35,7 +34,7 @@ namespace PresentationsLager.ViewModels
         private int valtAntalGaster = 2;
 
         [ObservableProperty]
-        private Kund? valdKund;
+        private KundModel? valdKund;
 
         [ObservableProperty]
         private string valdKundText = "Ingen kund vald";
@@ -73,7 +72,7 @@ namespace PresentationsLager.ViewModels
             InitializeData();
         }
 
-        public void Initialize(Anvandare anvandare, int restaurangId, Kund? forvaldKund = null)
+        public void Initialize(AnvandareModel anvandare, int restaurangId, KundModel? forvaldKund = null)
         {
             try
             {
@@ -192,27 +191,12 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                IEnumerable<BordMedStatus> bordMedStatus;
-
-                // Tvinga uppdatering av databas-cache endast när det behövs
-                if (refreshFromDatabase)
-                {
-                    // Skapa en helt ny UnitOfWork för att säkerställa färska data från databasen
-                    var freshBokningsController = new BokningsController();
-                    bordMedStatus = freshBokningsController.HamtaAllaBordMedStatus(
-                        _valdRestaurangId,
-                        ValtDatum.Value,
-                        ValdTid.Tid,
-                        ValtAntalGaster);
-                }
-                else
-                {
-                    bordMedStatus = _bokningsController.HamtaAllaBordMedStatus(
-                        _valdRestaurangId,
-                        ValtDatum.Value,
-                        ValdTid.Tid,
-                        ValtAntalGaster);
-                }
+                // Använd alltid en ny BokningsController för att undvika cache-problem
+                var bordMedStatus = new BokningsController().HamtaAllaBordMedStatus(
+                    _valdRestaurangId,
+                    ValtDatum.Value,
+                    ValdTid.Tid,
+                    ValtAntalGaster);
 
                 foreach (var bord in bordMedStatus)
                 {
@@ -343,61 +327,34 @@ namespace PresentationsLager.ViewModels
                 StatusMessage = string.Empty;
 
                 // Validera input
-                if (!ValtDatum.HasValue)
+                if (!ValtDatum.HasValue || ValdTid == null || ValdKund == null || ValtBord == null || _valdRestaurangId <= 0)
                 {
-                    StatusMessage = "Datum måste anges";
+                    StatusMessage = "Alla fält måste fyllas i";
                     return;
                 }
 
-                if (ValdTid == null)
+                // Använd en ny BokningsController för att undvika cache-problem
+                var freshBokningsController = new BokningsController();
+
+                var bokning = new EntitetsLager.Bokning
                 {
-                    StatusMessage = "Tid måste anges";
-                    return;
-                }
+                    KundID = ValdKund.KundID,
+                    BordID = ValtBord.BordID,
+                    RestaurangID = _valdRestaurangId,
+                    AnvandarID = _inloggadAnvandare.AnvandarID,
+                    Datum = ValtDatum.Value,
+                    Tid = ValdTid.Tid,
+                    AntalGaster = ValtAntalGaster,
+                    Specialinformation = string.IsNullOrWhiteSpace(Specialinformation) ? null : Specialinformation.Trim(),
+                    BokningsTyp = "På plats"
+                };
 
-                if (ValdKund == null)
-                {
-                    StatusMessage = "Kund måste väljas";
-                    return;
-                }
-
-                if (ValtBord == null)
-                {
-                    StatusMessage = "Bord måste väljas";
-                    return;
-                }
-
-                if (_valdRestaurangId <= 0)
-                {
-                    StatusMessage = "Ingen restaurang angiven";
-                    return;
-                }
-
-                // Skapa bokning med en fresh UnitOfWork för att undvika cache-problem
-                bool skapad;
-                {
-                    var freshBokningsController = new BokningsController();
-
-                    var bokning = new Bokning
-                    {
-                        KundID = ValdKund.KundID,
-                        BordID = ValtBord.BordID,
-                        RestaurangID = _valdRestaurangId,
-                        AnvandarID = _inloggadAnvandare.AnvandarID,
-                        Datum = ValtDatum.Value,
-                        Tid = ValdTid.Tid,
-                        AntalGaster = ValtAntalGaster,
-                        Specialinformation = string.IsNullOrWhiteSpace(Specialinformation) ? null : Specialinformation.Trim(),
-                        BokningsTyp = "På plats"
-                    };
-
-                    skapad = freshBokningsController.SkapaBokning(bokning);
-                }
+                bool skapad = freshBokningsController.SkapaBokning(bokning);
 
                 if (skapad)
                 {
                     // Uppdatera bordvyn direkt för att visa den nya bokningen
-                    UpdateLedigaBord(refreshFromDatabase: true);
+                    UpdateLedigaBord();
 
                     // Rensa bara bord och specialinformation, behåll kund
                     ValtBord = null;
@@ -445,8 +402,6 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                // Om bordet har en bokad tid, använd den istället för den valda tiden
-                // Detta är viktigt för att visa rätt bokning när användaren har valt en annan tid i dropdownen
                 TimeSpan bokningsTid;
                 if (bordViewModel.BokadTid.HasValue)
                 {
@@ -462,7 +417,7 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                // Hämta bokningen med en fresh controller för att säkerställa senaste statusen från databasen
+                // Använd en ny BokningsController för att undvika cache-problem
                 var freshBokningsController = new BokningsController();
                 var bokning = freshBokningsController.HamtaBokningForBord(
                     bordViewModel.BordID,
@@ -475,13 +430,14 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                // Öppna bokningsdetaljer fönstret
-                var bokningsDetaljerWindow = new BokningsDetaljerWindow(bokning, _inloggadAnvandare);
+                // Konvertera till BokningModel och använd nya constructorn
+                var bokningModel = BokningModel.FromEntity(bokning);
+                var bokningsDetaljerWindow = new BokningsDetaljerWindow(bokningModel, _inloggadAnvandare!);
 
                 var result = bokningsDetaljerWindow.ShowDialog();
 
-                // Uppdatera bordvyn efter att fönstret stängts (alltid med fresh data från databasen)
-                UpdateLedigaBord(refreshFromDatabase: true);
+                // Uppdatera bordvyn efter att fönstret stängts
+                UpdateLedigaBord();
             }
             catch (Exception ex)
             {

@@ -1,9 +1,7 @@
-
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DataLager;
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
@@ -18,7 +16,7 @@ namespace PresentationsLager.ViewModels
         private readonly RestaurangController _restaurangController;
 
         [ObservableProperty]
-        private Anvandare? inloggadAnvandare;
+        private AnvandareModel? inloggadAnvandare;
 
         [ObservableProperty]
         private DateTime valtDatum = DateTime.Today;
@@ -33,7 +31,7 @@ namespace PresentationsLager.ViewModels
         private ObservableCollection<string> tillgangligaTider = new();
 
         [ObservableProperty]
-        private ObservableCollection<BordMedStatus> bordMedStatus = new();
+        private ObservableCollection<AffärsLager.Controllers.BordMedStatus> bordMedStatus = new();
 
         public Action? CloseAction { get; set; }
 
@@ -45,7 +43,7 @@ namespace PresentationsLager.ViewModels
             InitializeTillgangligaTider();
         }
 
-        public void Initialize(Anvandare anvandare)
+        public void Initialize(AnvandareModel anvandare)
         {
             InloggadAnvandare = anvandare;
             UppdateraVy();
@@ -73,7 +71,9 @@ namespace PresentationsLager.ViewModels
                     return;
                 }
 
-                var bordStatus = _bokningsController.HamtaAllaBordMedStatus(
+                // Använd en ny BokningsController för att alltid få färsk data från databasen
+                var freshBokningsController = new BokningsController();
+                var bordStatus = freshBokningsController.HamtaAllaBordMedStatus(
                     InloggadAnvandare.HemmarestaurangID.Value,
                     ValtDatum,
                     ValdTid,
@@ -93,17 +93,18 @@ namespace PresentationsLager.ViewModels
         }
 
         [RelayCommand]
-        private void BordClick(BordMedStatus bordStatus)
+        private void BordClick(AffärsLager.Controllers.BordMedStatus bordStatus)
         {
             try
             {
                 if (bordStatus.Bokning != null)
                 {
-                    // Visa bokningsdetaljer och check-in/out alternativ
-                    var detaljWindow = new BokningsDetaljerWindow(bordStatus, InloggadAnvandare!);
+                    // Konvertera Bokning entity till BokningModel
+                    var bokningModel = BokningModel.FromEntity(bordStatus.Bokning);
+                    
+                    var detaljWindow = new BokningsDetaljerWindow(bokningModel, InloggadAnvandare!);
                     var result = detaljWindow.ShowDialog();
 
-                    // Uppdatera vyn efter eventuell check-in/out
                     if (result == true)
                     {
                         UppdateraVy();

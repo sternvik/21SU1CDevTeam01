@@ -1,38 +1,36 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using EntitetsLager;
+﻿using EntitetsLager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace PresentationsLager.Models
 {
-    public partial class KundModel : ObservableObject
+    public class KundModel : INotifyPropertyChanged
     {
-        [ObservableProperty] private int kundID;
-        [ObservableProperty] private string namn = string.Empty;
-        [ObservableProperty] private string telefon = string.Empty;
-        [ObservableProperty] private string? email;
-        [ObservableProperty] private int lojalitetsPoang;
-        [ObservableProperty] private string lojalitetsNiva = "Brons";
-        [ObservableProperty] private int? regionID;
-        [ObservableProperty] private int? hemmarestaurangID;
-        [ObservableProperty] private Region? region;
-        [ObservableProperty] private Restaurang? hemmarestaurang;
+        public int KundID { get; set; }
+        public string Namn { get; set; } = string.Empty;
+        public string Telefon { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public int LojalitetsPoang { get; set; }
+        public string LojalitetsNiva { get; set; } = "Brons";
+        public int? RegionID { get; set; }
+        public int? HemmarestaurangID { get; set; }
+        public RegionModel? Region { get; set; }
+        public RestaurangModel? Hemmarestaurang { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public static KundModel FromEntity(Kund entity) => new()
         {
             KundID = entity.KundID,
             Namn = entity.Namn,
-            Telefon = entity.Telefon,
+            Telefon = entity.Telefon ?? string.Empty,
             Email = entity.Email,
             LojalitetsPoang = entity.LojalitetsPoang,
             LojalitetsNiva = entity.LojalitetsNiva,
             RegionID = entity.RegionID,
             HemmarestaurangID = entity.HemmarestaurangID,
-            Region = entity.Region,
-            Hemmarestaurang = entity.Hemmarestaurang
+            Region = entity.Region != null ? RegionModel.FromEntity(entity.Region) : null,
+            Hemmarestaurang = entity.Hemmarestaurang != null ? RestaurangModel.FromEntity(entity.Hemmarestaurang) : null
         };
 
         public Kund ToEntity() => new()
@@ -43,10 +41,8 @@ namespace PresentationsLager.Models
             Email = Email,
             LojalitetsPoang = LojalitetsPoang,
             LojalitetsNiva = LojalitetsNiva,
-            RegionID = Region?.RegionID ?? RegionID,
-            HemmarestaurangID = Hemmarestaurang?.RestaurangID ?? HemmarestaurangID,
-            Region = Region,
-            Hemmarestaurang = Hemmarestaurang
+            RegionID = RegionID,
+            HemmarestaurangID = HemmarestaurangID
         };
     }
 }

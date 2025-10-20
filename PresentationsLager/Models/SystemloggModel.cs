@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using EntitetsLager;
 using System;
-using System.Net;
 
 namespace PresentationsLager.Models
 {
@@ -15,7 +14,7 @@ namespace PresentationsLager.Models
         [ObservableProperty] private TimeSpan tid;
         [ObservableProperty] private string? ipAdress;
 
-        [ObservableProperty] private Anvandare? anvandare;
+        [ObservableProperty] private AnvandareModel? anvandare;
 
         public static SystemloggModel FromEntity(Systemlogg entity) => new()
         {
@@ -26,7 +25,7 @@ namespace PresentationsLager.Models
             Datum = entity.Datum,
             Tid = entity.Tid,
             IpAdress = entity.IPAdress,
-            Anvandare = entity.Anvandare
+            Anvandare = entity.Anvandare != null ? AnvandareModel.FromEntity(entity.Anvandare) : null
         };
 
         public Systemlogg ToEntity() => new()
@@ -37,8 +36,7 @@ namespace PresentationsLager.Models
             Handelse = Handelse,
             Datum = Datum,
             Tid = Tid,
-            IPAdress = IpAdress,
-            Anvandare = Anvandare
+            IPAdress = IpAdress
         };
     }
 }

@@ -5,6 +5,7 @@ using EntitetsLager;
 using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels.Admin
@@ -24,21 +25,21 @@ namespace PresentationsLager.ViewModels.Admin
         [ObservableProperty] private string nyKundTelefon = string.Empty;
         [ObservableProperty] private string nyKundEmail = string.Empty;
 
-        [ObservableProperty] private Region? valdRegion;
-        [ObservableProperty] private Restaurang? valdRestaurang;
+        [ObservableProperty] private RegionModel? valdRegion;
+        [ObservableProperty] private RestaurangModel? valdRestaurang;
         [ObservableProperty] private KundModel? valdKund;
         [ObservableProperty] private string statusMessage = string.Empty;
         [ObservableProperty] private int antalHittadeKunder = 0;
 
-        [ObservableProperty] private Region? redigeradRegion;
-        [ObservableProperty] private Restaurang? redigeradRestaurang;
-        [ObservableProperty] private ObservableCollection<Restaurang> redigeringsRestauranger = new();
+        [ObservableProperty] private RegionModel? redigeradRegion;
+        [ObservableProperty] private RestaurangModel? redigeradRestaurang;
+        [ObservableProperty] private ObservableCollection<RestaurangModel> redigeringsRestauranger = new();
         [ObservableProperty] private ObservableCollection<string> lojalitetsNivaer = new() { "Brons", "Silver", "Guld" };
         [ObservableProperty] private string nyStatusMessage = string.Empty;
 
         [ObservableProperty] private ObservableCollection<KundModel> hittadeKunder = new();
-        [ObservableProperty] private ObservableCollection<Region> regioner = new();
-        [ObservableProperty] private ObservableCollection<Restaurang> restauranger = new();
+        [ObservableProperty] private ObservableCollection<RegionModel> regioner = new();
+        [ObservableProperty] private ObservableCollection<RestaurangModel> restauranger = new();
 
         private bool _isLoadingKund = false;
 
@@ -59,7 +60,7 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 Regioner.Clear();
                 foreach (var region in _regionController.HamtaAllaRegioner())
-                    Regioner.Add(region);
+                    Regioner.Add(RegionModel.FromEntity(region));
             }
             catch (Exception ex)
             {
@@ -67,7 +68,7 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        partial void OnValdRegionChanged(Region? value)
+        partial void OnValdRegionChanged(RegionModel? value)
         {
             if (value != null)
                 LoadRestaurangerForRegion(value.RegionID);
@@ -84,7 +85,7 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 Restauranger.Clear();
                 foreach (var r in _restaurangController.HamtaRestaurangerForRegion(regionId))
-                    Restauranger.Add(r);
+                    Restauranger.Add(RestaurangModel.FromEntity(r));
             }
             catch (Exception ex)
             {
@@ -220,7 +221,7 @@ namespace PresentationsLager.ViewModels.Admin
 
 
 
-        partial void OnRedigeradRegionChanged(Region? value)
+        partial void OnRedigeradRegionChanged(RegionModel? value)
         {
             if (_isLoadingKund || ValdKund == null) return;
 
@@ -245,7 +246,7 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        partial void OnRedigeradRestaurangChanged(Restaurang? value)
+        partial void OnRedigeradRestaurangChanged(RestaurangModel? value)
         {
             if (_isLoadingKund || ValdKund == null) return;
 
@@ -267,7 +268,7 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 RedigeringsRestauranger.Clear();
                 foreach (var r in _restaurangController.HamtaRestaurangerForRegion(regionId))
-                    RedigeringsRestauranger.Add(r);
+                    RedigeringsRestauranger.Add(RestaurangModel.FromEntity(r));
             }
             catch (Exception ex)
             {
@@ -280,7 +281,7 @@ namespace PresentationsLager.ViewModels.Admin
         {
             if (ValdKund == null)
             {
-                StatusMessage = "Ingen kund vald för borttagning";
+                StatusMessage = "Ingen kundvald för borttagning";
                 return;
             }
 

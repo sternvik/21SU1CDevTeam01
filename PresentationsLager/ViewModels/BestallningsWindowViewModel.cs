@@ -1,7 +1,7 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using EntitetsLager;
+using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace PresentationsLager.ViewModels
         private readonly LojalitetsTransaktionController _lojalitetsController;
 
         [ObservableProperty]
-        private Anvandare? inloggadAnvandare;
+        private AnvandareModel? inloggadAnvandare;
 
         private int _restaurangId;
 
@@ -30,7 +30,7 @@ namespace PresentationsLager.ViewModels
 
         // Vald kund
         [ObservableProperty]
-        private Kund? valdKund;
+        private KundModel? valdKund;
 
         // Beställningstyp
         [ObservableProperty]
@@ -88,7 +88,7 @@ namespace PresentationsLager.ViewModels
             _lojalitetsController = new LojalitetsTransaktionController();
         }
 
-        public void Initialize(Anvandare anvandare, int restaurangId)
+        public void Initialize(AnvandareModel anvandare, int restaurangId)
         {
             InloggadAnvandare = anvandare;
             _restaurangId = restaurangId;
@@ -496,7 +496,7 @@ namespace PresentationsLager.ViewModels
                     return;
 
                 // Skapa BestallningsRadDto-lista
-                var dtoList = Bestallning.Select(b => new BestallningsRadDto
+                var dtoList = Bestallning.Select(b => new AffärsLager.Controllers.BestallningsRadDto
                 {
                     MenyID = b.MenyID,
                     Rattnamn = b.Rattnamn,

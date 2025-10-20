@@ -1,3 +1,4 @@
+using PresentationsLager.Models;
 using PresentationsLager.ViewModels;
 using System.Windows;
 using EntitetsLager;
@@ -12,7 +13,7 @@ namespace PresentationsLager.Views
 
             if (DataContext is ServitorMainWindowViewModel viewModel)
             {
-                viewModel.Initialize(anvandare);
+                viewModel.Initialize(AnvandareModel.FromEntity(anvandare));
                 viewModel.CloseAction = () => this.Close();
             }
         }

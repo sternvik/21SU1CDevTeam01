@@ -16,12 +16,12 @@ namespace PresentationsLager.ViewModels.Admin
         private readonly RestaurangController _restaurangController = new RestaurangController();
         private readonly RestaurangMenyController _restaurangMenyController = new RestaurangMenyController();
 
-        [ObservableProperty] private ObservableCollection<Region> regioner = new();
-        [ObservableProperty] private ObservableCollection<Restaurang> restauranger = new();
+        [ObservableProperty] private ObservableCollection<RegionModel> regioner = new();
+        [ObservableProperty] private ObservableCollection<RestaurangModel> restauranger = new();
         [ObservableProperty] private ObservableCollection<MenyModel> menyvaror = new();
 
-        [ObservableProperty] private Region? valdRegion;
-        [ObservableProperty] private Restaurang? valdRestaurang;
+        [ObservableProperty] private RegionModel? valdRegion;
+        [ObservableProperty] private RestaurangModel? valdRestaurang;
         [ObservableProperty] private MenyModel? valdMeny;
 
         [ObservableProperty] private string? sokRattnamn;
@@ -56,8 +56,11 @@ namespace PresentationsLager.ViewModels.Admin
             try
             {
                 Regioner.Clear();
-                foreach (var r in _regionController.HamtaAllaRegioner())
-                    Regioner.Add(r);
+                var regionEntities = _regionController.HamtaAllaRegioner();
+                foreach (var r in regionEntities)
+                {
+                    Regioner.Add(RegionModel.FromEntity(r));
+                }
             }
             catch (Exception ex)
             {
@@ -65,7 +68,7 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        partial void OnValdRegionChanged(Region? value)
+        partial void OnValdRegionChanged(RegionModel? value)
         {
             try
             {
@@ -73,8 +76,11 @@ namespace PresentationsLager.ViewModels.Admin
                 ValdRestaurang = null;
                 if (value != null)
                 {
-                    foreach (var r in _restaurangController.HamtaRestaurangerForRegion(value.RegionID))
-                        Restauranger.Add(r);
+                    var restaurangEntities = _restaurangController.HamtaRestaurangerForRegion(value.RegionID);
+                    foreach (var r in restaurangEntities)
+                    {
+                        Restauranger.Add(RestaurangModel.FromEntity(r));
+                    }
                 }
             }
             catch (Exception ex)
@@ -140,7 +146,7 @@ namespace PresentationsLager.ViewModels.Admin
             }
         }
 
-        partial void OnValdRestaurangChanged(Restaurang? value)
+        partial void OnValdRestaurangChanged(RestaurangModel? value)
         {
             if (value == null)
             {

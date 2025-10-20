@@ -1,7 +1,7 @@
 ﻿using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using PresentationsLager.Views.Admin;
 using System;
@@ -14,7 +14,7 @@ namespace PresentationsLager.ViewModels
         private readonly AnvandareController _anvandareController;
 
         [ObservableProperty]
-        private Anvandare? inloggadAnvandare;
+        private AnvandareModel? inloggadAnvandare;
 
         public Action? CloseAction { get; set; }
 
@@ -23,7 +23,7 @@ namespace PresentationsLager.ViewModels
             _anvandareController = new AnvandareController();
         }
 
-        public void Initialize(Anvandare anvandare)
+        public void Initialize(AnvandareModel anvandare)
         {
             InloggadAnvandare = anvandare;
         }

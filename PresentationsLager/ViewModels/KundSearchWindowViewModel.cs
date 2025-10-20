@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
 using Microsoft.IdentityModel.Tokens;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
@@ -38,13 +39,13 @@ namespace PresentationsLager.ViewModels
         private string nyKundEmail = string.Empty;
 
         [ObservableProperty]
-        private Region? valdRegion;
+        private RegionModel? valdRegion;
 
         [ObservableProperty]
-        private Restaurang? valdRestaurang;
+        private RestaurangModel? valdRestaurang;
 
         [ObservableProperty]
-        private Kund? valdKund;
+        private KundModel? valdKund;
 
         [ObservableProperty]
         private string statusMessage = string.Empty;
@@ -53,13 +54,13 @@ namespace PresentationsLager.ViewModels
         private int antalHittadeKunder = 0;
 
         [ObservableProperty]
-        private ObservableCollection<Kund> hittadeKunder = new();
+        private ObservableCollection<KundModel> hittadeKunder = new();
 
         [ObservableProperty]
-        private ObservableCollection<Region> regioner = new();
+        private ObservableCollection<RegionModel> regioner = new();
 
         [ObservableProperty]
-        private ObservableCollection<Restaurang> restauranger = new();
+        private ObservableCollection<RestaurangModel> restauranger = new();
 
         public Action? CloseAction { get; set; }
 
@@ -81,7 +82,7 @@ namespace PresentationsLager.ViewModels
                 Regioner.Clear();
                 foreach (var region in regionList)
                 {
-                    Regioner.Add(region);
+                    Regioner.Add(RegionModel.FromEntity(region));
                 }
             }
             catch (Exception ex)
@@ -90,7 +91,7 @@ namespace PresentationsLager.ViewModels
             }
         }
 
-        partial void OnValdRegionChanged(Region? value)
+        partial void OnValdRegionChanged(RegionModel? value)
         {
             if (value != null)
             {
@@ -111,7 +112,7 @@ namespace PresentationsLager.ViewModels
                 Restauranger.Clear();
                 foreach (var restaurang in restaurangList)
                 {
-                    Restauranger.Add(restaurang);
+                    Restauranger.Add(RestaurangModel.FromEntity(restaurang));
                 }
             }
             catch (Exception ex)
@@ -140,7 +141,7 @@ namespace PresentationsLager.ViewModels
                 HittadeKunder.Clear();
                 foreach (var kund in resultat)
                 {
-                    HittadeKunder.Add(kund);
+                    HittadeKunder.Add(KundModel.FromEntity(kund));
                 }
 
                 AntalHittadeKunder = HittadeKunder.Count;
@@ -165,33 +166,27 @@ namespace PresentationsLager.ViewModels
                 NyKundTelefon = NyKundTelefon.Replace(" ", "");
                 StatusMessage = string.Empty;
                 string errorMessages = "";
+                
                 if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
                 {
                     errorMessages = "Namn och email får inte vara tomma.";
                 }
+                
                 if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit))
                 {
-                 errorMessages += "\n\nOgiltigt telefonnummer! Skriv bara siffror (7–15 tecken).";
-
+                    errorMessages += "\n\nOgiltigt telefonnummer! Skriv bara siffror (7–15 tecken).";
                 }
 
                 if (!Regex.IsMatch(NyKundEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 {
                     errorMessages += "\n\nOgiltig e-postadress! Ange en giltig adress, t.ex. namn@domän.se.";
-                     
-
                 }
 
-                if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit) || string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
+                if (!string.IsNullOrEmpty(errorMessages))
                 {
-                    MessageBox.Show(errorMessages,
-                    "Fel",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    MessageBox.Show(errorMessages, "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
-
                 }
-
 
                 var nyKund = new Kund
                 {
@@ -210,14 +205,12 @@ namespace PresentationsLager.ViewModels
                 {
                     StatusMessage = $"Kund '{nyKund.Namn}' har skapats framgångsrikt";
 
-                    // Rensa formuläret
                     NyKundNamn = string.Empty;
                     NyKundTelefon = string.Empty;
                     NyKundEmail = string.Empty;
                     ValdRegion = null;
                     ValdRestaurang = null;
 
-                    // Uppdatera sökningen om det finns sökkriterier
                     if (!string.IsNullOrWhiteSpace(SokTelefon) ||
                         !string.IsNullOrWhiteSpace(SokNamn) ||
                         !string.IsNullOrWhiteSpace(SokEmail))
@@ -249,22 +242,13 @@ namespace PresentationsLager.ViewModels
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // Här skulle vi kunna skicka tillbaka vald kund till huvudfönstret
-                    // För nu visar vi bara en bekräftelse
-                    //Onödig andra pop-up
-                    /* MessageBox.Show($"Kund '{ValdKund.Namn}' har valts för aktuell beställning.",
-                         "Kund vald", MessageBoxButton.OK, MessageBoxImage.Information); */
                     ValdKund = ValdKund;
                     CloseAction?.Invoke();
                 }
-                if  (result == MessageBoxResult.No)
-                    
+                else if (result == MessageBoxResult.No)
                 {
-                   
                     ValdKund = null;
-
                     CloseAction?.Invoke();
-
                 }
             }
         }
@@ -277,7 +261,6 @@ namespace PresentationsLager.ViewModels
 
         public void Dispose()
         {
-            // Se till att DbContext disposas korrekt för att frigöra databas-resurser
             _extraController.Dispose();
         }
     }

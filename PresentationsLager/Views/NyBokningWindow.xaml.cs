@@ -1,4 +1,4 @@
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.ViewModels;
 using System;
 using System.Windows;
@@ -7,7 +7,7 @@ namespace PresentationsLager.Views
 {
     public partial class NyBokningWindow : Window
     {
-        public NyBokningWindow(Anvandare anvandare, int restaurangId, Kund? forvaldKund = null)
+        public NyBokningWindow(AnvandareModel anvandare, int restaurangId, KundModel? forvaldKund = null)
         {
             InitializeComponent();
 

@@ -1,8 +1,7 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DataLager;
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
@@ -17,16 +16,16 @@ namespace PresentationsLager.ViewModels
         private readonly RestaurangController _restaurangController;
 
         [ObservableProperty]
-        private Anvandare? inloggadAnvandare;
+        private AnvandareModel? inloggadAnvandare;
 
         [ObservableProperty]
-        private ObservableCollection<Restaurang> tillgangligaRestauranger = new();
+        private ObservableCollection<RestaurangModel> tillgangligaRestauranger = new();
 
         [ObservableProperty]
-        private Restaurang? valdRestaurang;
+        private RestaurangModel? valdRestaurang;
 
         // Håll koll på senast valda kund för enklare arbetsflöde
-        public Kund? SenastValdaKund { get; set; }
+        public KundModel? SenastValdaKund { get; set; }
 
         public Action? CloseAction { get; set; }
 
@@ -36,7 +35,7 @@ namespace PresentationsLager.ViewModels
             _restaurangController = new RestaurangController();
         }
 
-        public void Initialize(Anvandare anvandare)
+        public void Initialize(AnvandareModel anvandare)
         {
             InloggadAnvandare = anvandare;
 
@@ -45,7 +44,7 @@ namespace PresentationsLager.ViewModels
             TillgangligaRestauranger.Clear();
             foreach (var restaurang in restauranger)
             {
-                TillgangligaRestauranger.Add(restaurang);
+                TillgangligaRestauranger.Add(RestaurangModel.FromEntity(restaurang));
             }
 
             // Sätt hemmarestaurang som vald (default vid inloggning)
@@ -172,7 +171,6 @@ namespace PresentationsLager.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                // Logga ut användaren från session
                 if (InloggadAnvandare != null)
                 {
                     _anvandareController.LoggaUtAnvandare(InloggadAnvandare.AnvandarID);
@@ -180,7 +178,6 @@ namespace PresentationsLager.ViewModels
 
                 var loginWindow = new LoginWindow();
                 loginWindow.Show();
-                // Stäng denna vy och öppna login igen
                 CloseAction?.Invoke();
             }
         }

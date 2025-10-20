@@ -1,8 +1,7 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DataLager;
-using EntitetsLager;
+using PresentationsLager.Models;
 using PresentationsLager.Views;
 using System;
 using System.Windows;
@@ -23,7 +22,7 @@ namespace PresentationsLager.ViewModels
         private string statusMessage = string.Empty;
 
         public Action? CloseAction { get; set; }
-        public Action<Anvandare>? NavigateToMainMenu { get; set; }
+        public Action<AnvandareModel>? NavigateToMainMenu { get; set; }
 
         public LoginWindowViewModel()
         {
@@ -50,10 +49,10 @@ namespace PresentationsLager.ViewModels
                     var anvandare = _anvandareController.HamtaInloggadAnvandare(Anvandarnamn);
                     if (anvandare != null)
                     {
-                        StatusMessage = $"Välkommen {anvandare.Namn}!";
+                        var anvandareModel = AnvandareModel.FromEntity(anvandare);
+                        StatusMessage = $"Välkommen {anvandareModel.Namn}!";
 
-                        // Navigera baserat på användarens roll
-                        NavigateBasedOnRole(anvandare);
+                        NavigateBasedOnRole(anvandareModel);
                         CloseAction?.Invoke();
                     }
                 }
@@ -74,26 +73,25 @@ namespace PresentationsLager.ViewModels
             Environment.Exit(0);
         }
 
-        // För testing - visa användarnamn/lösenord
         [RelayCommand]
         private void VisaTestAnvandare()
         {
             StatusMessage = "Test: servitor1/password123, admin1/admin123";
         }
 
-        private void NavigateBasedOnRole(Anvandare anvandare)
+        private void NavigateBasedOnRole(AnvandareModel anvandare)
         {
             try
             {
                 switch (anvandare.Roll?.ToLower())
                 {
                     case "servitör":
-                        var servitorWindow = new ServitorMainWindow(anvandare);
+                        var servitorWindow = new ServitorMainWindow(anvandare.ToEntity());
                         servitorWindow.Show();
                         break;
 
                     case "admin":
-                        var adminMainWindow = new AdminMainWindow(anvandare);
+                        var adminMainWindow = new AdminMainWindow(anvandare.ToEntity());
                         adminMainWindow.Show();
                         break;
 

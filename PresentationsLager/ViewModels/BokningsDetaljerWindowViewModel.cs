@@ -1,8 +1,7 @@
 using AffärsLager.Controllers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DataLager;
-using EntitetsLager;
+using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,13 +19,13 @@ namespace PresentationsLager.ViewModels
         private readonly LojalitetsTransaktionController _lojalitetsController;
 
         [ObservableProperty]
-        private BordMedStatus? bordStatus;
+        private BordModel? bord;
 
         [ObservableProperty]
-        private Bokning? bokning;
+        private BokningModel? bokning;
 
         [ObservableProperty]
-        private Anvandare? inloggadAnvandare;
+        private AnvandareModel? inloggadAnvandare;
 
         [ObservableProperty]
         private string kundNamn = string.Empty;
@@ -113,49 +112,14 @@ namespace PresentationsLager.ViewModels
             _lojalitetsController = new LojalitetsTransaktionController();
         }
 
-        public void Initialize(BordMedStatus bordStatus, Anvandare anvandare)
+        public void Initialize(BokningModel bokning, AnvandareModel anvandare)
         {
-            BordStatus = bordStatus;
-            Bokning = bordStatus.Bokning;
-            InloggadAnvandare = anvandare;
-
-            System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer INIT] Bokning = {(Bokning == null ? "NULL" : "OK")}");
-            if (Bokning != null)
-            {
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer INIT] Status = '{Bokning.Status}'");
-                LoadBokningDetails();
-                LoadKundDetails();
-                LoadAnvandareDetails();
-                UpdateButtonVisibility();
-                UpdateMenyVisibility();
-                SlutTid = Bokning.Tid.Add(TimeSpan.FromHours(2));
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer INIT] VARNING: Bokning är NULL!");
-            }
-        }
-
-        public void Initialize(Bokning bokning, Anvandare anvandare)
-        {
-            // Skapa en enkel BordMedStatus från bokningen
             var bordController = new BordController();
-            var bord = bordController.HamtaBordMedId(bokning.BordID);
+            var bordEntity = bordController.HamtaBordMedId(bokning.BordID);
 
-            if (bord != null)
+            if (bordEntity != null)
             {
-                BordStatus = new BordMedStatus
-                {
-                    BordID = bord.BordID,
-                    Bordkod = bord.Bordkod,
-                    AntalPlatser = bord.AntalPlatser,
-                    ArLedigt = false,
-                    ArLampligt = true,
-                    BokadTid = bokning.Tid,
-                    BordStatus = bokning.Status,
-                    BokningsID = bokning.BokningsID,
-                    Bokning = bokning
-                };
+                Bord = BordModel.FromEntity(bordEntity);
             }
 
             Bokning = bokning;
@@ -216,9 +180,7 @@ namespace PresentationsLager.ViewModels
 
         private void UpdateButtonVisibility()
         {
-            // Debug: Visa status för felsökning
             var currentStatus = Bokning?.Status ?? "NULL";
-            System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer] Bokning.Status = '{currentStatus}'");
 
             if (Bokning?.Status == "Bokad")
             {
@@ -226,7 +188,6 @@ namespace PresentationsLager.ViewModels
                 VisaCheckOut = false;
                 VisaBetala = false;
                 VisaAvboka = true;
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer] Visar CHECK IN + AVBOKA");
             }
             else if (Bokning?.Status == "På plats")
             {
@@ -234,7 +195,6 @@ namespace PresentationsLager.ViewModels
                 VisaCheckOut = false;
                 VisaBetala = true;  // Visa betala-knappen när kunden är på plats
                 VisaAvboka = false;
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer] Visar BETALA");
             }
             else if (Bokning?.Status == "Avslutad" || Bokning?.Status == "Avbokad")
             {
@@ -243,7 +203,6 @@ namespace PresentationsLager.ViewModels
                 VisaCheckOut = false;
                 VisaBetala = false;
                 VisaAvboka = false;
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer] Bokning är {currentStatus} - inga knappar visas (korrekt)");
             }
             else
             {
@@ -252,7 +211,6 @@ namespace PresentationsLager.ViewModels
                 VisaCheckOut = false;
                 VisaBetala = false;
                 VisaAvboka = false;
-                System.Diagnostics.Debug.WriteLine($"[BokningsDetaljer] VARNING: Okänd status '{currentStatus}' - inga knappar visas");
             }
         }
 
@@ -269,7 +227,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 var result = MessageBox.Show(
-                    $"Checka in {KundNamn} till bord {BordStatus?.Bordkod}?",
+                    $"Checka in {KundNamn} till bord {Bord?.Bordkod}?",
                     "Bekräfta check-in",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -283,7 +241,7 @@ namespace PresentationsLager.ViewModels
                     if (success)
                     {
                         MessageBox.Show(
-                            $"{KundNamn} har checkats in till bord {BordStatus?.Bordkod}.\nBordet är nu markerat som 'På plats'.",
+                            $"{KundNamn} har checkats in till bord {Bord?.Bordkod}.\nBordet är nu markerat som 'På plats'.",
                             "Check-in genomförd",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -313,7 +271,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 var result = MessageBox.Show(
-                    $"Checka ut {KundNamn} från bord {BordStatus?.Bordkod}?\n\nDetta markerar bordet som ledigt igen.",
+                    $"Checka ut {KundNamn} från bord {Bord?.Bordkod}?\n\nDetta markerar bordet som ledigt igen.",
                     "Bekräfta check-out",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -327,7 +285,7 @@ namespace PresentationsLager.ViewModels
                     if (success)
                     {
                         MessageBox.Show(
-                            $"{KundNamn} har checkats ut från bord {BordStatus?.Bordkod}.\nBordet är nu ledigt för nya bokningar.",
+                            $"{KundNamn} har checkats ut från bord {Bord?.Bordkod}.\nBordet är nu ledigt för nya bokningar.",
                             "Check-out genomförd",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -357,7 +315,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 var result = MessageBox.Show(
-                    $"Är du säker på att du vill avboka denna bokning?\n\nKund: {KundNamn}\nBord: {BordStatus?.Bordkod}\nDatum: {Bokning.Datum:yyyy-MM-dd}\nTid: {Bokning.Tid:hh\\:mm}\n\nDenna åtgärd kan inte ångras.",
+                    $"Är du säker på att du vill avboka denna bokning?\n\nKund: {KundNamn}\nBord: {Bord?.Bordkod}\nDatum: {Bokning.Datum:yyyy-MM-dd}\nTid: {Bokning.Tid:hh\\:mm}\n\nDenna åtgärd kan inte ångras.",
                     "Bekräfta avbokning",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -371,7 +329,7 @@ namespace PresentationsLager.ViewModels
                     if (success)
                     {
                         MessageBox.Show(
-                            $"Bokningen för {KundNamn} har avbokats.\nBord {BordStatus?.Bordkod} är nu ledigt.",
+                            $"Bokningen för {KundNamn} har avbokats.\nBord {Bord?.Bordkod} är nu ledigt.",
                             "Avbokning genomförd",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -444,14 +402,14 @@ namespace PresentationsLager.ViewModels
                             $"✅ Betalning genomförd!\n\n" +
                             $"Kunden betalade med 100 lojalitetspoäng.\n" +
                             $"Nytt saldo: {kundPoang - 100} poäng\n\n" +
-                            $"Bord {BordStatus?.Bordkod} är nu ledigt.",
+                            $"Bord {Bord?.Bordkod} är nu ledigt.",
                             "Betalning klar",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
                     }
                     else
                     {
-                        // Betala normalt + ge 15 poäng
+                        // Betala normalt och tilldela 15 poäng
                         _lojalitetsController.TilldelaPoang(Bokning.KundID, 15, null, "Middag betald");
 
                         MessageBox.Show(
@@ -459,7 +417,7 @@ namespace PresentationsLager.ViewModels
                             $"Kunden betalade {(Totalpris + Dricks):F0} kr\n" +
                             $"+15 lojalitetspoäng tillagda!\n" +
                             $"Nytt saldo: {kundPoang + 15} poäng\n\n" +
-                            $"Bord {BordStatus?.Bordkod} är nu ledigt.",
+                            $"Bord {Bord?.Bordkod} är nu ledigt.",
                             "Betalning klar",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -467,7 +425,6 @@ namespace PresentationsLager.ViewModels
                 }
                 else
                 {
-                    // Har inte tillräckligt med poäng - betala normalt + ge 15 poäng
                     message += $"Kunden får +15 lojalitetspoäng vid betalning.\n" +
                               $"Nytt saldo blir: {kundPoang + 15} poäng\n\n" +
                               "Bekräfta betalning?";
@@ -477,7 +434,6 @@ namespace PresentationsLager.ViewModels
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // Ge 15 poäng för middag
                         _lojalitetsController.TilldelaPoang(Bokning.KundID, 15, null, "Middag betald");
 
                         MessageBox.Show(
@@ -485,7 +441,7 @@ namespace PresentationsLager.ViewModels
                             $"Kunden betalade {(Totalpris + Dricks):F0} kr\n" +
                             $"+15 lojalitetspoäng tillagda!\n" +
                             $"Nytt saldo: {kundPoang + 15} poäng\n\n" +
-                            $"Bord {BordStatus?.Bordkod} är nu ledigt.",
+                            $"Bord {Bord?.Bordkod} är nu ledigt.",
                             "Betalning klar",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -496,10 +452,7 @@ namespace PresentationsLager.ViewModels
                     }
                 }
 
-                // Markera bokning som avslutad (samma som check-out)
                 _bokningsController.CheckOutBokning(Bokning.BokningsID, InloggadAnvandare.AnvandarID);
-
-                // Uppdatera UI och stäng
                 OperationCompleted?.Invoke();
             }
             catch (Exception ex)
@@ -511,7 +464,6 @@ namespace PresentationsLager.ViewModels
 
         private void UpdateMenyVisibility()
         {
-            // Visa meny endast för bokningar som är "På plats"
             VisaMeny = Bokning?.Status == "På plats";
 
             if (VisaMeny && Bokning?.RestaurangID != null)
@@ -527,7 +479,6 @@ namespace PresentationsLager.ViewModels
             {
                 var menyer = _menyController.HamtaMenyvarorForRestaurang(restaurangId);
 
-                // Rensa alla listor
                 Menyvaror.Clear();
                 AlaCarteMenyvaror.Clear();
                 DagensLunchMenyvaror.Clear();
@@ -544,10 +495,8 @@ namespace PresentationsLager.ViewModels
                         Kategori = meny.Kategori
                     };
 
-                    // Lägg till i alla menyvaror (behålls för bakåtkompatibilitet)
                     Menyvaror.Add(menyItem);
 
-                    // Lägg till i rätt kategori
                     var kategoriLower = meny.Kategori.ToLower();
                     if (kategoriLower == "à la carte" || kategoriLower == "a la carte")
                     {
@@ -563,12 +512,10 @@ namespace PresentationsLager.ViewModels
                     }
                     else
                     {
-                        // Om kategori inte matchar, lägg i À la carte som standard
                         AlaCarteMenyvaror.Add(menyItem);
                     }
                 }
 
-                // Uppdatera filtrerad vy
                 FiltreraMeny();
             }
             catch (Exception ex)
@@ -592,7 +539,7 @@ namespace PresentationsLager.ViewModels
                 "À la carte" => AlaCarteMenyvaror,
                 "Dagens lunch" => DagensLunchMenyvaror,
                 "Dryck" => DryckMenyvaror,
-                _ => Menyvaror // "Alla" eller default
+                _ => Menyvaror
             };
 
             foreach (var item in filtrerade)
@@ -624,7 +571,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 UpdateTotalpris();
-                SparaBestallning(); // Spara automatiskt
+                SparaBestallning();
             }
             catch (Exception ex)
             {
@@ -648,7 +595,7 @@ namespace PresentationsLager.ViewModels
                 }
 
                 UpdateTotalpris();
-                SparaBestallning(); // Spara automatiskt
+                SparaBestallning();
             }
             catch (Exception ex)
             {
@@ -694,8 +641,6 @@ namespace PresentationsLager.ViewModels
                 if (Bokning?.BokningsID == null || Bokning?.KundID == null ||
                     Bokning?.RestaurangID == null || InloggadAnvandare?.AnvandarID == null)
                 {
-                    MessageBox.Show($"Kan inte spara - saknar data:\nBokningsID: {Bokning?.BokningsID}\nKundID: {Bokning?.KundID}\nRestaurangID: {Bokning?.RestaurangID}\nAnvändarID: {InloggadAnvandare?.AnvandarID}", "Debug",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -731,27 +676,5 @@ namespace PresentationsLager.ViewModels
         {
             CloseAction?.Invoke();
         }
-    }
-
-    public partial class MenyItemViewModel : ObservableObject
-    {
-        public int MenyID { get; set; }
-        public string Rattnamn { get; set; } = string.Empty;
-        public string Beskrivning { get; set; } = string.Empty;
-        public decimal Pris { get; set; }
-        public string Kategori { get; set; } = string.Empty;
-    }
-
-    public partial class BestallningsRadViewModel : ObservableObject
-    {
-        public int MenyID { get; set; }
-        public string Rattnamn { get; set; } = string.Empty;
-        public decimal Pris { get; set; }
-        public string Kategori { get; set; } = string.Empty;
-
-        [ObservableProperty]
-        private int antal = 1;
-
-        public decimal Totalpris => Pris * Antal;
     }
 }
