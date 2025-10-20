@@ -11,7 +11,6 @@ namespace PresentationsLager.ViewModels
 {
     public partial class BestallningsWindowViewModel : ObservableObject
     {
-        private readonly KundController _kundController;
         private readonly MenyController _menyController;
         private readonly BestallningsController _bestallningsController;
         private readonly LojalitetsTransaktionController _lojalitetsController;
@@ -82,7 +81,6 @@ namespace PresentationsLager.ViewModels
 
         public BestallningsWindowViewModel()
         {
-            _kundController = new KundController();
             _menyController = new MenyController();
             _bestallningsController = new BestallningsController();
             _lojalitetsController = new LojalitetsTransaktionController();
