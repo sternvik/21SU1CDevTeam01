@@ -160,7 +160,7 @@
 
                 <Button Content="Välj kund för beställning" Command="{Binding TillKundSokCommand}"
                         Style="{StaticResource StandardButton}"
-                        Width="150" HorizontalAlignment="Center" Margin="0,40,0,0"/> 
+                        Width="250" HorizontalAlignment="Center" Margin="0,40,0,0"/> 
             </StackPanel>
 
             <!-- Steg 3: Beställningsvy (Lunch eller Avhämtning) -->
