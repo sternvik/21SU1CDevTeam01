@@ -1,24 +1,42 @@
-﻿using EntitetsLager;
-using System;
-using System.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using EntitetsLager;
+using System.Collections.ObjectModel;
 
 namespace PresentationsLager.Models
 {
-    public class KundModel : INotifyPropertyChanged
+    public partial class KundModel : ObservableObject
     {
-        public int KundID { get; set; }
-        public string Namn { get; set; } = string.Empty;
-        public string Telefon { get; set; } = string.Empty;
-        public string? Email { get; set; }
-        public int LojalitetsPoang { get; set; }
-        public string LojalitetsNiva { get; set; } = "Brons";
-        public int? RegionID { get; set; }
-        public int? HemmarestaurangID { get; set; }
-        public RegionModel? Region { get; set; }
-        public RestaurangModel? Hemmarestaurang { get; set; }
+        [ObservableProperty]
+        private int kundID;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        [ObservableProperty]
+        private string namn = string.Empty;
 
+        [ObservableProperty]
+        private string telefon = string.Empty;
+
+        [ObservableProperty]
+        private string? email;
+
+        [ObservableProperty]
+        private int lojalitetsPoang;
+
+        [ObservableProperty]
+        private string lojalitetsNiva = "Brons";
+
+        [ObservableProperty]
+        private int? regionID;
+
+        [ObservableProperty]
+        private int? hemmarestaurangID;
+
+        [ObservableProperty]
+        private RegionModel? region;
+
+        [ObservableProperty]
+        private RestaurangModel? hemmarestaurang;
+
+        // Konvertering från entitet till modell
         public static KundModel FromEntity(Kund entity) => new()
         {
             KundID = entity.KundID,
@@ -33,6 +51,7 @@ namespace PresentationsLager.Models
             Hemmarestaurang = entity.Hemmarestaurang != null ? RestaurangModel.FromEntity(entity.Hemmarestaurang) : null
         };
 
+        // Konvertering från modell till entitet
         public Kund ToEntity() => new()
         {
             KundID = KundID,

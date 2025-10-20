@@ -1,28 +1,64 @@
-﻿using EntitetsLager;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using EntitetsLager;
 using System;
+using System.Collections.ObjectModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.Cryptography;
+using System.Windows.Controls;
 
 namespace PresentationsLager.Models
 {
-    public class BokningModel
+    public partial class BokningModel : ObservableObject
     {
-        public int BokningsID { get; set; }
-        public int KundID { get; set; }
-        public int BordID { get; set; }
-        public int RestaurangID { get; set; }
-        public int? AnvandarID { get; set; }
-        public DateTime Datum { get; set; }
-        public TimeSpan Tid { get; set; }
-        public int AntalGaster { get; set; }
-        public string? Specialinformation { get; set; }
-        public string BokningsTyp { get; set; } = string.Empty;
-        public string Status { get; set; } = "Bokad";
-        public DateTime SkapadDatum { get; set; } = DateTime.Now;
+        [ObservableProperty]
+        private int bokningsID;
 
-        public KundModel? Kund { get; set; }
-        public BordModel? Bord { get; set; }
-        public RestaurangModel? Restaurang { get; set; }
-        public AnvandareModel? Anvandare { get; set; }
+        [ObservableProperty]
+        private int kundID;
 
+        [ObservableProperty]
+        private int bordID;
+
+        [ObservableProperty]
+        private int restaurangID;
+
+        [ObservableProperty]
+        private int? anvandarID;
+
+        [ObservableProperty]
+        private DateTime datum;
+
+        [ObservableProperty]
+        private TimeSpan tid;
+
+        [ObservableProperty]
+        private int antalGaster;
+
+        [ObservableProperty]
+        private string? specialinformation;
+
+        [ObservableProperty]
+        private string bokningsTyp = string.Empty;
+
+        [ObservableProperty]
+        private string status = "Bokad";
+
+        [ObservableProperty]
+        private DateTime skapadDatum = DateTime.Now;
+
+        [ObservableProperty]
+        private KundModel? kund;
+
+        [ObservableProperty]
+        private BordModel? bord;
+
+        [ObservableProperty]
+        private RestaurangModel? restaurang;
+
+        [ObservableProperty]
+        private AnvandareModel? anvandare;
+
+        // Konvertering från entitet till modell
         public static BokningModel FromEntity(Bokning entity) => new()
         {
             BokningsID = entity.BokningsID,
@@ -43,6 +79,7 @@ namespace PresentationsLager.Models
             Anvandare = entity.Anvandare != null ? AnvandareModel.FromEntity(entity.Anvandare) : null
         };
 
+        // Konvertering från modell till entitet
         public Bokning ToEntity() => new()
         {
             BokningsID = BokningsID,
