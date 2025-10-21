@@ -8,6 +8,26 @@ namespace AffärsLager.Controllers
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
+        /// <summary>
+        /// Hjälpmetod för att avgöra om en kategori är alkohol/dryck
+        /// </summary>
+        private bool IsAlkoholKategori(string kategori)
+        {
+            if (string.IsNullOrEmpty(kategori)) return false;
+
+            var lowerKategori = kategori.ToLower();
+
+            // Exclude non-alcoholic drinks
+            if (lowerKategori.Contains("alkoholfri")) return false;
+
+            // Include alcoholic categories
+            return lowerKategori.Contains("alkoholhaltig") ||
+                   lowerKategori.Contains("öl") ||
+                   lowerKategori.Contains("vin") ||
+                   lowerKategori.Contains("sprit") ||
+                   (lowerKategori.Contains("alkohol") && !lowerKategori.Contains("fri"));
+        }
+
         #region Restaurangchef Statistik
 
         /// <summary>
@@ -29,7 +49,7 @@ namespace AffärsLager.Controllers
             {
                 foreach (var rad in bestallning.BestallningsRader)
                 {
-                    if (rad.Meny.Kategori == "Dryck")
+                    if (IsAlkoholKategori(rad.Meny.Kategori))
                     {
                         alkoholSumma += rad.Summa;
                     }
@@ -172,7 +192,7 @@ namespace AffärsLager.Controllers
             {
                 foreach (var rad in bestallning.BestallningsRader)
                 {
-                    if (rad.Meny.Kategori == "Dryck")
+                    if (IsAlkoholKategori(rad.Meny.Kategori))
                     {
                         alkoholSumma += rad.Summa;
                     }
@@ -207,14 +227,31 @@ namespace AffärsLager.Controllers
 
             var regionStatistik = bestallningar
                 .GroupBy(b => new { b.Restaurang.RegionID, b.Restaurang.Region.Regionnamn })
-                .Select(g => new RegionStatistik
+                .Select(g =>
                 {
-                    RegionID = g.Key.RegionID,
-                    RegionNamn = g.Key.Regionnamn,
-                    TotalForsaljning = g.Sum(b => b.TotalSumma),
-                    MatSumma = g.SelectMany(b => b.BestallningsRader).Where(br => br.Meny.Kategori != "Dryck").Sum(br => br.Summa),
-                    AlkoholSumma = g.SelectMany(b => b.BestallningsRader).Where(br => br.Meny.Kategori == "Dryck").Sum(br => br.Summa),
-                    AntalTransaktioner = g.Count()
+                    decimal matSumma = 0;
+                    decimal alkoholSumma = 0;
+
+                    foreach (var best in g)
+                    {
+                        foreach (var rad in best.BestallningsRader)
+                        {
+                            if (IsAlkoholKategori(rad.Meny.Kategori))
+                                alkoholSumma += rad.Summa;
+                            else
+                                matSumma += rad.Summa;
+                        }
+                    }
+
+                    return new RegionStatistik
+                    {
+                        RegionID = g.Key.RegionID,
+                        RegionNamn = g.Key.Regionnamn,
+                        TotalForsaljning = g.Sum(b => b.TotalSumma),
+                        MatSumma = matSumma,
+                        AlkoholSumma = alkoholSumma,
+                        AntalTransaktioner = g.Count()
+                    };
                 })
                 .OrderByDescending(r => r.TotalForsaljning)
                 .ToList();
@@ -294,15 +331,32 @@ namespace AffärsLager.Controllers
 
             var restaurangStatistik = bestallningar
                 .GroupBy(b => new { b.RestaurangID, b.Restaurang.Restaurangnamn, b.Restaurang.RegionID })
-                .Select(g => new RestaurangStatistik
+                .Select(g =>
                 {
-                    RestaurangID = g.Key.RestaurangID,
-                    RestaurangNamn = g.Key.Restaurangnamn,
-                    RegionID = g.Key.RegionID,
-                    TotalForsaljning = g.Sum(b => b.TotalSumma),
-                    MatSumma = g.SelectMany(b => b.BestallningsRader).Where(br => br.Meny.Kategori != "Dryck").Sum(br => br.Summa),
-                    AlkoholSumma = g.SelectMany(b => b.BestallningsRader).Where(br => br.Meny.Kategori == "Dryck").Sum(br => br.Summa),
-                    AntalTransaktioner = g.Count()
+                    decimal matSumma = 0;
+                    decimal alkoholSumma = 0;
+
+                    foreach (var best in g)
+                    {
+                        foreach (var rad in best.BestallningsRader)
+                        {
+                            if (IsAlkoholKategori(rad.Meny.Kategori))
+                                alkoholSumma += rad.Summa;
+                            else
+                                matSumma += rad.Summa;
+                        }
+                    }
+
+                    return new RestaurangStatistik
+                    {
+                        RestaurangID = g.Key.RestaurangID,
+                        RestaurangNamn = g.Key.Restaurangnamn,
+                        RegionID = g.Key.RegionID,
+                        TotalForsaljning = g.Sum(b => b.TotalSumma),
+                        MatSumma = matSumma,
+                        AlkoholSumma = alkoholSumma,
+                        AntalTransaktioner = g.Count()
+                    };
                 })
                 .OrderByDescending(r => r.TotalForsaljning)
                 .ToList();

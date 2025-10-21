@@ -1,13 +1,13 @@
-using AffärsLager.DTOs;
+using AffÃ¤rsLager.DTOs;
 using DataLager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AffärsLager.Services
+namespace AffÃ¤rsLager.Services
 {
     /// <summary>
-    /// Service för att beräkna och hämta statistik
+    /// Service fÃ¶r att berÃ¤kna och hÃ¤mta statistik
     /// </summary>
     public class StatistikService
     {
@@ -19,7 +19,7 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Hämta personalstatistik för en restaurang
+        /// HÃ¤mta personalstatistik fÃ¶r en restaurang
         /// </summary>
         public List<PersonalStatistikDto> HamtaPersonalStatistik(int restaurangId, DateTime franDatum, DateTime tillDatum)
         {
@@ -44,7 +44,7 @@ namespace AffärsLager.Services
                 {
                     AnvandarID = g.Key ?? 0,
                     PersonalNamn = _unitOfWork.AnvandareRepository
-                        .FirstOrDefault(a => a.AnvandarID == g.Key)?.Namn ?? "Okänd",
+                        .FirstOrDefault(a => a.AnvandarID == g.Key)?.Namn ?? "OkÃ¤nd",
                     RestaurangID = restaurangId,
                     RestaurangNamn = _unitOfWork.RestaurangRepository
                         .FirstOrDefault(r => r.RestaurangID == restaurangId)?.Restaurangnamn ?? "",
@@ -62,7 +62,7 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Hämta menystatistik för en restaurang
+        /// HÃ¤mta menystatistik fÃ¶r en restaurang
         /// </summary>
         public List<MenyStatistikDto> HamtaMenyStatistik(int restaurangId, DateTime franDatum, DateTime tillDatum)
         {
@@ -82,8 +82,8 @@ namespace AffärsLager.Services
                     return new MenyStatistikDto
                     {
                         MenyID = g.Key,
-                        Rattnamn = meny?.Rattnamn ?? "Okänd",
-                        Kategori = meny?.Kategori ?? "Okänd",
+                        Rattnamn = meny?.Rattnamn ?? "OkÃ¤nd",
+                        Kategori = meny?.Kategori ?? "OkÃ¤nd",
                         AntalSalda = g.Sum(br => br.Antal),
                         TotalForsaljning = g.Sum(br => br.Pris * br.Antal),
                         GenomsnittsPris = meny?.Pris ?? 0,
@@ -98,15 +98,15 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Hämta försäljningssammanfattning för en restaurang
+        /// HÃ¤mta fÃ¶rsÃ¤ljningssammanfattning fÃ¶r en restaurang
         /// </summary>
         public ForsaljningsSummaryDto HamtaForsaljningsSummary(int restaurangId, DateTime franDatum, DateTime tillDatum)
         {
             _unitOfWork.RefreshContext();
 
             var restaurang = _unitOfWork.RestaurangRepository.FirstOrDefault(r => r.RestaurangID == restaurangId);
-    
-            // VIKTIGT: Jämför bara DATE, inte tid!
+
+            // VIKTIGT: JÃ¤mfÃ¶r bara DATE, inte tid!
             var bokningar = _unitOfWork.BokningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
                            b.Datum.Date >= franDatum.Date &&
@@ -133,11 +133,14 @@ namespace AffärsLager.Services
                 TotaltAntalBokningar = bokningar.Count,
                 TotaltAntalGaster = bokningar.Sum(b => b.AntalGaster),
                 MatForsaljning = menyStatistik
-                    .Where(m => m.Kategori.ToLower().Contains("carte") || 
-                               m.Kategori.ToLower().Contains("lunch"))
+                    .Where(m => m.Kategori.ToLower().Contains("mat"))
                     .Sum(m => m.TotalForsaljning),
                 DryckForsaljning = menyStatistik
-                    .Where(m => m.Kategori.ToLower().Contains("dryck"))
+                    .Where(m => m.Kategori.ToLower().Contains("dryck") ||
+                               m.Kategori.ToLower().Contains("alkohol") ||
+                               m.Kategori.ToLower().Contains("Ã¶l") ||
+                               m.Kategori.ToLower().Contains("vin") ||
+                               m.Kategori.ToLower().Contains("sprit"))
                     .Sum(m => m.TotalForsaljning),
                 MestSaldaRatter = menyStatistik.Take(10).ToList(),
                 MinstSaldaRatter = menyStatistik.OrderBy(m => m.AntalSalda).Take(10).ToList(),
@@ -146,7 +149,7 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Hämta grundmenystatistik (alla restauranger)
+        /// HÃ¤mta grundmenystatistik (alla restauranger)
         /// </summary>
         public List<GrundmenyStatistikDto> HamtaGrundmenyStatistik(DateTime franDatum, DateTime tillDatum)
         {
@@ -165,7 +168,7 @@ namespace AffärsLager.Services
             var statistik = grundmenyer.Select(meny =>
             {
                 var raderForMeny = bestallningsRader.Where(br => br.MenyID == meny.MenyID).ToList();
-                
+
                 return new GrundmenyStatistikDto
                 {
                     MenyID = meny.MenyID,
@@ -189,7 +192,7 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Generera bokföringsdata för en dag
+        /// Generera bokfÃ¶ringsdata fÃ¶r en dag
         /// </summary>
         public BokforingDto GenereraBokforing(int restaurangId, DateTime datum)
         {
@@ -209,10 +212,10 @@ namespace AffärsLager.Services
                 RestaurangNamn = restaurang?.Restaurangnamn ?? "",
                 Dagssumma = bestallningar.Sum(b => b.TotalSumma),
                 AntalTransaktioner = bestallningar.Count,
-                Dricks = 0, // Skulle behöva hämtas från transaktionstabellen om vi sparar dricks
-                KontantBetalningar = 0, // Skulle behöva betalningsmetod-info
+                Dricks = 0, // Skulle behÃ¶va hÃ¤mtas frÃ¥n transaktionstabellen om vi sparar dricks
+                KontantBetalningar = 0, // Skulle behÃ¶va betalningsmetod-info
                 KortBetalningar = bestallningar.Sum(b => b.TotalSumma),
-                LojalitetsPoangAnvanda = 0 // Skulle behöva info från lojalitetstabellen
+                LojalitetsPoangAnvanda = 0 // Skulle behÃ¶va info frÃ¥n lojalitetstabellen
             };
         }
     }
