@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PresentationsLager.Models;
 using PresentationsLager.Views;
+using PresentationsLager.Views.ResturangChef;
 using PresentationsLager.Views.VD;
 using System;
 using System.Windows;
@@ -97,8 +98,8 @@ namespace PresentationsLager.ViewModels
                         break;
 
                     case "restaurangchef":
-                        MessageBox.Show($"Restaurangchef-vy kommer snart!\nInloggad som: {anvandare.Namn}",
-                            "Restaurangchef", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var resturangChefWindow = new ResturangChefWindow(anvandare.ToEntity());
+                        resturangChefWindow.Show();
                         break;
 
                     case "vd":

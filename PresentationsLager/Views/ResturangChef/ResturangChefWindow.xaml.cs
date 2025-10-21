@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EntitetsLager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace PresentationsLager.Views.ResturangChef
     /// </summary>
     public partial class ResturangChefWindow : Window
     {
-        public ResturangChefWindow()
+        public ResturangChefWindow(Anvandare anvandare)
         {
             InitializeComponent();
         }
