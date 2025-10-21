@@ -12,6 +12,7 @@ namespace AffärsLager.Controllers
         private readonly PdfGeneratorService _pdfService;
         private readonly EmailService _emailService;
         private readonly BokforingService _bokforingService;
+        private readonly KundExportService _kundExportService;
         private readonly LoggService _loggService;
 
         public SchemaController()
@@ -20,6 +21,7 @@ namespace AffärsLager.Controllers
             _pdfService = new PdfGeneratorService();
             _emailService = new EmailService();
             _bokforingService = new BokforingService();
+            _kundExportService = new KundExportService();
             _loggService = new LoggService();
         }
 
@@ -29,6 +31,9 @@ namespace AffärsLager.Controllers
             SchemaläggDagligRapport(15, 0); // 15:00
             SchemaläggDagligRapport(20, 0); // 20:00
             SchemaläggDagligRapport(23, 0); // 23:00
+
+            // Schemalägg veckovis kundexport (måndagar kl 09:00)
+            SchemaläggVeckovisKundExport(1, 9, 0); // Måndag 09:00
         }
 
         private void SchemaläggDagligRapport(int timme, int minut)
@@ -42,6 +47,17 @@ namespace AffärsLager.Controllers
             _timers.Add(timer);
         }
 
+        private void SchemaläggVeckovisKundExport(int veckodag, int timme, int minut)
+        {
+            var timer = new Timer();
+            timer.Elapsed += async (sender, e) => await GenereraVeckovisKundExport();
+            timer.Interval = BeräknaVeckointervall(veckodag, timme, minut);
+            timer.AutoReset = true;
+            timer.Start();
+
+            _timers.Add(timer);
+        }
+
         private double BeräknaIntervall(int timme, int minut)
         {
             var nu = DateTime.Now;
@@ -49,6 +65,18 @@ namespace AffärsLager.Controllers
 
             if (målTid < nu)
                 målTid = målTid.AddDays(1);
+
+            return (målTid - nu).TotalMilliseconds;
+        }
+
+        private double BeräknaVeckointervall(int veckodag, int timme, int minut)
+        {
+            var nu = DateTime.Now;
+            var daysUntilTarget = ((int)veckodag - (int)nu.DayOfWeek + 7) % 7;
+            var målTid = nu.Date.AddDays(daysUntilTarget).AddHours(timme).AddMinutes(minut);
+
+            if (målTid < nu)
+                målTid = målTid.AddDays(7);
 
             return (målTid - nu).TotalMilliseconds;
         }
@@ -73,14 +101,14 @@ namespace AffärsLager.Controllers
 
                     // Skicka emails
                     await _emailService.SkickaEmail(
-                        "restaurangchef@restonation.se",
+                        "restaurangchef@restonation.dk",
                         $"Daglig statistik - {summary.RestaurangNamn}",
                         $"<h2>Daglig rapport för {igår:yyyy-MM-dd}</h2><p>Total försäljning: {summary.TotalForsaljning:C}</p>",
                         new List<string> { pdfFil }
                     );
 
                     await _emailService.SkickaEmail(
-                        "ekonomi@restonation.se",
+                        "ekonomi@restonation.dk",
                         $"Bokföring - {summary.RestaurangNamn}",
                         $"<p>Bokföringsfil för {igår:yyyy-MM-dd}</p>",
                         new List<string> { csvFil }
@@ -93,6 +121,30 @@ namespace AffärsLager.Controllers
             catch (Exception ex)
             {
                 _loggService.LoggaHandelse(0, "SchemaController", "FEL vid daglig rapport", ex.Message);
+            }
+        }
+
+        private async System.Threading.Tasks.Task GenereraVeckovisKundExport()
+        {
+            try
+            {
+                // Exportera alla kunder
+                var kundlistaFil = _kundExportService.ExporteraAllaKunder();
+
+                // Skicka till marknadsavdelningen
+                await _emailService.SkickaEmail(
+                    "marknad@restonation.se",
+                    $"Veckovis kundlista - {DateTime.Now:yyyy-MM-dd}",
+                    "<h2>Veckovis kundexport</h2><p>Bifogad fil innehåller alla kunder med lojalitetsnivå, region och hemmarestaurang.</p>",
+                    new List<string> { kundlistaFil }
+                );
+
+                // Logga
+                _loggService.LoggaHandelse(0, "SchemaController", "Veckovis kundexport skickad", $"Fil: {kundlistaFil}");
+            }
+            catch (Exception ex)
+            {
+                _loggService.LoggaHandelse(0, "SchemaController", "FEL vid kundexport", ex.Message);
             }
         }
 
