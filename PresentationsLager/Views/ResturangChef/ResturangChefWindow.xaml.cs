@@ -1,28 +1,21 @@
 ﻿using EntitetsLager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PresentationsLager.ViewModels.ResturangChef;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PresentationsLager.Views.ResturangChef
 {
-    /// <summary>
-    /// Interaction logic for ResturangChefWindow.xaml
-    /// </summary>
     public partial class ResturangChefWindow : Window
     {
         public ResturangChefWindow(Anvandare anvandare)
         {
             InitializeComponent();
+
+            // Använd samma mönster som ServitorMainWindow
+            if (DataContext is ResturangChefWindowViewModel viewModel)
+            {
+                viewModel.Initialize(anvandare);
+                viewModel.CloseAction = () => this.Close();
+            }
         }
     }
 }
