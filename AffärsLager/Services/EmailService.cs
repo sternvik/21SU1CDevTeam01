@@ -4,9 +4,7 @@ using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Mail;
 using System.Threading.Tasks;
-
 namespace AffärsLager.Services
 {
     public class EmailService

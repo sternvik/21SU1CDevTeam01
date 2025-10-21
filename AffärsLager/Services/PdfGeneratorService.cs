@@ -4,7 +4,6 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
 using System.IO;
-using System.Reflection.Metadata;
 
 namespace AffärsLager.Services
 {
@@ -26,8 +25,7 @@ namespace AffärsLager.Services
         {
             var filnamn = $"Statistik_{data.RestaurangNamn}_{DateTime.Now:yyyy-MM-dd_HHmmss}.pdf";
             var filSokväg = Path.Combine(_pdfMapp, filnamn);
-
-            Document.Create(container =>
+            QuestPDF.Fluent.Document.Create(container =>
             {
                 container.Page(page =>
                 {
