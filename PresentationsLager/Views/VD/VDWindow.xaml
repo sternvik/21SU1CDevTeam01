@@ -10,7 +10,7 @@
         ResizeMode="CanResize">
 
     <Window.DataContext>
-        <vm:VDViewModel/>
+        <vm:VDWindowViewModel/>
     </Window.DataContext>
 
     <Grid>
