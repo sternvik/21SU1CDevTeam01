@@ -1,4 +1,5 @@
-﻿using AffärsLager.Services;
+﻿/*
+using AffärsLager.Services;
 using System;
 using System.Collections.Generic;
 using Timer = System.Timers.Timer;
@@ -35,6 +36,7 @@ namespace AffärsLager.Controllers
             // Schemalägg veckovis kundexport (måndagar kl 09:00)
             SchemaläggVeckovisKundExport(1, 9, 0); // Måndag 09:00
         }
+
 
         private void SchemaläggDagligRapport(int timme, int minut)
         {
@@ -81,6 +83,7 @@ namespace AffärsLager.Controllers
             return (målTid - nu).TotalMilliseconds;
         }
 
+        /*
         private async System.Threading.Tasks.Task GenereraDagligRapport()
         {
             try
@@ -147,6 +150,7 @@ namespace AffärsLager.Controllers
                 _loggService.LoggaHandelse(0, "SchemaController", "FEL vid kundexport", ex.Message);
             }
         }
+    
 
         public void Dispose()
         {
@@ -158,3 +162,4 @@ namespace AffärsLager.Controllers
         }
     }
 }
+*/

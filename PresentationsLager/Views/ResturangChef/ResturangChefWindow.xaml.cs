@@ -1,16 +1,16 @@
-﻿using PresentationsLager.ViewModels;
+﻿using EntitetsLager;
+using PresentationsLager.ViewModels;
 using System.Windows;
-using EntitetsLager;
 
 namespace PresentationsLager.Views
 {
-    public partial class RestaurangchefView : Window
+    public partial class ResturangChefWindow : Window
     {
-        public RestaurangchefView(Anvandare anvandare)
+        public ResturangChefWindow(Anvandare anvandare)
         {
             InitializeComponent();
 
-            if (DataContext is RestaurangchefViewModel viewModel)
+            if (DataContext is RestaurangChefWindowViewModel viewModel)
             {
                 viewModel.Initialize(anvandare);
                 viewModel.CloseAction = () => this.Close();

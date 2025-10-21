@@ -10,7 +10,7 @@
         ResizeMode="CanResize">
 
     <Window.DataContext>
-        <vm:RestaurangchefWindowViewModel/>
+        <vm:RestaurangChefWindowViewModel/>
     </Window.DataContext>
 
     <Grid>

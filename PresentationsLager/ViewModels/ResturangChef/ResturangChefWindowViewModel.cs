@@ -3,7 +3,6 @@ using AffärsLager.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
-using MailKit;
 using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
@@ -13,7 +12,7 @@ using System.Windows;
 
 namespace PresentationsLager.ViewModels
 {
-    public partial class RestaurangchefWindowViewModel : ObservableObject
+    public partial class RestaurangChefWindowViewModel : ObservableObject
     {
         private readonly StatistikController _statistikController;
         private readonly AnvandareController _anvandareController;
@@ -92,7 +91,7 @@ namespace PresentationsLager.ViewModels
 
         public Action? CloseAction { get; set; }
 
-        public RestaurangchefWindowViewModel()
+        public RestaurangChefWindowViewModel()
         {
             _statistikController = new StatistikController();
             _anvandareController = new AnvandareController();
