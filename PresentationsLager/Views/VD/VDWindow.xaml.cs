@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EntitetsLager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace PresentationsLager.Views.VD
     /// </summary>
     public partial class VDWindow : Window
     {
-        public VDWindow()
+        public VDWindow(Anvandare anvandare)
         {
             InitializeComponent();
         }

@@ -5,8 +5,509 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PresentationsLager.Views.VD"
         mc:Ignorable="d"
-        Title="VDWindow" Height="450" Width="800">
+        xmlns:vm="clr-namespace:PresentationsLager.ViewModels.VD"
+        Title="RestoNation - VD"
+        WindowState="Maximized"
+        ResizeMode="CanResize">
+
+    <Window.DataContext>
+        <vm:VDWindowViewModel/>
+    </Window.DataContext>
+
     <Grid>
-        
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F7F4EF" Offset="0"/>
+                <GradientStop Color="#A3B18A" Offset="0.3"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Header Bar -->
+        <Border Grid.Row="0" Background="#102c48">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo and Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="RestoNation"
+                               FontFamily="Montserrat"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,30,0"/>
+                    <TextBlock Text="VD - KONCERNÖVERSIKT"
+                               FontFamily="Inter"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#F4B942"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- User Info and Period Selector -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding InloggadAnvandare.Namn}"
+                               FontFamily="Inter"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,20,0"/>
+                    <TextBlock Text="|"
+                               FontSize="16"
+                               Foreground="#A3B18A"
+                               Margin="0,0,20,0"/>
+
+                    <!-- Restaurang Selector -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <TextBlock Text="🏢"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0"/>
+                        <ComboBox ItemsSource="{Binding TillgangligaRestauranger}"
+                                  SelectedValue="{Binding ValdRestaurangId}"
+                                  SelectedValuePath="RestaurangID"
+                                  DisplayMemberPath="Restaurangnamn"
+                                  Width="180"
+                                  Height="35"
+                                  FontFamily="Inter"
+                                  FontSize="12"
+                                  Foreground="#102c48"
+                                  Background="White"
+                                  BorderBrush="#A3B18A"
+                                  BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- Period Selector -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                        <TextBlock Text="📊"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0"/>
+                        <ComboBox ItemsSource="{Binding TillgangligaPerioder}"
+                                  SelectedItem="{Binding ValdPeriod}"
+                                  Width="120"
+                                  Height="35"
+                                  FontFamily="Inter"
+                                  FontSize="12"
+                                  Foreground="#102c48"
+                                  Background="White"
+                                  BorderBrush="#A3B18A"
+                                  BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- PDF and Email Buttons -->
+                    <Button Content="📄 PDF"
+                            Command="{Binding GeneraPDFRapportCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#588157"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Margin="0,0,10,0"
+                            Cursor="Hand"/>
+
+                    <Button Content="✉️ EMAIL"
+                            Command="{Binding SkickaPDFPerMailCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Margin="0,0,20,0"
+                            Cursor="Hand"/>
+
+                    <Button Content="LOGGA UT"
+                            Command="{Binding LoggaUtCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Koncernöversikt -->
+                <Border Grid.Row="0" Background="White" CornerRadius="10" Margin="10" BorderBrush="#102c48" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                    </Border.Effect>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="🏢 KONCERNÖVERSIKT"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total Försäljning -->
+                            <Border Grid.Column="0" Background="#F4B942" CornerRadius="5" Margin="5" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="Total Försäljning"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalForsaljningKoncern, StringFormat={}{0:N0} kr}"
+                                               FontFamily="Montserrat"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Mat -->
+                            <Border Grid.Column="1" Background="#102c48" CornerRadius="5" Margin="5" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="Mat"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding MatSummaKoncern, StringFormat={}{0:N0} kr}"
+                                               FontFamily="Montserrat"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Alkohol -->
+                            <Border Grid.Column="2" Background="#588157" CornerRadius="5" Margin="5" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="Alkohol"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding AlkoholSummaKoncern, StringFormat={}{0:N0} kr}"
+                                               FontFamily="Montserrat"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Antal Transaktioner -->
+                            <Border Grid.Column="3" Background="#A3B18A" CornerRadius="5" Margin="5" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="Antal Transaktioner"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding AntalTransaktionerKoncern}"
+                                               FontFamily="Montserrat"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Försäljningsfördelning Mat/Alkohol -->
+                <Border Grid.Row="1" Background="White" CornerRadius="10" Margin="10" BorderBrush="#102c48" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                    </Border.Effect>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="📊 FÖRSÄLJNINGSFÖRDELNING"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,20"
+                                   HorizontalAlignment="Center"/>
+
+                        <Grid MaxWidth="800" HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Mat -->
+                            <StackPanel Grid.Row="0">
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock Text="🍽️ Mat"
+                                               FontFamily="Inter"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="#102c48"
+                                               HorizontalAlignment="Left"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding MatSummaKoncern, StringFormat={}{0:N0} kr}"
+                                                   FontFamily="Montserrat"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"
+                                                   Foreground="#102c48"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding MatProcent, StringFormat=({0:F1}%)}"
+                                                   FontFamily="Inter"
+                                                   FontSize="14"
+                                                   Foreground="#588157"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Border Background="#E8E8E8" CornerRadius="10" Height="40" BorderBrush="#102c48" BorderThickness="2">
+                                    <Border Background="#102c48"
+                                            CornerRadius="8"
+                                            HorizontalAlignment="Left"
+                                            Width="{Binding MatBredd}"
+                                            Margin="2"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Alkohol -->
+                            <StackPanel Grid.Row="2">
+                                <Grid Margin="0,0,0,10">
+                                    <TextBlock Text="🍷 Alkohol"
+                                               FontFamily="Inter"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="#102c48"
+                                               HorizontalAlignment="Left"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding AlkoholSummaKoncern, StringFormat={}{0:N0} kr}"
+                                                   FontFamily="Montserrat"
+                                                   FontSize="16"
+                                                   FontWeight="Bold"
+                                                   Foreground="#102c48"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding AlkoholProcent, StringFormat=({0:F1}%)}"
+                                                   FontFamily="Inter"
+                                                   FontSize="14"
+                                                   Foreground="#588157"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Border Background="#E8E8E8" CornerRadius="10" Height="40" BorderBrush="#588157" BorderThickness="2">
+                                    <Border Background="#588157"
+                                            CornerRadius="8"
+                                            HorizontalAlignment="Left"
+                                            Width="{Binding AlkoholBredd}"
+                                            Margin="2"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Regionstatistik -->
+                <Border Grid.Row="2" Background="White" CornerRadius="10" Margin="10" BorderBrush="#102c48" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                    </Border.Effect>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="🌍 REGIONSTATISTIK"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,15"/>
+
+                        <DataGrid ItemsSource="{Binding RegionStatistik}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="None"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  FontFamily="Inter"
+                                  FontSize="12"
+                                  MaxHeight="300">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Region" Binding="{Binding RegionNamn}" Width="*"/>
+                                <DataGridTextColumn Header="Total Försäljning" Binding="{Binding TotalForsaljning, StringFormat={}{0:N0} kr}" Width="150"/>
+                                <DataGridTextColumn Header="Mat" Binding="{Binding MatSumma, StringFormat={}{0:N0} kr}" Width="120"/>
+                                <DataGridTextColumn Header="Alkohol" Binding="{Binding AlkoholSumma, StringFormat={}{0:N0} kr}" Width="120"/>
+                                <DataGridTextColumn Header="Transaktioner" Binding="{Binding AntalTransaktioner}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Rättstatistik Koncern -->
+                <Grid Grid.Row="3" Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Mest Sålda Rätter Koncern -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="10" Margin="5" BorderBrush="#102c48" BorderThickness="2">
+                        <Border.Effect>
+                            <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel Margin="15">
+                            <TextBlock Text="🏆 MEST SÅLDA - KONCERNEN"
+                                       FontFamily="Montserrat"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <DataGrid ItemsSource="{Binding MestSaldaRatterKoncern}"
+                                      AutoGenerateColumns="False"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="None"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      FontFamily="Inter"
+                                      FontSize="11"
+                                      MaxHeight="300">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Rätt" Binding="{Binding Rattnamn}" Width="*"/>
+                                    <DataGridTextColumn Header="Antal" Binding="{Binding AntalSalda}" Width="60"/>
+                                    <DataGridTextColumn Header="Summa" Binding="{Binding TotalForsaljning, StringFormat={}{0:N0}}" Width="80"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Minst Sålda Rätter Koncern -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="10" Margin="5" BorderBrush="#102c48" BorderThickness="2">
+                        <Border.Effect>
+                            <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel Margin="15">
+                            <TextBlock Text="📉 MINST SÅLDA - KONCERNEN"
+                                       FontFamily="Montserrat"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="#102c48"
+                                       Margin="0,0,0,10"/>
+
+                            <DataGrid ItemsSource="{Binding MinstSaldaRatterKoncern}"
+                                      AutoGenerateColumns="False"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      GridLinesVisibility="None"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      FontFamily="Inter"
+                                      FontSize="11"
+                                      MaxHeight="300">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Rätt" Binding="{Binding Rattnamn}" Width="*"/>
+                                    <DataGridTextColumn Header="Antal" Binding="{Binding AntalSalda}" Width="60"/>
+                                    <DataGridTextColumn Header="Summa" Binding="{Binding TotalForsaljning, StringFormat={}{0:N0}}" Width="80"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Restaurangstatistik -->
+                <Border Grid.Row="4" Background="White" CornerRadius="10" Margin="10" BorderBrush="#102c48" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Gray" Direction="315" ShadowDepth="5" Opacity="0.3"/>
+                    </Border.Effect>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="🍽️ RESTAURANGSTATISTIK"
+                                   FontFamily="Montserrat"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#102c48"
+                                   Margin="0,0,0,15"/>
+
+                        <DataGrid ItemsSource="{Binding RestaurangStatistik}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="None"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  FontFamily="Inter"
+                                  FontSize="12"
+                                  MaxHeight="400">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Restaurang" Binding="{Binding RestaurangNamn}" Width="*"/>
+                                <DataGridTextColumn Header="Total Försäljning" Binding="{Binding TotalForsaljning, StringFormat={}{0:N0} kr}" Width="150"/>
+                                <DataGridTextColumn Header="Mat" Binding="{Binding MatSumma, StringFormat={}{0:N0} kr}" Width="120"/>
+                                <DataGridTextColumn Header="Alkohol" Binding="{Binding AlkoholSumma, StringFormat={}{0:N0} kr}" Width="120"/>
+                                <DataGridTextColumn Header="Transaktioner" Binding="{Binding AntalTransaktioner}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#2E2E2E">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="RestoNation Restauranghanteringssystem"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           Foreground="White"
+                           Margin="0,0,20,0"/>
+                <TextBlock Text="•"
+                           FontSize="12"
+                           Foreground="#F4B942"
+                           Margin="0,0,20,0"/>
+                <TextBlock Text="Version 1.0"
+                           FontFamily="Inter"
+                           FontSize="12"
+                           Foreground="#A3B18A"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
