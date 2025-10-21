@@ -9,8 +9,8 @@ namespace AffärsLager.Controllers
     {
         private readonly List<Timer> _timers = new();
         private readonly StatistikService _statistikService;
-        private readonly PdfGeneratorService _pdfService;
-        private readonly EmailService _emailService;
+        //private readonly PdfGeneratorService _pdfService;
+        //private readonly EmailService _emailService;
         private readonly BokforingService _bokforingService;
         private readonly KundExportService _kundExportService;
         private readonly LoggService _loggService;
@@ -18,8 +18,8 @@ namespace AffärsLager.Controllers
         public SchemaController()
         {
             _statistikService = new StatistikService();
-            _pdfService = new PdfGeneratorService();
-            _emailService = new EmailService();
+            //_pdfService = new PdfGeneratorService();
+            //_emailService = new EmailService();
             _bokforingService = new BokforingService();
             _kundExportService = new KundExportService();
             _loggService = new LoggService();

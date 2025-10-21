@@ -87,7 +87,7 @@ namespace PresentationsLager.ViewModels
 
         public Action? CloseAction { get; set; }
 
-        public VDViewModel()
+        public VDWindowViewModel()
         {
             _statistikController = new StatistikController();
             _anvandareController = new AnvandareController();

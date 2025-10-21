@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PresentationsLager.Models;
 using PresentationsLager.Views;
-using PresentationsLager.Views.ResturangChef;
-using PresentationsLager.Views.VD;
 using System;
 using System.Windows;
 

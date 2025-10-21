@@ -92,7 +92,7 @@ namespace PresentationsLager.ViewModels
 
         public Action? CloseAction { get; set; }
 
-        public RestaurangchefViewModel()
+        public RestaurangchefWindowViewModel()
         {
             _statistikController = new StatistikController();
             _anvandareController = new AnvandareController();
