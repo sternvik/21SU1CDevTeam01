@@ -12,7 +12,7 @@ using System.Windows;
 
 namespace PresentationsLager.ViewModels
 {
-    public partial class VDViewModel : ObservableObject
+    public partial class VDWindowViewModel : ObservableObject
     {
         private readonly StatistikController _statistikController;
         private readonly AnvandareController _anvandareController;

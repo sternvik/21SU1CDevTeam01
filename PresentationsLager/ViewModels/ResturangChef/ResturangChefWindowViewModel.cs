@@ -13,7 +13,7 @@ using System.Windows;
 
 namespace PresentationsLager.ViewModels
 {
-    public partial class RestaurangchefViewModel : ObservableObject
+    public partial class RestaurangchefWindowViewModel : ObservableObject
     {
         private readonly StatistikController _statistikController;
         private readonly AnvandareController _anvandareController;
