@@ -1,13 +1,15 @@
-using DataLager;
+Ôªøusing DataLager;
 using EntitetsLager;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
-namespace Aff‰rsLager.Services
+namespace Aff√§rsLager.Services
 {
     /// <summary>
-    /// Service fˆr att hantera loggning till bÂde databas och textfil
+    /// Service f√∂r att hantera loggning till b√•de databas och textfil
     /// </summary>
     public class LoggService
     {
@@ -17,7 +19,7 @@ namespace Aff‰rsLager.Services
         public LoggService()
         {
             _unitOfWork = new UnitOfWork();
-            
+
             // Skapa loggmapp om den inte finns
             var loggMapp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Loggar");
             if (!Directory.Exists(loggMapp))
@@ -31,7 +33,7 @@ namespace Aff‰rsLager.Services
         }
 
         /// <summary>
-        /// Logga en h‰ndelse till bÂde databas och textfil
+        /// Logga en h√§ndelse till b√•de databas och textfil
         /// </summary>
         public void LoggaHandelse(int anvandarId, string modul, string handelse, string? detaljer = null)
         {
@@ -43,8 +45,9 @@ namespace Aff‰rsLager.Services
                     AnvandarID = anvandarId,
                     Modul = modul,
                     Handelse = handelse,
-                    Detaljer = detaljer,
-                    Tidsstampel = DateTime.Now
+                    Datum = DateTime.Now.Date,
+                    Tid = DateTime.Now.TimeOfDay,
+                    IPAdress = "127.0.0.1"
                 };
 
                 _unitOfWork.SystemloggRepository.Add(systemlogg);
@@ -68,8 +71,8 @@ namespace Aff‰rsLager.Services
                 loggRad.Append($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ");
                 loggRad.Append($"Personal-ID: {anvandarId} | ");
                 loggRad.Append($"Modul: {modul} | ");
-                loggRad.Append($"H‰ndelse: {handelse}");
-                
+                loggRad.Append($"H√§ndelse: {handelse}");
+
                 if (!string.IsNullOrWhiteSpace(detaljer))
                 {
                     loggRad.Append($" | Detaljer: {detaljer}");
@@ -85,23 +88,23 @@ namespace Aff‰rsLager.Services
             }
             catch
             {
-                // Ignorera fel i filskrivning fˆr att inte stˆra huvudapplikationen
+                // Ignorera fel i filskrivning f√∂r att inte st√∂ra huvudapplikationen
             }
         }
 
         /// <summary>
-        /// H‰mta loggar frÂn databas fˆr en specifik period
+        /// H√§mta loggar fr√•n databas f√∂r en specifik period
         /// </summary>
-        public List<Systemlogg> HamtaLoggar(DateTime? franDatum = null, DateTime? tillDatum = null, 
+        public List<Systemlogg> HamtaLoggar(DateTime? franDatum = null, DateTime? tillDatum = null,
             int? anvandarId = null, string? modul = null)
         {
             var query = _unitOfWork.SystemloggRepository.GetAll().AsQueryable();
 
             if (franDatum.HasValue)
-                query = query.Where(l => l.Tidsstampel >= franDatum.Value);
+                query = query.Where(l => l.Datum >= franDatum.Value.Date);
 
             if (tillDatum.HasValue)
-                query = query.Where(l => l.Tidsstampel <= tillDatum.Value);
+                query = query.Where(l => l.Datum <= tillDatum.Value.Date);
 
             if (anvandarId.HasValue)
                 query = query.Where(l => l.AnvandarID == anvandarId.Value);
@@ -109,7 +112,32 @@ namespace Aff‰rsLager.Services
             if (!string.IsNullOrWhiteSpace(modul))
                 query = query.Where(l => l.Modul == modul);
 
-            return query.OrderByDescending(l => l.Tidsstampel).ToList();
+            return query.OrderByDescending(l => l.Datum).ThenByDescending(l => l.Tid).ToList();
+        }
+
+        /// <summary>
+        /// H√§mta senaste loggarna (X antal)
+        /// </summary>
+        public List<Systemlogg> HamtaSenasteLoggar(int antal = 50, int? anvandarId = null)
+        {
+            var loggar = HamtaLoggar(anvandarId: anvandarId);
+            return loggar.Take(antal).ToList();
+        }
+
+        /// <summary>
+        /// H√§mta loggar f√∂r en specifik modul
+        /// </summary>
+        public List<Systemlogg> HamtaLoggarForModul(string modul, DateTime? franDatum = null, DateTime? tillDatum = null)
+        {
+            return HamtaLoggar(franDatum, tillDatum, modul: modul);
+        }
+
+        /// <summary>
+        /// H√§mta loggar f√∂r en specifik anv√§ndare
+        /// </summary>
+        public List<Systemlogg> HamtaLoggarForAnvandare(int anvandarId, DateTime? franDatum = null, DateTime? tillDatum = null)
+        {
+            return HamtaLoggar(franDatum, tillDatum, anvandarId: anvandarId);
         }
     }
 }
