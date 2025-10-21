@@ -1,0 +1,333 @@
+﻿using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AffärsLager.Controllers;
+
+namespace AffärsLager.Services
+{
+    public class PDFService
+    {
+        public PDFService()
+        {
+            // Aktivera QuestPDF licens för utveckling (community license är gratis)
+            QuestPDF.Settings.License = LicenseType.Community;
+        }
+
+        /// <summary>
+        /// Genererar PDF-rapport för restaurangchef
+        /// </summary>
+        public string GenerateRestaurangchefRapport(
+            string restaurangNamn,
+            DateTime startDatum,
+            DateTime slutDatum,
+            ForsaljningsStatistik forsaljning,
+            List<RattStatistik> mestSalda,
+            List<RattStatistik> minstSalda,
+            List<ServitorStatistik> servitorer,
+            BokningsStatistik bokningar)
+        {
+            string fileName = $"RestaurangRapport_{restaurangNamn}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            string filePath = Path.Combine(Path.GetTempPath(), fileName);
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Arial"));
+
+                    page.Header()
+                        .AlignCenter()
+                        .Text($"Statistikrapport - {restaurangNamn}")
+                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Darken2);
+
+                    page.Content()
+                        .PaddingVertical(1, Unit.Centimetre)
+                        .Column(x =>
+                        {
+                            x.Spacing(10);
+
+                            // Period
+                            x.Item().Text($"Period: {startDatum:yyyy-MM-dd} till {slutDatum:yyyy-MM-dd}").FontSize(12).SemiBold();
+
+                            // Försäljningsöversikt
+                            x.Item().PaddingTop(10).Text("FÖRSÄLJNINGSÖVERSIKT").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                            x.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(150);
+                                    columns.RelativeColumn();
+                                });
+
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Kategori").Bold();
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Belopp").Bold();
+
+                                table.Cell().Border(1).Padding(5).Text("Total Försäljning");
+                                table.Cell().Border(1).Padding(5).Text($"{forsaljning.TotalForsaljning:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Mat");
+                                table.Cell().Border(1).Padding(5).Text($"{forsaljning.MatSumma:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Alkohol");
+                                table.Cell().Border(1).Padding(5).Text($"{forsaljning.AlkoholSumma:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Antal Transaktioner");
+                                table.Cell().Border(1).Padding(5).Text($"{forsaljning.AntalTransaktioner}");
+                            });
+
+                            // Mest sålda rätter
+                            if (mestSalda.Any())
+                            {
+                                x.Item().PaddingTop(15).Text("MEST SÅLDA RÄTTER").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(3);
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                    });
+
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Rätt").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Antal").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Summa").Bold();
+
+                                    foreach (var ratt in mestSalda.Take(10))
+                                    {
+                                        table.Cell().Border(1).Padding(5).Text(ratt.Rattnamn);
+                                        table.Cell().Border(1).Padding(5).Text($"{ratt.AntalSalda}");
+                                        table.Cell().Border(1).Padding(5).Text($"{ratt.TotalForsaljning:N0} kr");
+                                    }
+                                });
+                            }
+
+                            // Servitörstatistik
+                            if (servitorer.Any())
+                            {
+                                x.Item().PaddingTop(15).Text("SERVITÖRSTATISTIK").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(2);
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                    });
+
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Namn").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Transaktioner").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Försäljning").Bold();
+
+                                    foreach (var servitor in servitorer)
+                                    {
+                                        table.Cell().Border(1).Padding(5).Text(servitor.Namn);
+                                        table.Cell().Border(1).Padding(5).Text($"{servitor.AntalTransaktioner}");
+                                        table.Cell().Border(1).Padding(5).Text($"{servitor.TotalForsaljning:N0} kr");
+                                    }
+                                });
+                            }
+
+                            // Bokningsstatistik
+                            x.Item().PaddingTop(15).Text("BOKNINGSSTATISTIK").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                            x.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(150);
+                                    columns.RelativeColumn();
+                                });
+
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Kategori").Bold();
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Antal").Bold();
+
+                                table.Cell().Border(1).Padding(5).Text("Antal Bokningar");
+                                table.Cell().Border(1).Padding(5).Text($"{bokningar.AntalBokningar}");
+
+                                table.Cell().Border(1).Padding(5).Text("Antal Gäster");
+                                table.Cell().Border(1).Padding(5).Text($"{bokningar.AntalGaster}");
+
+                                table.Cell().Border(1).Padding(5).Text("Unika Bord");
+                                table.Cell().Border(1).Padding(5).Text($"{bokningar.AntalUnikalaBord}");
+                            });
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span($"Genererad: {DateTime.Now:yyyy-MM-dd HH:mm}").FontSize(9);
+                            x.Span(" | ");
+                            x.Span("RestoNation").FontSize(9).SemiBold();
+                        });
+                });
+            })
+            .GeneratePdf(filePath);
+
+            return filePath;
+        }
+
+        /// <summary>
+        /// Genererar PDF-rapport för VD
+        /// </summary>
+        public string GenerateVDRapport(
+            DateTime startDatum,
+            DateTime slutDatum,
+            ForsaljningsStatistik koncernForsaljning,
+            List<RegionStatistik> regioner,
+            List<RattStatistik> mestSaldaKoncern,
+            List<RestaurangStatistik> restauranger)
+        {
+            string fileName = $"VDRapport_Koncern_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            string filePath = Path.Combine(Path.GetTempPath(), fileName);
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Arial"));
+
+                    page.Header()
+                        .AlignCenter()
+                        .Text("VD-RAPPORT - KONCERNÖVERSIKT")
+                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Darken2);
+
+                    page.Content()
+                        .PaddingVertical(1, Unit.Centimetre)
+                        .Column(x =>
+                        {
+                            x.Spacing(10);
+
+                            // Period
+                            x.Item().Text($"Period: {startDatum:yyyy-MM-dd} till {slutDatum:yyyy-MM-dd}").FontSize(12).SemiBold();
+
+                            // Koncernöversikt
+                            x.Item().PaddingTop(10).Text("KONCERNÖVERSIKT").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                            x.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(150);
+                                    columns.RelativeColumn();
+                                });
+
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Kategori").Bold();
+                                table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Belopp").Bold();
+
+                                table.Cell().Border(1).Padding(5).Text("Total Försäljning");
+                                table.Cell().Border(1).Padding(5).Text($"{koncernForsaljning.TotalForsaljning:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Mat");
+                                table.Cell().Border(1).Padding(5).Text($"{koncernForsaljning.MatSumma:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Alkohol");
+                                table.Cell().Border(1).Padding(5).Text($"{koncernForsaljning.AlkoholSumma:N0} kr");
+
+                                table.Cell().Border(1).Padding(5).Text("Antal Transaktioner");
+                                table.Cell().Border(1).Padding(5).Text($"{koncernForsaljning.AntalTransaktioner}");
+                            });
+
+                            // Regionstatistik
+                            if (regioner.Any())
+                            {
+                                x.Item().PaddingTop(15).Text("REGIONSTATISTIK").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                    });
+
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Region").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Försäljning").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Transaktioner").Bold();
+
+                                    foreach (var region in regioner)
+                                    {
+                                        table.Cell().Border(1).Padding(5).Text(region.RegionNamn);
+                                        table.Cell().Border(1).Padding(5).Text($"{region.TotalForsaljning:N0} kr");
+                                        table.Cell().Border(1).Padding(5).Text($"{region.AntalTransaktioner}");
+                                    }
+                                });
+                            }
+
+                            // Mest sålda rätter koncern
+                            if (mestSaldaKoncern.Any())
+                            {
+                                x.Item().PaddingTop(15).Text("MEST SÅLDA RÄTTER - KONCERNEN").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(3);
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                    });
+
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Rätt").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Antal").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Summa").Bold();
+
+                                    foreach (var ratt in mestSaldaKoncern.Take(10))
+                                    {
+                                        table.Cell().Border(1).Padding(5).Text(ratt.Rattnamn);
+                                        table.Cell().Border(1).Padding(5).Text($"{ratt.AntalSalda}");
+                                        table.Cell().Border(1).Padding(5).Text($"{ratt.TotalForsaljning:N0} kr");
+                                    }
+                                });
+                            }
+
+                            // Top 10 Restauranger
+                            if (restauranger.Any())
+                            {
+                                x.Item().PaddingTop(15).Text("TOP 10 RESTAURANGER").FontSize(14).Bold().FontColor(Colors.Blue.Darken2);
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(2);
+                                        columns.RelativeColumn();
+                                        columns.RelativeColumn();
+                                    });
+
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Restaurang").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Försäljning").Bold();
+                                    table.Cell().Border(1).Background(Colors.Grey.Lighten2).Padding(5).Text("Transaktioner").Bold();
+
+                                    foreach (var restaurang in restauranger.Take(10))
+                                    {
+                                        table.Cell().Border(1).Padding(5).Text(restaurang.RestaurangNamn);
+                                        table.Cell().Border(1).Padding(5).Text($"{restaurang.TotalForsaljning:N0} kr");
+                                        table.Cell().Border(1).Padding(5).Text($"{restaurang.AntalTransaktioner}");
+                                    }
+                                });
+                            }
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span($"Genererad: {DateTime.Now:yyyy-MM-dd HH:mm}").FontSize(9);
+                            x.Span(" | ");
+                            x.Span("RestoNation").FontSize(9).SemiBold();
+                        });
+                });
+            })
+            .GeneratePdf(filePath);
+
+            return filePath;
+        }
+    }
+}
