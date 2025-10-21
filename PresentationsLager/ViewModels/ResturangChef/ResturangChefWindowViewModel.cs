@@ -1,12 +1,17 @@
 ﻿using AffärsLager.Controllers;
 using AffärsLager.DTOs;
+using AffärsLager.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
+using LiveCharts;
+using LiveCharts.Wpf;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PresentationsLager.ViewModels.ResturangChef
 {
@@ -15,7 +20,7 @@ namespace PresentationsLager.ViewModels.ResturangChef
         private readonly StatistikController _statistikController;
         private readonly LoggController _loggController;
         private readonly PdfController _pdfController;
-        private readonly AffärsLager.Services.BokforingService _bokforingService;
+        private readonly BokforingService _bokforingService;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
@@ -82,6 +87,33 @@ namespace PresentationsLager.ViewModels.ResturangChef
 
         [ObservableProperty]
         private string statusMeddelande = string.Empty;
+
+        // ===== NYA DIAGRAM-PROPERTIES =====
+
+        // Stapeldiagram - Top 10 mest sålda rätter
+        [ObservableProperty]
+        private SeriesCollection topRatterChart = new();
+
+        [ObservableProperty]
+        private string[] topRatterLabels = Array.Empty<string>();
+
+        // Cirkeldiagram - Mat vs Alkohol fördelning
+        [ObservableProperty]
+        private SeriesCollection kategoriFordelningChart = new();
+
+        // Linjediagram - Försäljning över tid (daglig trend)
+        [ObservableProperty]
+        private SeriesCollection forsaljningsTrendChart = new();
+
+        [ObservableProperty]
+        private string[] trendLabels = Array.Empty<string>();
+
+        // Stapeldiagram - Servitörjämförelse
+        [ObservableProperty]
+        private SeriesCollection servitorJamforelseChart = new();
+
+        [ObservableProperty]
+        private string[] servitorLabels = Array.Empty<string>();
 
         public Action? CloseAction { get; set; }
 
@@ -199,13 +231,16 @@ namespace PresentationsLager.ViewModels.ResturangChef
                     ServitorStatistik.Add(new ServitorDto
                     {
                         Namn = personal.PersonalNamn,
-                        AntalTransaktioner = personal.AntalBokningar, // Använd bokningar som proxy för transaktioner
+                        AntalTransaktioner = personal.AntalBokningar,
                         TotalForsaljning = personal.TotalForsaljning
                     });
                 }
 
                 // Beräkna unika bord
                 AntalUnikalaBord = summary.PersonalStatistik.Sum(p => p.AntalBordHanterade);
+
+                // Uppdatera diagram
+                UppdateraDiagram();
 
                 StatusMeddelande = $"Statistik uppdaterad för {FranDatum:yyyy-MM-dd} - {TillDatum:yyyy-MM-dd}";
             }
@@ -214,6 +249,116 @@ namespace PresentationsLager.ViewModels.ResturangChef
                 StatusMeddelande = $"Fel: {ex.Message}";
                 MessageBox.Show($"Fel vid hämtning av statistik: {ex.Message}", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        // ===== NYA DIAGRAM-METODER =====
+
+        private void UppdateraDiagram()
+        {
+            ByggTopRatterChart();
+            ByggKategoriFordelningChart();
+            ByggForsaljningsTrendChart();
+            ByggServitorJamforelseChart();
+        }
+
+        private void ByggTopRatterChart()
+        {
+            TopRatterChart = new SeriesCollection
+            {
+                new ColumnSeries
+                {
+                    Title = "Antal sålda",
+                    Values = new ChartValues<int>(MestSaldaRatter.Take(10).Select(m => m.AntalSalda)),
+                    Fill = new SolidColorBrush(Color.FromRgb(16, 44, 72)), // #102c48
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:N0}"
+                }
+            };
+
+            TopRatterLabels = MestSaldaRatter.Take(10).Select(m => m.Rattnamn).ToArray();
+        }
+
+        private void ByggKategoriFordelningChart()
+        {
+            KategoriFordelningChart = new SeriesCollection
+            {
+                new PieSeries
+                {
+                    Title = "Mat",
+                    Values = new ChartValues<decimal> { MatSumma },
+                    Fill = new SolidColorBrush(Color.FromRgb(16, 44, 72)), // #102c48
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:N0} kr ({point.Participation:P0})"
+                },
+                new PieSeries
+                {
+                    Title = "Alkohol",
+                    Values = new ChartValues<decimal> { AlkoholSumma },
+                    Fill = new SolidColorBrush(Color.FromRgb(88, 129, 87)), // #588157
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:N0} kr ({point.Participation:P0})"
+                }
+            };
+        }
+
+        private void ByggForsaljningsTrendChart()
+        {
+            // Beräkna daglig försäljning för perioden
+            var dagar = new List<DateTime>();
+            var forsaljningPerDag = new List<decimal>();
+
+            for (var dag = FranDatum; dag <= TillDatum; dag = dag.AddDays(1))
+            {
+                dagar.Add(dag);
+
+                try
+                {
+                    var dagsSummary = _statistikController.HamtaForsaljningsSummary(
+                        InloggadAnvandare!.HemmarestaurangID!.Value,
+                        dag,
+                        dag,
+                        InloggadAnvandare.AnvandarID
+                    );
+                    forsaljningPerDag.Add(dagsSummary.TotalForsaljning);
+                }
+                catch
+                {
+                    forsaljningPerDag.Add(0);
+                }
+            }
+
+            ForsaljningsTrendChart = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Title = "Försäljning",
+                    Values = new ChartValues<decimal>(forsaljningPerDag),
+                    Stroke = new SolidColorBrush(Color.FromRgb(244, 185, 66)), // #F4B942
+                    Fill = new SolidColorBrush(Color.FromArgb(50, 244, 185, 66)),
+                    StrokeThickness = 3,
+                    PointGeometrySize = 8,
+                    DataLabels = false
+                }
+            };
+
+            TrendLabels = dagar.Select(d => d.ToString("MM-dd")).ToArray();
+        }
+
+        private void ByggServitorJamforelseChart()
+        {
+            ServitorJamforelseChart = new SeriesCollection
+            {
+                new ColumnSeries
+                {
+                    Title = "Total Försäljning",
+                    Values = new ChartValues<decimal>(ServitorStatistik.Select(s => s.TotalForsaljning)),
+                    Fill = new SolidColorBrush(Color.FromRgb(163, 177, 138)), // #A3B18A
+                    DataLabels = true,
+                    LabelPoint = point => $"{point.Y:N0} kr"
+                }
+            };
+
+            ServitorLabels = ServitorStatistik.Select(s => s.Namn).ToArray();
         }
 
         [RelayCommand]
