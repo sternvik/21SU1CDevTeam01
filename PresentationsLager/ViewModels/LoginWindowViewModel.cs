@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PresentationsLager.Models;
 using PresentationsLager.Views;
+using PresentationsLager.Views.VD;
 using System;
 using System.Windows;
 
@@ -101,8 +102,8 @@ namespace PresentationsLager.ViewModels
                         break;
 
                     case "vd":
-                        MessageBox.Show($"VD-vy kommer snart!\nInloggad som: {anvandare.Namn}",
-                            "VD", MessageBoxButton.OK, MessageBoxImage.Information);
+                        var vDWindow = new VDWindow(anvandare.ToEntity());
+                        vDWindow.Show();
                         break;
 
                     default:
