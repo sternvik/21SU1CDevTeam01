@@ -57,6 +57,9 @@ namespace AffärsLager.Services
 
                 using (var client = new SmtpClient())
                 {
+                    // Acceptera SSL-certifikat under utveckling
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    
                     await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                     await client.SendAsync(message);
@@ -110,6 +113,8 @@ namespace AffärsLager.Services
 
                 using (var client = new SmtpClient())
                 {
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                    
                     await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                     await client.SendAsync(message);
