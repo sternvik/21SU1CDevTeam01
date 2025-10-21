@@ -9,10 +9,10 @@ namespace AffärsLager.Services
 {
     public class EmailService
     {
-        private readonly string _smtpServer = "smtp.gmail.coc"; // Ändra till din SMTP
+        private readonly string _smtpServer = "smtp.gmail.com"; // Gmail SMTP
         private readonly int _smtpPort = 587;
-        private readonly string _smtpUser = "restonation@gmail.coc"; // Ändra
-        private readonly string _smtpPassword = "ditt-lösenord"; // Använd App Password!
+        private readonly string _smtpUser = "restonation@gmail.com"; // Uppdatera med rätt email
+        private readonly string _smtpPassword = "ditt-lösenord"; // VIKTIGT: Använd Gmail App Password!
 
         public async Task<bool> SkickaEmail(string till, string ämne, string meddelande, List<string>? bilagor = null)
         {

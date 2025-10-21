@@ -27,8 +27,8 @@ namespace AffärsLager.Services
 
             var bokningar = _unitOfWork.BokningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
-                           b.Datum >= franDatum &&
-                           b.Datum <= tillDatum &&
+                           b.Datum.Date >= franDatum.Date &&
+                           b.Datum.Date <= tillDatum.Date &&
                            b.Status != "Avbokad")
                 .ToList();
 
@@ -105,17 +105,19 @@ namespace AffärsLager.Services
             _unitOfWork.RefreshContext();
 
             var restaurang = _unitOfWork.RestaurangRepository.FirstOrDefault(r => r.RestaurangID == restaurangId);
+    
+            // VIKTIGT: Jämför bara DATE, inte tid!
             var bokningar = _unitOfWork.BokningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
-                           b.Datum >= franDatum &&
-                           b.Datum <= tillDatum &&
+                           b.Datum.Date >= franDatum.Date &&
+                           b.Datum.Date <= tillDatum.Date &&
                            b.Status != "Avbokad")
                 .ToList();
 
             var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
-                           b.Datum >= franDatum &&
-                           b.Datum <= tillDatum)
+                           b.Datum.Date >= franDatum.Date &&
+                           b.Datum.Date <= tillDatum.Date)
                 .ToList();
 
             var menyStatistik = HamtaMenyStatistik(restaurangId, franDatum, tillDatum);
@@ -131,7 +133,8 @@ namespace AffärsLager.Services
                 TotaltAntalBokningar = bokningar.Count,
                 TotaltAntalGaster = bokningar.Sum(b => b.AntalGaster),
                 MatForsaljning = menyStatistik
-                    .Where(m => m.Kategori.ToLower().Contains("carte") || m.Kategori.ToLower().Contains("lunch"))
+                    .Where(m => m.Kategori.ToLower().Contains("carte") || 
+                               m.Kategori.ToLower().Contains("lunch"))
                     .Sum(m => m.TotalForsaljning),
                 DryckForsaljning = menyStatistik
                     .Where(m => m.Kategori.ToLower().Contains("dryck"))
