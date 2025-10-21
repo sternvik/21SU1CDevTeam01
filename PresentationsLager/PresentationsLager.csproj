@@ -19,4 +19,10 @@
     <ProjectReference Include="..\AffärsLager\AffärsLager.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\ResturangChef\" />
+    <Folder Include="ViewModels\VD\" />
+    <Folder Include="Views\ResturangChef\" />
+  </ItemGroup>
+
 </Project>
