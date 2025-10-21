@@ -81,5 +81,14 @@ namespace DataLager
             return _dbSet.Count();
         }
 
+
+        /// <summary>
+        /// Get the DbSet as IQueryable for advanced queries with Include, joins, etc.
+        /// </summary>
+        public IQueryable<T> GetQuery()
+        {
+            return _dbSet.AsQueryable();
+        }
+
     }
 }
