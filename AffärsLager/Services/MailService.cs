@@ -9,13 +9,16 @@ namespace AffärsLager.Services
 {
     public class MailService
     {
-        // SMTP-konfiguration (kan göras konfigurerbar senare)
-        private string _smtpHost = "smtp.gmail.com"; // Default Gmail SMTP
+        // SMTP-konfiguration med nya credentials
+        private string _smtpHost = "smtp.gmail.com";
         private int _smtpPort = 587;
-        private string _smtpUsername = "";
-        private string _smtpPassword = "";
-        private string _fromEmail = "restonation@example.com";
+        private string _smtpUsername = "victorberg66@gmail.com";
+        private string _smtpPassword = "rtci btcl twqc nzbx";
+        private string _fromEmail = "victorberg66@gmail.com";
         private string _fromName = "RestoNation System";
+
+        // Lagra senaste felmeddelandet
+        public string? LastError { get; private set; }
 
         /// <summary>
         /// Konfigurerar SMTP-inställningar
@@ -37,6 +40,8 @@ namespace AffärsLager.Services
         {
             try
             {
+                LastError = null;
+
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(_fromName, _fromEmail));
                 message.To.Add(new MailboxAddress("", toEmail));
@@ -52,15 +57,6 @@ namespace AffärsLager.Services
 
                 using (var client = new SmtpClient())
                 {
-                    // För testning utan riktiga SMTP-uppgifter, logga bara meddelandet
-                    if (string.IsNullOrEmpty(_smtpUsername) || string.IsNullOrEmpty(_smtpPassword))
-                    {
-                        Console.WriteLine($"[TEST MODE] Email would be sent to: {toEmail}");
-                        Console.WriteLine($"Subject: {subject}");
-                        Console.WriteLine($"Body: {htmlBody}");
-                        return true;
-                    }
-
                     await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                     await client.SendAsync(message);
@@ -71,7 +67,11 @@ namespace AffärsLager.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error sending email: {ex.Message}");
+                LastError = $"{ex.GetType().Name}: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    LastError += $"\nInner: {ex.InnerException.Message}";
+                }
                 return false;
             }
         }
@@ -83,6 +83,15 @@ namespace AffärsLager.Services
         {
             try
             {
+                LastError = null;
+
+                // Validera att filen finns
+                if (!File.Exists(attachmentPath))
+                {
+                    LastError = $"Bilagefilen hittades inte: {attachmentPath}";
+                    return false;
+                }
+
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(_fromName, _fromEmail));
                 message.To.Add(new MailboxAddress("", toEmail));
@@ -95,24 +104,12 @@ namespace AffärsLager.Services
                 };
 
                 // Lägg till bilaga
-                if (File.Exists(attachmentPath))
-                {
-                    bodyBuilder.Attachments.Add(attachmentPath);
-                }
+                bodyBuilder.Attachments.Add(attachmentPath);
 
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using (var client = new SmtpClient())
                 {
-                    // För testning utan riktiga SMTP-uppgifter, logga bara meddelandet
-                    if (string.IsNullOrEmpty(_smtpUsername) || string.IsNullOrEmpty(_smtpPassword))
-                    {
-                        Console.WriteLine($"[TEST MODE] Email with attachment would be sent to: {toEmail}");
-                        Console.WriteLine($"Subject: {subject}");
-                        Console.WriteLine($"Attachment: {attachmentPath}");
-                        return true;
-                    }
-
                     await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
                     await client.SendAsync(message);
@@ -123,7 +120,11 @@ namespace AffärsLager.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error sending email with attachment: {ex.Message}");
+                LastError = $"{ex.GetType().Name}: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    LastError += $"\nInner: {ex.InnerException.Message}";
+                }
                 return false;
             }
         }

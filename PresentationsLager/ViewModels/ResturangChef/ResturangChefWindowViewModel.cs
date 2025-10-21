@@ -102,9 +102,9 @@ namespace PresentationsLager.ViewModels
             _mailService.ConfigureSMTP(
                 host: "smtp.gmail.com",
                 port: 587,
-                username: "DevTeam0125@gmail.com",
-                password: "wgfz ygnf vsku zqjq",
-                fromEmail: "DevTeam0125@gmail.com",
+                username: "victorberg66@gmail.com",
+                password: "rtci btcl twqc nzbx",
+                fromEmail: "victorberg66@gmail.com",
                 fromName: "RestoNation System"
             );
 
@@ -344,14 +344,14 @@ namespace PresentationsLager.ViewModels
                 // Skicka mail
                 string period = $"{StartDatum:yyyy-MM-dd} till {SlutDatum:yyyy-MM-dd}";
                 bool success = await _mailService.SendStatistikRapportAsync(
-                    "daniel02zam@gmail.com",
+                    "leosternvik@gmail.com",
                     restaurangNamn,
                     period,
                     pdfPath);
 
                 if (success)
                 {
-                    MessageBox.Show($"PDF-rapport skickad till daniel02zam@gmail.com!", "Framgång",
+                    MessageBox.Show($"PDF-rapport skickad till leosternvik@gmail.com!", "Framgång",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
