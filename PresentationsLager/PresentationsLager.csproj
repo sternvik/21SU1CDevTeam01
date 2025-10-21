@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\ResturangChef\" />
     <Folder Include="ViewModels\VD\" />
   </ItemGroup>
 
