@@ -1,399 +1,307 @@
 ﻿using AffärsLager.Controllers;
-using AffärsLager.DTOs;
 using AffärsLager.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EntitetsLager;
-using LiveCharts;
-using LiveCharts.Wpf;
+using MailKit;
+using PresentationsLager.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
-namespace PresentationsLager.ViewModels.ResturangChef
+namespace PresentationsLager.ViewModels
 {
-    public partial class ResturangChefWindowViewModel : ObservableObject
+    public partial class RestaurangchefViewModel : ObservableObject
     {
         private readonly StatistikController _statistikController;
-        private readonly LoggController _loggController;
-        private readonly PdfController _pdfController;
-        private readonly BokforingService _bokforingService;
+        private readonly AnvandareController _anvandareController;
+        private readonly PDFService _pdfService;
+        private readonly MailService _mailService;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
 
         [ObservableProperty]
-        private string restaurangNamn = string.Empty;
-
-        [ObservableProperty]
-        private DateTime franDatum = DateTime.Today.AddDays(-7);
-
-        [ObservableProperty]
-        private DateTime tillDatum = DateTime.Today;
+        private string restaurangNamn = "";
 
         [ObservableProperty]
         private string valdPeriod = "Vecka";
 
         [ObservableProperty]
-        private ObservableCollection<string> tillgangligaPerioder = new() { "Idag", "Vecka", "Månad", "Anpassad" };
-
-        // Sammanfattning
-        [ObservableProperty]
-        private decimal totalForsaljning = 0;
+        private DateTime startDatum;
 
         [ObservableProperty]
-        private decimal matSumma = 0;
+        private DateTime slutDatum;
+
+        // Försäljningsstatistik
+        [ObservableProperty]
+        private decimal totalForsaljning;
 
         [ObservableProperty]
-        private decimal alkoholSumma = 0;
+        private decimal matSumma;
 
         [ObservableProperty]
-        private int antalTransaktioner = 0;
+        private decimal alkoholSumma;
 
         [ObservableProperty]
-        private int antalBokningar = 0;
+        private int antalTransaktioner;
+
+        // Rättstatistik
+        [ObservableProperty]
+        private ObservableCollection<RattStatistikViewModel> mestSaldaRatter = new();
 
         [ObservableProperty]
-        private int antalGaster = 0;
+        private ObservableCollection<RattStatistikViewModel> minstSaldaRatter = new();
+
+        // Servitörstatistik
+        [ObservableProperty]
+        private ObservableCollection<ServitorStatistikViewModel> servitorStatistik = new();
+
+        // Bokningsstatistik
+        [ObservableProperty]
+        private int antalBokningar;
 
         [ObservableProperty]
-        private int antalUnikalaBord = 0;
-
-        // Procent och bredder för visualisering (progress bars)
-        [ObservableProperty]
-        private double matProcent = 0;
+        private int antalGaster;
 
         [ObservableProperty]
-        private double alkoholProcent = 0;
+        private int antalUnikalaBord;
+
+        // Percentages for visualization
+        [ObservableProperty]
+        private double matProcent;
 
         [ObservableProperty]
-        private double matBredd = 0;
+        private double alkoholProcent;
 
         [ObservableProperty]
-        private double alkoholBredd = 0;
-
-        // Statistik samlingar
-        [ObservableProperty]
-        private ObservableCollection<MenyStatistikDto> mestSaldaRatter = new();
+        private double matBredd; // 0-800 pixels
 
         [ObservableProperty]
-        private ObservableCollection<MenyStatistikDto> minstSaldaRatter = new();
+        private double alkoholBredd; // 0-800 pixels
 
-        [ObservableProperty]
-        private ObservableCollection<ServitorDto> servitorStatistik = new();
-
-        [ObservableProperty]
-        private string statusMeddelande = string.Empty;
-
-        // ===== NYA DIAGRAM-PROPERTIES =====
-
-        // Stapeldiagram - Top 10 mest sålda rätter
-        [ObservableProperty]
-        private SeriesCollection topRatterChart = new();
-
-        [ObservableProperty]
-        private string[] topRatterLabels = Array.Empty<string>();
-
-        // Cirkeldiagram - Mat vs Alkohol fördelning
-        [ObservableProperty]
-        private SeriesCollection kategoriFordelningChart = new();
-
-        // Linjediagram - Försäljning över tid (daglig trend)
-        [ObservableProperty]
-        private SeriesCollection forsaljningsTrendChart = new();
-
-        [ObservableProperty]
-        private string[] trendLabels = Array.Empty<string>();
-
-        // Stapeldiagram - Servitörjämförelse
-        [ObservableProperty]
-        private SeriesCollection servitorJamforelseChart = new();
-
-        [ObservableProperty]
-        private string[] servitorLabels = Array.Empty<string>();
+        // Perioder
+        public ObservableCollection<string> TillgangligaPerioder { get; } = new()
+        {
+            "Dag",
+            "Vecka",
+            "Månad"
+        };
 
         public Action? CloseAction { get; set; }
 
-        public ResturangChefWindowViewModel()
+        public RestaurangchefViewModel()
         {
             _statistikController = new StatistikController();
-            _loggController = new LoggController();
-            _pdfController = new PdfController();
-            _bokforingService = new AffärsLager.Services.BokforingService();
+            _anvandareController = new AnvandareController();
+            _pdfService = new PDFService();
+            _mailService = new MailService();
+
+            // Konfigurera SMTP för Gmail
+            _mailService.ConfigureSMTP(
+                host: "smtp.gmail.com",
+                port: 587,
+                username: "DevTeam0125@gmail.com",
+                password: "wgfz ygnf vsku zqjq",
+                fromEmail: "DevTeam0125@gmail.com",
+                fromName: "RestoNation System"
+            );
+
+            // Sätt default period till innevarande vecka
+            SattPeriodVecka();
         }
 
         public void Initialize(Anvandare anvandare)
         {
             InloggadAnvandare = anvandare;
 
-            if (anvandare.HemmarestaurangID.HasValue)
+            // Hämta restaurangnamn
+            if (InloggadAnvandare != null && InloggadAnvandare.HemmarestaurangID.HasValue)
             {
-                var restController = new AffärsLager.Controllers.RestaurangController();
-                var restaurang = restController.HamtaRestaurangMedId(anvandare.HemmarestaurangID.Value);
+                var restaurangController = new RestaurangController();
+                var restaurang = restaurangController.HamtaRestaurangMedId(InloggadAnvandare.HemmarestaurangID.Value);
                 RestaurangNamn = restaurang?.Restaurangnamn ?? "Okänd restaurang";
-
-                ValdPeriod = "Vecka";
-                UppdateraStatistik();
-
-                _loggController.LoggaHandelse(
-                    anvandare.AnvandarID,
-                    "RestaurangChef",
-                    "Öppnade statistikvy",
-                    $"Restaurang: {RestaurangNamn}"
-                );
             }
-            else
-            {
-                StatusMeddelande = "Ingen hemmarestaurang angiven för användaren";
-            }
+
+            LaddaStatistik();
         }
 
         partial void OnValdPeriodChanged(string value)
         {
             switch (value)
             {
-                case "Idag":
-                    FranDatum = DateTime.Today;
-                    TillDatum = DateTime.Today;
+                case "Dag":
+                    SattPeriodDag();
                     break;
                 case "Vecka":
-                    FranDatum = DateTime.Today.AddDays(-7);
-                    TillDatum = DateTime.Today;
+                    SattPeriodVecka();
                     break;
                 case "Månad":
-                    FranDatum = DateTime.Today.AddMonths(-1);
-                    TillDatum = DateTime.Today;
+                    SattPeriodManad();
                     break;
-                case "Anpassad":
-                    return;
             }
-
-            UppdateraStatistik();
+            LaddaStatistik();
         }
 
         [RelayCommand]
-        private void UppdateraStatistik()
+        private void LaddaStatistik()
         {
             try
             {
-                if (InloggadAnvandare?.HemmarestaurangID == null)
+                if (InloggadAnvandare == null || !InloggadAnvandare.HemmarestaurangID.HasValue)
                 {
-                    StatusMeddelande = "Ingen restaurang vald";
+                    MessageBox.Show("Ingen hemmarestaurang kopplad till användaren", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                StatusMeddelande = "Laddar statistik...";
+                int restaurangId = InloggadAnvandare.HemmarestaurangID.Value;
 
-                var summary = _statistikController.HamtaForsaljningsSummary(
-                    InloggadAnvandare.HemmarestaurangID.Value,
-                    FranDatum,
-                    TillDatum,
-                    InloggadAnvandare.AnvandarID
-                );
+                // Hämta försäljningsstatistik
+                var forsaljning = _statistikController.GetForsaljningRestaurang(restaurangId, StartDatum, SlutDatum);
+                TotalForsaljning = forsaljning.TotalForsaljning;
+                MatSumma = forsaljning.MatSumma;
+                AlkoholSumma = forsaljning.AlkoholSumma;
+                AntalTransaktioner = forsaljning.AntalTransaktioner;
 
-                // Uppdatera sammanfattning
-                TotalForsaljning = summary.TotalForsaljning;
-                MatSumma = summary.MatForsaljning;
-                AlkoholSumma = summary.DryckForsaljning;
-                AntalBokningar = summary.TotaltAntalBokningar;
-                AntalGaster = summary.TotaltAntalGaster;
-                AntalTransaktioner = summary.TotaltAntalBestallningar;
-
-                // Beräkna procent och bredder för progress bars
-                if (TotalForsaljning > 0)
-                {
-                    MatProcent = (double)(MatSumma / TotalForsaljning * 100);
-                    AlkoholProcent = (double)(AlkoholSumma / TotalForsaljning * 100);
-                    MatBredd = MatProcent * 7.5; // Max 750px
-                    AlkoholBredd = AlkoholProcent * 7.5;
-                }
-
-                // Uppdatera rättstatistik
+                // Hämta mest sålda rätter
+                var mestSalda = _statistikController.GetMestSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
                 MestSaldaRatter.Clear();
-                foreach (var meny in summary.MestSaldaRatter.Take(10))
+                foreach (var ratt in mestSalda)
                 {
-                    MestSaldaRatter.Add(meny);
-                }
-
-                MinstSaldaRatter.Clear();
-                foreach (var meny in summary.MinstSaldaRatter.Take(10))
-                {
-                    MinstSaldaRatter.Add(meny);
-                }
-
-                // Uppdatera servitörstatistik
-                ServitorStatistik.Clear();
-                foreach (var personal in summary.PersonalStatistik)
-                {
-                    ServitorStatistik.Add(new ServitorDto
+                    MestSaldaRatter.Add(new RattStatistikViewModel
                     {
-                        Namn = personal.PersonalNamn,
-                        AntalTransaktioner = personal.AntalBokningar,
-                        TotalForsaljning = personal.TotalForsaljning
+                        Rattnamn = ratt.Rattnamn,
+                        Kategori = ratt.Kategori,
+                        AntalSalda = ratt.AntalSalda,
+                        TotalForsaljning = ratt.TotalForsaljning
                     });
                 }
 
-                // Beräkna unika bord
-                AntalUnikalaBord = summary.PersonalStatistik.Sum(p => p.AntalBordHanterade);
+                // Hämta minst sålda rätter
+                var minstSalda = _statistikController.GetMinstSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
+                MinstSaldaRatter.Clear();
+                foreach (var ratt in minstSalda)
+                {
+                    MinstSaldaRatter.Add(new RattStatistikViewModel
+                    {
+                        Rattnamn = ratt.Rattnamn,
+                        Kategori = ratt.Kategori,
+                        AntalSalda = ratt.AntalSalda,
+                        TotalForsaljning = ratt.TotalForsaljning
+                    });
+                }
 
-                // Uppdatera diagram
-                UppdateraDiagram();
+                // Hämta servitörstatistik
+                var servitorer = _statistikController.GetForsaljningPerServitor(restaurangId, StartDatum, SlutDatum);
+                ServitorStatistik.Clear();
+                foreach (var servitor in servitorer)
+                {
+                    ServitorStatistik.Add(new ServitorStatistikViewModel
+                    {
+                        Namn = servitor.Namn,
+                        AntalTransaktioner = servitor.AntalTransaktioner,
+                        TotalForsaljning = servitor.TotalForsaljning
+                    });
+                }
 
-                StatusMeddelande = $"Statistik uppdaterad för {FranDatum:yyyy-MM-dd} - {TillDatum:yyyy-MM-dd}";
+                // Hämta bokningsstatistik
+                var bokningar = _statistikController.GetBokningsStatistik(restaurangId, StartDatum, SlutDatum);
+                AntalBokningar = bokningar.AntalBokningar;
+                AntalGaster = bokningar.AntalGaster;
+                AntalUnikalaBord = bokningar.AntalUnikalaBord;
+
+                // Beräkna procentsatser för visualisering
+                if (TotalForsaljning > 0)
+                {
+                    MatProcent = (double)(MatSumma / TotalForsaljning) * 100;
+                    AlkoholProcent = (double)(AlkoholSumma / TotalForsaljning) * 100;
+                    MatBredd = MatProcent * 8; // Max 800px
+                    AlkoholBredd = AlkoholProcent * 8; // Max 800px
+                }
+                else
+                {
+                    MatProcent = 50; // Visa 50/50 när ingen data
+                    AlkoholProcent = 50;
+                    MatBredd = 400;
+                    AlkoholBredd = 400;
+                }
             }
             catch (Exception ex)
             {
-                StatusMeddelande = $"Fel: {ex.Message}";
-                MessageBox.Show($"Fel vid hämtning av statistik: {ex.Message}", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fel vid laddning av statistik: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        // ===== NYA DIAGRAM-METODER =====
-
-        private void UppdateraDiagram()
-        {
-            ByggTopRatterChart();
-            ByggKategoriFordelningChart();
-            ByggForsaljningsTrendChart();
-            ByggServitorJamforelseChart();
-        }
-
-        private void ByggTopRatterChart()
-        {
-            TopRatterChart = new SeriesCollection
-            {
-                new ColumnSeries
-                {
-                    Title = "Antal sålda",
-                    Values = new ChartValues<int>(MestSaldaRatter.Take(10).Select(m => m.AntalSalda)),
-                    Fill = new SolidColorBrush(Color.FromRgb(16, 44, 72)), // #102c48
-                    DataLabels = true,
-                    LabelPoint = point => $"{point.Y:N0}"
-                }
-            };
-
-            TopRatterLabels = MestSaldaRatter.Take(10).Select(m => m.Rattnamn).ToArray();
-        }
-
-        private void ByggKategoriFordelningChart()
-        {
-            KategoriFordelningChart = new SeriesCollection
-            {
-                new PieSeries
-                {
-                    Title = "Mat",
-                    Values = new ChartValues<decimal> { MatSumma },
-                    Fill = new SolidColorBrush(Color.FromRgb(16, 44, 72)), // #102c48
-                    DataLabels = true,
-                    LabelPoint = point => $"{point.Y:N0} kr ({point.Participation:P0})"
-                },
-                new PieSeries
-                {
-                    Title = "Alkohol",
-                    Values = new ChartValues<decimal> { AlkoholSumma },
-                    Fill = new SolidColorBrush(Color.FromRgb(88, 129, 87)), // #588157
-                    DataLabels = true,
-                    LabelPoint = point => $"{point.Y:N0} kr ({point.Participation:P0})"
-                }
-            };
-        }
-
-        private void ByggForsaljningsTrendChart()
-        {
-            // Beräkna daglig försäljning för perioden
-            var dagar = new List<DateTime>();
-            var forsaljningPerDag = new List<decimal>();
-
-            for (var dag = FranDatum; dag <= TillDatum; dag = dag.AddDays(1))
-            {
-                dagar.Add(dag);
-
-                try
-                {
-                    var dagsSummary = _statistikController.HamtaForsaljningsSummary(
-                        InloggadAnvandare!.HemmarestaurangID!.Value,
-                        dag,
-                        dag,
-                        InloggadAnvandare.AnvandarID
-                    );
-                    forsaljningPerDag.Add(dagsSummary.TotalForsaljning);
-                }
-                catch
-                {
-                    forsaljningPerDag.Add(0);
-                }
-            }
-
-            ForsaljningsTrendChart = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    Title = "Försäljning",
-                    Values = new ChartValues<decimal>(forsaljningPerDag),
-                    Stroke = new SolidColorBrush(Color.FromRgb(244, 185, 66)), // #F4B942
-                    Fill = new SolidColorBrush(Color.FromArgb(50, 244, 185, 66)),
-                    StrokeThickness = 3,
-                    PointGeometrySize = 8,
-                    DataLabels = false
-                }
-            };
-
-            TrendLabels = dagar.Select(d => d.ToString("MM-dd")).ToArray();
-        }
-
-        private void ByggServitorJamforelseChart()
-        {
-            ServitorJamforelseChart = new SeriesCollection
-            {
-                new ColumnSeries
-                {
-                    Title = "Total Försäljning",
-                    Values = new ChartValues<decimal>(ServitorStatistik.Select(s => s.TotalForsaljning)),
-                    Fill = new SolidColorBrush(Color.FromRgb(163, 177, 138)), // #A3B18A
-                    DataLabels = true,
-                    LabelPoint = point => $"{point.Y:N0} kr"
-                }
-            };
-
-            ServitorLabels = ServitorStatistik.Select(s => s.Namn).ToArray();
         }
 
         [RelayCommand]
-        private void GeneraPDFRapport()
+        private void LoggaUt()
+        {
+            var result = MessageBox.Show($"Vill du logga ut {InloggadAnvandare?.Namn}?", "Logga ut",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                if (InloggadAnvandare != null)
+                {
+                    _anvandareController.LoggaUtAnvandare(InloggadAnvandare.AnvandarID);
+                }
+
+                var loginWindow = new LoginWindow();
+                loginWindow.Show();
+                CloseAction?.Invoke();
+            }
+        }
+
+        [RelayCommand]
+        private async void GeneraPDFRapport()
         {
             try
             {
-                if (InloggadAnvandare?.HemmarestaurangID == null)
+                if (InloggadAnvandare == null || !InloggadAnvandare.HemmarestaurangID.HasValue)
                 {
-                    MessageBox.Show("Ingen restaurang vald", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ingen hemmarestaurang kopplad till användaren", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                StatusMeddelande = "Genererar PDF...";
+                int restaurangId = InloggadAnvandare.HemmarestaurangID.Value;
 
-                var pdfFil = _pdfController.GeneraStatistikRapport(
-                    InloggadAnvandare.HemmarestaurangID.Value,
-                    FranDatum,
-                    TillDatum,
-                    InloggadAnvandare.AnvandarID
-                );
+                // Hämta restaurangens namn
+                var restaurangController = new RestaurangController();
+                var restaurang = restaurangController.HamtaRestaurangMedId(restaurangId);
+                string restaurangNamn = restaurang?.Restaurangnamn ?? "Okänd";
 
-                MessageBox.Show(
-                    $"PDF-rapport sparad!\n\nPlats: {pdfFil}",
-                    "PDF genererad",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
+                // Hämta all statistik
+                var forsaljning = _statistikController.GetForsaljningRestaurang(restaurangId, StartDatum, SlutDatum);
+                var mestSalda = _statistikController.GetMestSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
+                var minstSalda = _statistikController.GetMinstSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
+                var servitorer = _statistikController.GetForsaljningPerServitor(restaurangId, StartDatum, SlutDatum);
+                var bokningar = _statistikController.GetBokningsStatistik(restaurangId, StartDatum, SlutDatum);
 
-                StatusMeddelande = "PDF-rapport genererad";
+                // Generera PDF
+                string pdfPath = _pdfService.GenerateRestaurangchefRapport(
+                    restaurangNamn,
+                    StartDatum,
+                    SlutDatum,
+                    forsaljning,
+                    mestSalda,
+                    minstSalda,
+                    servitorer,
+                    bokningar);
+
+                MessageBox.Show($"PDF-rapport genererad!\n\nFilen sparad: {pdfPath}", "Framgång",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Öppna PDF-filen
+                Process.Start(new ProcessStartInfo(pdfPath) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
-                StatusMeddelande = $"Fel: {ex.Message}";
-                MessageBox.Show($"Fel vid PDF-generering: {ex.Message}", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fel vid generering av PDF: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -402,76 +310,96 @@ namespace PresentationsLager.ViewModels.ResturangChef
         {
             try
             {
-                if (InloggadAnvandare?.HemmarestaurangID == null)
+                if (InloggadAnvandare == null || !InloggadAnvandare.HemmarestaurangID.HasValue)
                 {
-                    MessageBox.Show("Ingen restaurang vald", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ingen hemmarestaurang kopplad till användaren", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                StatusMeddelande = "Skickar PDF via email...";
+                int restaurangId = InloggadAnvandare.HemmarestaurangID.Value;
 
-                var skickad = await _pdfController.GeneraOchSkickaPdfRapport(
-                    InloggadAnvandare.HemmarestaurangID.Value,
-                    FranDatum,
-                    TillDatum,
-                    "restaurangchef@restonation.se",
-                    InloggadAnvandare.AnvandarID
-                );
+                // Hämta restaurangens namn
+                var restaurangController = new RestaurangController();
+                var restaurang = restaurangController.HamtaRestaurangMedId(restaurangId);
+                string restaurangNamn = restaurang?.Restaurangnamn ?? "Okänd";
 
-                if (skickad)
+                // Hämta all statistik
+                var forsaljning = _statistikController.GetForsaljningRestaurang(restaurangId, StartDatum, SlutDatum);
+                var mestSalda = _statistikController.GetMestSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
+                var minstSalda = _statistikController.GetMinstSaldaRatter(restaurangId, StartDatum, SlutDatum, 10);
+                var servitorer = _statistikController.GetForsaljningPerServitor(restaurangId, StartDatum, SlutDatum);
+                var bokningar = _statistikController.GetBokningsStatistik(restaurangId, StartDatum, SlutDatum);
+
+                // Generera PDF
+                string pdfPath = _pdfService.GenerateRestaurangchefRapport(
+                    restaurangNamn,
+                    StartDatum,
+                    SlutDatum,
+                    forsaljning,
+                    mestSalda,
+                    minstSalda,
+                    servitorer,
+                    bokningar);
+
+                // Skicka mail
+                string period = $"{StartDatum:yyyy-MM-dd} till {SlutDatum:yyyy-MM-dd}";
+                bool success = await _mailService.SendStatistikRapportAsync(
+                    "daniel02zam@gmail.com",
+                    restaurangNamn,
+                    period,
+                    pdfPath);
+
+                if (success)
                 {
-                    MessageBox.Show(
-                        "PDF-rapport skickad till restaurangchef@restonation.se",
-                        "Email skickat",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information
-                    );
-                    StatusMeddelande = "PDF skickad via email";
+                    MessageBox.Show($"PDF-rapport skickad till daniel02zam@gmail.com!", "Framgång",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "Kunde inte skicka email. Kontrollera email-inställningar.",
-                        "Email-fel",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning
-                    );
-                    StatusMeddelande = "Fel vid email-sändning";
+                    MessageBox.Show("Kunde inte skicka e-post. Kontrollera SMTP-inställningar.", "Varning",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
-                StatusMeddelande = $"Fel: {ex.Message}";
-                MessageBox.Show($"Fel vid email-sändning: {ex.Message}", "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fel vid skickande av mail: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        [RelayCommand]
-        private void LoggaUt()
+        private void SattPeriodDag()
         {
-            var result = MessageBox.Show(
-                $"Vill du logga ut {InloggadAnvandare?.Namn}?",
-                "Logga ut",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question
-            );
+            StartDatum = DateTime.Today;
+            SlutDatum = DateTime.Today.AddDays(1).AddSeconds(-1);
+        }
 
-            if (result == MessageBoxResult.Yes)
-            {
-                _loggController.LoggaUtloggning(
-                    InloggadAnvandare?.AnvandarID ?? 0,
-                    InloggadAnvandare?.Anvandarnamn ?? ""
-                );
+        private void SattPeriodVecka()
+        {
+            var today = DateTime.Today;
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+            StartDatum = today.AddDays(-daysUntilMonday);
+            SlutDatum = StartDatum.AddDays(7).AddSeconds(-1);
+        }
 
-                var loginWindow = new Views.LoginWindow();
-                loginWindow.Show();
-                CloseAction?.Invoke();
-            }
+        private void SattPeriodManad()
+        {
+            var today = DateTime.Today;
+            StartDatum = new DateTime(today.Year, today.Month, 1);
+            SlutDatum = StartDatum.AddMonths(1).AddSeconds(-1);
         }
     }
 
-    // Helper DTO för servitörstatistik i XAML
-    public class ServitorDto
+    // ViewModel-klasser för statistik
+    public class RattStatistikViewModel
+    {
+        public string Rattnamn { get; set; } = string.Empty;
+        public string Kategori { get; set; } = string.Empty;
+        public int AntalSalda { get; set; }
+        public decimal TotalForsaljning { get; set; }
+    }
+
+    public class ServitorStatistikViewModel
     {
         public string Namn { get; set; } = string.Empty;
         public int AntalTransaktioner { get; set; }
