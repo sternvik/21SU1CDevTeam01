@@ -1,17 +1,16 @@
-﻿using EntitetsLager;
-using PresentationsLager.ViewModels.VD;
+﻿using PresentationsLager.ViewModels;
 using System.Windows;
+using EntitetsLager;
 
-namespace PresentationsLager.Views.VD
+namespace PresentationsLager.Views
 {
-    public partial class VDWindow : Window
+    public partial class VDView : Window
     {
-        public VDWindow(Anvandare anvandare)
+        public VDView(Anvandare anvandare)
         {
             InitializeComponent();
 
-            // Använd samma mönster som ServitorMainWindow
-            if (DataContext is VDWindowViewModel viewModel)
+            if (DataContext is VDViewModel viewModel)
             {
                 viewModel.Initialize(anvandare);
                 viewModel.CloseAction = () => this.Close();
