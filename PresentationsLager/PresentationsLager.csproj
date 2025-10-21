@@ -19,8 +19,4 @@
     <ProjectReference Include="..\AffärsLager\AffärsLager.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\VD\" />
-  </ItemGroup>
-
 </Project>
