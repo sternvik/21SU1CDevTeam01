@@ -25,7 +25,7 @@ namespace AffärsLager.Controllers
         }
 
         public Bestallning SkapaEllerUppdateraBestallning(int? bokningsId, int kundId, int restaurangId, int anvandarId,
-            List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null)
+            List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null, decimal dricks = 0)
         {
             try
             {
@@ -95,8 +95,9 @@ namespace AffärsLager.Controllers
                     totalSumma += nyRad.Summa;
                 }
 
-                // Uppdatera totalsumma
+                // Uppdatera totalsumma och dricks
                 befintligBestallning.TotalSumma = totalSumma;
+                befintligBestallning.Dricks = dricks;
 
                 _unitOfWork.Save();
                 return befintligBestallning;

@@ -41,6 +41,9 @@ namespace PresentationsLager.ViewModels
         private decimal totalForsaljningKoncern;
 
         [ObservableProperty]
+        private decimal totalDricksKoncern;
+
+        [ObservableProperty]
         private decimal matSummaKoncern;
 
         [ObservableProperty]
@@ -165,6 +168,7 @@ namespace PresentationsLager.ViewModels
                     // KONCERNÖVERSIKT
                     var forsaljningKoncern = _statistikController.GetForsaljningKoncern(StartDatum, SlutDatum);
                     TotalForsaljningKoncern = forsaljningKoncern.TotalForsaljning;
+                    TotalDricksKoncern = forsaljningKoncern.TotalDricks;
                     MatSummaKoncern = forsaljningKoncern.MatSumma;
                     AlkoholSummaKoncern = forsaljningKoncern.AlkoholSumma;
                     AntalTransaktionerKoncern = forsaljningKoncern.AntalTransaktioner;
@@ -178,6 +182,7 @@ namespace PresentationsLager.ViewModels
                         {
                             RegionNamn = region.RegionNamn,
                             TotalForsaljning = region.TotalForsaljning,
+                            TotalDricks = region.TotalDricks,
                             MatSumma = region.MatSumma,
                             AlkoholSumma = region.AlkoholSumma,
                             AntalTransaktioner = region.AntalTransaktioner
@@ -221,6 +226,7 @@ namespace PresentationsLager.ViewModels
                         {
                             RestaurangNamn = restaurang.RestaurangNamn,
                             TotalForsaljning = restaurang.TotalForsaljning,
+                            TotalDricks = restaurang.TotalDricks,
                             MatSumma = restaurang.MatSumma,
                             AlkoholSumma = restaurang.AlkoholSumma,
                             AntalTransaktioner = restaurang.AntalTransaktioner
@@ -437,6 +443,7 @@ namespace PresentationsLager.ViewModels
     {
         public string RegionNamn { get; set; } = string.Empty;
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public decimal MatSumma { get; set; }
         public decimal AlkoholSumma { get; set; }
         public int AntalTransaktioner { get; set; }
@@ -446,6 +453,7 @@ namespace PresentationsLager.ViewModels
     {
         public string RestaurangNamn { get; set; } = string.Empty;
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public decimal MatSumma { get; set; }
         public decimal AlkoholSumma { get; set; }
         public int AntalTransaktioner { get; set; }

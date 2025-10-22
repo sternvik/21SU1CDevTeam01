@@ -160,6 +160,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- Total Försäljning -->
@@ -216,8 +217,26 @@
                                 </StackPanel>
                             </Border>
 
+                            <!-- Total Dricks -->
+                            <Border Grid.Column="3" Background="#3A5A40" CornerRadius="5" Margin="5" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="Total Dricks"
+                                               FontFamily="Inter"
+                                               FontSize="12"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalDricks, StringFormat={}{0:N0} kr}"
+                                               FontFamily="Montserrat"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
                             <!-- Antal Transaktioner -->
-                            <Border Grid.Column="3" Background="#A3B18A" CornerRadius="5" Margin="5" Padding="15">
+                            <Border Grid.Column="4" Background="#A3B18A" CornerRadius="5" Margin="5" Padding="15">
                                 <StackPanel>
                                     <TextBlock Text="Antal Transaktioner"
                                                FontFamily="Inter"
@@ -426,8 +445,11 @@
                                       MaxHeight="300">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Namn" Binding="{Binding Namn}" Width="*"/>
-                                    <DataGridTextColumn Header="Trans." Binding="{Binding AntalTransaktioner}" Width="50"/>
-                                    <DataGridTextColumn Header="Summa" Binding="{Binding TotalForsaljning, StringFormat={}{0:N0}}" Width="70"/>
+                                    <DataGridTextColumn Header="Försäljn." Binding="{Binding TotalForsaljning, StringFormat={}{0:N0} kr}" Width="90"/>
+                                    <DataGridTextColumn Header="Dricks" Binding="{Binding TotalDricks, StringFormat={}{0:N0} kr}" Width="80"/>
+                                    <DataGridTextColumn Header="Bokn." Binding="{Binding AntalBokningar}" Width="50"/>
+                                    <DataGridTextColumn Header="Bord" Binding="{Binding AntalBord}" Width="50"/>
+                                    <DataGridTextColumn Header="Gäster" Binding="{Binding AntalGaster}" Width="55"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>

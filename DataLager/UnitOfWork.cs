@@ -106,10 +106,10 @@ namespace DataLager
             Save();
 
             // Lägg till Användare (inloggningsuppgifter)
-            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "servitor1", Losenord = "password123", Namn = "Anna Servitör", HemmarestaurangID = 1, Roll = "Servitör" });
-            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "admin1", Losenord = "admin123", Namn = "Erik Admin", HemmarestaurangID = 1, Roll = "Admin" });
-            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "rchef1", Losenord = "chef123", Namn = "Maria Restaurangchef", HemmarestaurangID = 1, Roll = "Restaurangchef" });
-            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "vd", Losenord = "vd123", Namn = "Sten Hård", Roll = "VD" });
+            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "1", Losenord = "1", Namn = "Anna Servitör", HemmarestaurangID = 1, Roll = "Servitör" });
+            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "a", Losenord = "a", Namn = "Erik Admin", HemmarestaurangID = 1, Roll = "Admin" });
+            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "chef", Losenord = "chef", Namn = "Maria Restaurangchef", HemmarestaurangID = 1, Roll = "Restaurangchef" });
+            AnvandareRepository.Add(new Anvandare { Anvandarnamn = "vd", Losenord = "vd", Namn = "Sten Hård", Roll = "VD" });
             Save();
 
             // Lägg till alla Bord för varje restaurang

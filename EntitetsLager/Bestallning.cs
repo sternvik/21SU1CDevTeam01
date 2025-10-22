@@ -33,6 +33,8 @@ namespace EntitetsLager
 
         public int PoangTilldelas { get; set; } // 10 poäng för lunch/avhämtning, 15 för middag
 
+        public decimal Dricks { get; set; } = 0;
+
         [Required]
         public DateTime Datum { get; set; }
 

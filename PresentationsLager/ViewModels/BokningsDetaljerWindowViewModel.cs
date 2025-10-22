@@ -657,7 +657,10 @@ namespace PresentationsLager.ViewModels
                     Bokning.KundID,
                     Bokning.RestaurangID,
                     InloggadAnvandare.AnvandarID,
-                    dtoList);
+                    dtoList,
+                    "Middag",
+                    null,
+                    Dricks);
             }
             catch (Exception ex)
             {

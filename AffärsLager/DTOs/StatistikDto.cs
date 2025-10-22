@@ -1,9 +1,9 @@
 using System;
 
-namespace AffärsLager.DTOs
+namespace AffÃ¤rsLager.DTOs
 {
     /// <summary>
-    /// DTO för personalstatistik
+    /// DTO fï¿½r personalstatistik
     /// </summary>
     public class PersonalStatistikDto
     {
@@ -15,11 +15,12 @@ namespace AffärsLager.DTOs
         public int AntalBordHanterade { get; set; }
         public int TotaltAntalGaster { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public DateTime Period { get; set; }
     }
 
     /// <summary>
-    /// DTO för menystatistik
+    /// DTO fï¿½r menystatistik
     /// </summary>
     public class MenyStatistikDto
     {
@@ -35,7 +36,7 @@ namespace AffärsLager.DTOs
     }
 
     /// <summary>
-    /// DTO för försäljningssammanfattning
+    /// DTO fï¿½r fï¿½rsï¿½ljningssammanfattning
     /// </summary>
     public class ForsaljningsSummaryDto
     {
@@ -46,6 +47,7 @@ namespace AffärsLager.DTOs
         
         // Totaler
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public int TotaltAntalBestallningar { get; set; }
         public int TotaltAntalBokningar { get; set; }
         public int TotaltAntalGaster { get; set; }
@@ -54,7 +56,7 @@ namespace AffärsLager.DTOs
         public decimal MatForsaljning { get; set; }
         public decimal DryckForsaljning { get; set; }
         
-        // Populära rätter
+        // Populï¿½ra rï¿½tter
         public List<MenyStatistikDto> MestSaldaRatter { get; set; } = new();
         public List<MenyStatistikDto> MinstSaldaRatter { get; set; } = new();
         
@@ -63,7 +65,7 @@ namespace AffärsLager.DTOs
     }
 
     /// <summary>
-    /// DTO för bokföringsdata
+    /// DTO fï¿½r bokfï¿½ringsdata
     /// </summary>
     public class BokforingDto
     {
@@ -79,7 +81,7 @@ namespace AffärsLager.DTOs
     }
 
     /// <summary>
-    /// DTO för grundmeny statistik (alla restauranger)
+    /// DTO fï¿½r grundmeny statistik (alla restauranger)
     /// </summary>
     public class GrundmenyStatistikDto
     {

@@ -53,7 +53,10 @@ namespace AffärsLager.Services
                     TotaltAntalGaster = g.Sum(b => b.AntalGaster),
                     TotalForsaljning = bestallningar
                         .Where(best => best.AnvandarID == g.Key)
-                        .Sum(best => best.TotalSumma)
+                        .Sum(best => best.TotalSumma),
+                    TotalDricks = bestallningar
+                        .Where(best => best.AnvandarID == g.Key)
+                        .Sum(best => best.Dricks)
                 })
                 .OrderByDescending(p => p.AntalBokningar)
                 .ToList();
@@ -129,6 +132,7 @@ namespace AffärsLager.Services
                 FranDatum = franDatum,
                 TillDatum = tillDatum,
                 TotalForsaljning = bestallningar.Sum(b => b.TotalSumma),
+                TotalDricks = bestallningar.Sum(b => b.Dricks),
                 TotaltAntalBestallningar = bestallningar.Count,
                 TotaltAntalBokningar = bokningar.Count,
                 TotaltAntalGaster = bokningar.Sum(b => b.AntalGaster),
@@ -212,7 +216,7 @@ namespace AffärsLager.Services
                 RestaurangNamn = restaurang?.Restaurangnamn ?? "",
                 Dagssumma = bestallningar.Sum(b => b.TotalSumma),
                 AntalTransaktioner = bestallningar.Count,
-                Dricks = 0, // Skulle behöva hämtas från transaktionstabellen om vi sparar dricks
+                Dricks = bestallningar.Sum(b => b.Dricks),
                 KontantBetalningar = 0, // Skulle behöva betalningsmetod-info
                 KortBetalningar = bestallningar.Sum(b => b.TotalSumma),
                 LojalitetsPoangAnvanda = 0 // Skulle behöva info från lojalitetstabellen

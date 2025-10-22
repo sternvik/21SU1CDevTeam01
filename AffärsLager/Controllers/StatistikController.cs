@@ -63,6 +63,7 @@ namespace AffärsLager.Controllers
             return new ForsaljningsStatistik
             {
                 TotalForsaljning = bestallningar.Sum(b => b.TotalSumma),
+                TotalDricks = bestallningar.Sum(b => b.Dricks),
                 MatSumma = matSumma,
                 AlkoholSumma = alkoholSumma,
                 AntalTransaktioner = bestallningar.Count
@@ -144,7 +145,8 @@ namespace AffärsLager.Controllers
                     AnvandarID = g.Key.AnvandarID,
                     Namn = g.Key.Namn,
                     AntalTransaktioner = g.Count(),
-                    TotalForsaljning = g.Sum(b => b.TotalSumma)
+                    TotalForsaljning = g.Sum(b => b.TotalSumma),
+                    TotalDricks = g.Sum(b => b.Dricks)
                 })
                 .OrderByDescending(s => s.TotalForsaljning)
                 .ToList();
@@ -206,6 +208,7 @@ namespace AffärsLager.Controllers
             return new ForsaljningsStatistik
             {
                 TotalForsaljning = bestallningar.Sum(b => b.TotalSumma),
+                TotalDricks = bestallningar.Sum(b => b.Dricks),
                 MatSumma = matSumma,
                 AlkoholSumma = alkoholSumma,
                 AntalTransaktioner = bestallningar.Count
@@ -248,6 +251,7 @@ namespace AffärsLager.Controllers
                         RegionID = g.Key.RegionID,
                         RegionNamn = g.Key.Regionnamn,
                         TotalForsaljning = g.Sum(b => b.TotalSumma),
+                        TotalDricks = g.Sum(b => b.Dricks),
                         MatSumma = matSumma,
                         AlkoholSumma = alkoholSumma,
                         AntalTransaktioner = g.Count()
@@ -353,6 +357,7 @@ namespace AffärsLager.Controllers
                         RestaurangNamn = g.Key.Restaurangnamn,
                         RegionID = g.Key.RegionID,
                         TotalForsaljning = g.Sum(b => b.TotalSumma),
+                        TotalDricks = g.Sum(b => b.Dricks),
                         MatSumma = matSumma,
                         AlkoholSumma = alkoholSumma,
                         AntalTransaktioner = g.Count()
@@ -372,6 +377,7 @@ namespace AffärsLager.Controllers
     public class ForsaljningsStatistik
     {
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public decimal MatSumma { get; set; }
         public decimal AlkoholSumma { get; set; }
         public int AntalTransaktioner { get; set; }
@@ -392,6 +398,7 @@ namespace AffärsLager.Controllers
         public string Namn { get; set; }
         public int AntalTransaktioner { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
     }
 
     public class BokningsStatistik
@@ -406,6 +413,7 @@ namespace AffärsLager.Controllers
         public int RegionID { get; set; }
         public string RegionNamn { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public decimal MatSumma { get; set; }
         public decimal AlkoholSumma { get; set; }
         public int AntalTransaktioner { get; set; }
@@ -417,6 +425,7 @@ namespace AffärsLager.Controllers
         public string RestaurangNamn { get; set; }
         public int RegionID { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
         public decimal MatSumma { get; set; }
         public decimal AlkoholSumma { get; set; }
         public int AntalTransaktioner { get; set; }

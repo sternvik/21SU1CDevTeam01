@@ -39,6 +39,9 @@ namespace PresentationsLager.ViewModels
         private decimal totalForsaljning;
 
         [ObservableProperty]
+        private decimal totalDricks;
+
+        [ObservableProperty]
         private decimal matSumma;
 
         [ObservableProperty]
@@ -161,6 +164,7 @@ namespace PresentationsLager.ViewModels
                 // Hämta försäljningsstatistik
                 var forsaljning = _statistikController.GetForsaljningRestaurang(restaurangId, StartDatum, SlutDatum);
                 TotalForsaljning = forsaljning.TotalForsaljning;
+                TotalDricks = forsaljning.TotalDricks;
                 MatSumma = forsaljning.MatSumma;
                 AlkoholSumma = forsaljning.AlkoholSumma;
                 AntalTransaktioner = forsaljning.AntalTransaktioner;
@@ -196,13 +200,25 @@ namespace PresentationsLager.ViewModels
                 // Hämta servitörstatistik
                 var servitorer = _statistikController.GetForsaljningPerServitor(restaurangId, StartDatum, SlutDatum);
                 ServitorStatistik.Clear();
+
+                // Hämta även personalstatistik från StatistikService för att få bokningsdata
+                var statistikService = new StatistikService();
+                var personalStatistik = statistikService.HamtaPersonalStatistik(restaurangId, StartDatum, SlutDatum);
+
                 foreach (var servitor in servitorer)
                 {
+                    // Hitta motsvarande personalstatistik för att få bokningsdata
+                    var personalData = personalStatistik.FirstOrDefault(p => p.AnvandarID == servitor.AnvandarID);
+
                     ServitorStatistik.Add(new ServitorStatistikViewModel
                     {
                         Namn = servitor.Namn,
                         AntalTransaktioner = servitor.AntalTransaktioner,
-                        TotalForsaljning = servitor.TotalForsaljning
+                        TotalForsaljning = servitor.TotalForsaljning,
+                        TotalDricks = servitor.TotalDricks,
+                        AntalBokningar = personalData?.AntalBokningar ?? 0,
+                        AntalBord = personalData?.AntalBordHanterade ?? 0,
+                        AntalGaster = personalData?.TotaltAntalGaster ?? 0
                     });
                 }
 
@@ -403,5 +419,9 @@ namespace PresentationsLager.ViewModels
         public string Namn { get; set; } = string.Empty;
         public int AntalTransaktioner { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal TotalDricks { get; set; }
+        public int AntalBokningar { get; set; }
+        public int AntalBord { get; set; }
+        public int AntalGaster { get; set; }
     }
 }
