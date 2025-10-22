@@ -452,6 +452,9 @@ namespace PresentationsLager.ViewModels
                     }
                 }
 
+                // Spara beställningen med dricks INNAN checkout
+                SparaBestallning();
+
                 _bokningsController.CheckOutBokning(Bokning.BokningsID, InloggadAnvandare.AnvandarID);
                 OperationCompleted?.Invoke();
             }

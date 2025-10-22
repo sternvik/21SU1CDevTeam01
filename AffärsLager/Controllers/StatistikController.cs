@@ -100,28 +100,44 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar minst sålda rätter för en restaurang
+        /// Hämtar minst sålda rätter för en restaurang (inkluderar rätter med 0 försäljning)
         /// </summary>
         public List<RattStatistik> GetMinstSaldaRatter(int restaurangId, DateTime startDatum, DateTime slutDatum, int antal = 10)
         {
+            // Hämta alla menyer för restaurangen
+            var allaMenyer = _unitOfWork.RestaurangMenyRepository.GetQuery()
+                .Where(rm => rm.RestaurangID == restaurangId)
+                .Include(rm => rm.Meny)
+                .Select(rm => rm.Meny)
+                .Where(m => m.Aktiv)
+                .ToList();
+
+            // Hämta försäljningsdata för perioden
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
                 .Where(b => b.RestaurangID == restaurangId && b.Datum >= startDatum && b.Datum <= slutDatum)
                 .Include(b => b.BestallningsRader)
-                .ThenInclude(br => br.Meny)
                 .ToList();
 
-            var rattStatistik = bestallningar
+            var forsaljningsData = bestallningar
                 .SelectMany(b => b.BestallningsRader)
-                .GroupBy(br => new { br.MenyID, br.Meny.Rattnamn, br.Meny.Kategori })
-                .Select(g => new RattStatistik
+                .GroupBy(br => br.MenyID)
+                .ToDictionary(
+                    g => g.Key,
+                    g => new { AntalSalda = g.Sum(br => br.Antal), TotalSumma = g.Sum(br => br.Summa) }
+                );
+
+            // Kombinera alla menyer med försäljningsdata (0 för de som inte sålts)
+            var rattStatistik = allaMenyer
+                .Select(m => new RattStatistik
                 {
-                    MenyID = g.Key.MenyID,
-                    Rattnamn = g.Key.Rattnamn,
-                    Kategori = g.Key.Kategori,
-                    AntalSalda = g.Sum(br => br.Antal),
-                    TotalForsaljning = g.Sum(br => br.Summa)
+                    MenyID = m.MenyID,
+                    Rattnamn = m.Rattnamn,
+                    Kategori = m.Kategori,
+                    AntalSalda = forsaljningsData.ContainsKey(m.MenyID) ? forsaljningsData[m.MenyID].AntalSalda : 0,
+                    TotalForsaljning = forsaljningsData.ContainsKey(m.MenyID) ? forsaljningsData[m.MenyID].TotalSumma : 0
                 })
                 .OrderBy(r => r.AntalSalda)
+                .ThenBy(r => r.Rattnamn)
                 .Take(antal)
                 .ToList();
 
@@ -293,28 +309,41 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar minst sålda rätter för hela koncernen
+        /// Hämtar minst sålda rätter för hela koncernen (inkluderar rätter med 0 försäljning)
         /// </summary>
         public List<RattStatistik> GetMinstSaldaRatterKoncern(DateTime startDatum, DateTime slutDatum, int antal = 10)
         {
+            // Hämta alla aktiva grundmenyer
+            var allaMenyer = _unitOfWork.MenyRepository.GetQuery()
+                .Where(m => m.Aktiv && m.ArGrundmeny)
+                .ToList();
+
+            // Hämta försäljningsdata för perioden
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
                 .Where(b => b.Datum >= startDatum && b.Datum <= slutDatum)
                 .Include(b => b.BestallningsRader)
-                .ThenInclude(br => br.Meny)
                 .ToList();
 
-            var rattStatistik = bestallningar
+            var forsaljningsData = bestallningar
                 .SelectMany(b => b.BestallningsRader)
-                .GroupBy(br => new { br.MenyID, br.Meny.Rattnamn, br.Meny.Kategori })
-                .Select(g => new RattStatistik
+                .GroupBy(br => br.MenyID)
+                .ToDictionary(
+                    g => g.Key,
+                    g => new { AntalSalda = g.Sum(br => br.Antal), TotalSumma = g.Sum(br => br.Summa) }
+                );
+
+            // Kombinera alla menyer med försäljningsdata (0 för de som inte sålts)
+            var rattStatistik = allaMenyer
+                .Select(m => new RattStatistik
                 {
-                    MenyID = g.Key.MenyID,
-                    Rattnamn = g.Key.Rattnamn,
-                    Kategori = g.Key.Kategori,
-                    AntalSalda = g.Sum(br => br.Antal),
-                    TotalForsaljning = g.Sum(br => br.Summa)
+                    MenyID = m.MenyID,
+                    Rattnamn = m.Rattnamn,
+                    Kategori = m.Kategori,
+                    AntalSalda = forsaljningsData.ContainsKey(m.MenyID) ? forsaljningsData[m.MenyID].AntalSalda : 0,
+                    TotalForsaljning = forsaljningsData.ContainsKey(m.MenyID) ? forsaljningsData[m.MenyID].TotalSumma : 0
                 })
                 .OrderBy(r => r.AntalSalda)
+                .ThenBy(r => r.Rattnamn)
                 .Take(antal)
                 .ToList();
 
