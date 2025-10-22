@@ -96,8 +96,8 @@ namespace PresentationsLager.ViewModels
                         break;
 
                     case "restaurangchef":
-                        var resturangChefWindow = new ResturangChefWindow(anvandare.ToEntity());
-                        resturangChefWindow.Show();
+                        var restaurangChefWindow = new RestaurangChefWindow(anvandare.ToEntity());
+                        restaurangChefWindow.Show();
                         break;
 
                     case "vd":

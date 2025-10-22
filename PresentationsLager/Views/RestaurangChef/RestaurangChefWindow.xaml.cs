@@ -4,9 +4,9 @@ using System.Windows;
 
 namespace PresentationsLager.Views
 {
-    public partial class ResturangChefWindow : Window
+    public partial class RestaurangChefWindow : Window
     {
-        public ResturangChefWindow(Anvandare anvandare)
+        public RestaurangChefWindow(Anvandare anvandare)
         {
             InitializeComponent();
 
