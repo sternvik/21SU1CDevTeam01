@@ -479,7 +479,7 @@ namespace PresentationsLager.ViewModels
         }
 
         [RelayCommand]
-        private void GeneraBokföring()
+        private async void GeneraBokföring()
         {
             try
             {
@@ -496,19 +496,29 @@ namespace PresentationsLager.ViewModels
                 // Generera bokföringsfil för restaurangen
                 string bokföringsFilPath = _bokföringsService.GeneraBokföringRestaurang(restaurangId, valtDatum);
 
-                // Logga genereringen
+                // Skicka mail med bokföringsfilen
+                bool success = await _mailService.SendBokforingsfilAsync(
+                    "leosternvik@gmail.com",
+                    valtDatum,
+                    bokföringsFilPath);
+
+                // Logga genereringen och mailet
                 _loggService.LoggaHandelse(
                     InloggadAnvandare.AnvandarID,
                     "Bokföring",
-                    $"Genererade bokföringsunderlag för restaurang ID {restaurangId} ({valtDatum:yyyy-MM-dd})",
-                    $"Fil: {Path.GetFileName(bokföringsFilPath)}");
+                    $"Genererade och skickade bokföringsunderlag för restaurang ID {restaurangId} ({valtDatum:yyyy-MM-dd}) till leosternvik@gmail.com",
+                    $"Fil: {Path.GetFileName(bokföringsFilPath)}, Status: {(success ? "Skickat" : "Misslyckades")}");
 
-                MessageBox.Show($"Bokföringsunderlag genererat!\n\nFil: {bokföringsFilPath}\n\nSkicka till: ekonomi@restonation.se",
-                    "Framgång",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Öppna bokföringsfilen i Notepad
-                Process.Start("notepad.exe", bokföringsFilPath);
+                if (success)
+                {
+                    MessageBox.Show($"Bokföringsunderlag skickat till leosternvik@gmail.com!", "Framgång",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Kunde inte skicka e-post. Kontrollera SMTP-inställningar.", "Varning",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
