@@ -36,11 +36,10 @@ namespace AffärsLager.Services
                 .FirstOrDefault(r => r.RestaurangID == restaurangId);
             var restaurangNamn = restaurang?.Restaurangnamn ?? $"Restaurang_{restaurangId}";
 
-            // Hämta alla betalda beställningar för dagen
+            // Hämta alla beställningar för dagen
             var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
-                           b.Datum.Date == datum.Date &&
-                           b.Betald)
+                           b.Datum.Date == datum.Date)
                 .ToList();
 
             decimal matSumma = 0;
@@ -154,8 +153,7 @@ namespace AffärsLager.Services
                 {
                     var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                         .Where(b => b.RestaurangID == restaurang.RestaurangID &&
-                                   b.Datum.Date == datum.Date &&
-                                   b.Betald)
+                                   b.Datum.Date == datum.Date)
                         .ToList();
 
                     decimal matSumma = 0;
@@ -225,8 +223,7 @@ namespace AffärsLager.Services
                 {
                     var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                         .Where(b => b.RestaurangID == restaurang.RestaurangID &&
-                                   b.Datum.Date == datum.Date &&
-                                   b.Betald)
+                                   b.Datum.Date == datum.Date)
                         .ToList();
 
                     decimal matSumma = 0;
