@@ -215,7 +215,12 @@ namespace PresentationsLager.ViewModels
                         }
 
                         // Hantera olika bokningsstatus
-                        if (bord.BordStatus == "På plats")
+                        if (bord.BordStatus == "Betalt")
+                        {
+                            statusText = "Betalt";
+                            statusColor = "#E91E63"; // Rosa för betalda bord (kunder sitter kvar)
+                        }
+                        else if (bord.BordStatus == "På plats")
                         {
                             statusText = "På plats";
                             statusColor = "#3498DB"; // Blå för kunder på plats

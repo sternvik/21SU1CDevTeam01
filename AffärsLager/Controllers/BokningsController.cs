@@ -58,7 +58,12 @@ namespace AffärsLager.Controllers
 
                     if (bokning != null)
                     {
-                        bordStatus = bokning.Status == "På plats" ? "På plats" : "Bokat";
+                        if (bokning.Status == "Betalt")
+                            bordStatus = "Betalt";
+                        else if (bokning.Status == "På plats")
+                            bordStatus = "På plats";
+                        else
+                            bordStatus = "Bokat";
                     }
 
                     return new BordMedStatus
@@ -164,11 +169,18 @@ namespace AffärsLager.Controllers
 
                 // Spara bokningen
                 _unitOfWork.BokningRepository.Add(bokning);
+
+                // Uppdatera bordstatus till "Bokat"
+                var bord = _unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                if (bord != null)
+                {
+                    bord.Status = "Bokat";
+                }
+
                 _unitOfWork.Save();
 
                 // Logga bokning
                 var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == bokning.KundID);
-                var bord = _unitOfWork.BordRepository.GetQuery().FirstOrDefault(b => b.BordID == bokning.BordID);
                 _loggService.LoggaHandelse(
                     bokning.AnvandarID ?? 0,
                     "Bokning",
@@ -254,6 +266,13 @@ namespace AffärsLager.Controllers
 
                 bokning.Status = "På plats";
 
+                // Uppdatera bordstatus till "Aktivt"
+                var bord = _unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                if (bord != null)
+                {
+                    bord.Status = "Aktivt";
+                }
+
                 _unitOfWork.Save();
 
                 // Logga check-in
@@ -280,10 +299,17 @@ namespace AffärsLager.Controllers
                 if (bokning == null)
                     throw new InvalidOperationException("Bokningen finns inte");
 
-                if (bokning.Status != "På plats")
-                    throw new InvalidOperationException("Bokningen måste vara incheckad för att kunna checkas ut");
+                if (bokning.Status != "På plats" && bokning.Status != "Betalt")
+                    throw new InvalidOperationException("Bokningen måste vara incheckad eller betald för att kunna checkas ut");
 
                 bokning.Status = "Avslutad";
+
+                // Uppdatera bordstatus till "Ledigt"
+                var bord = _unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                if (bord != null)
+                {
+                    bord.Status = "Ledigt";
+                }
 
                 _unitOfWork.Save();
 

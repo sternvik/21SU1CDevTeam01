@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -395,13 +396,35 @@ namespace PresentationsLager.ViewModels
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // Använd 100 poäng
-                        _lojalitetsController.AnvandPoang(Bokning.KundID, 100, null, "Poäng använd för middag");
+                        // Räkna antal beställningar från grundmenyn (ej alkohol)
+                        int antalGrundmenyRatter = Bestallning
+                            .Where(b => !b.Kategori.ToLower().Contains("dryck"))
+                            .Sum(b => b.Antal);
+
+                        int poangAttAnvanda = antalGrundmenyRatter * 100;
+
+                        // Kontrollera att kunden har tillräckligt med poäng
+                        if (kundPoang < poangAttAnvanda)
+                        {
+                            MessageBox.Show(
+                                $"Kunden har bara {kundPoang} poäng men behöver {poangAttAnvanda} poäng " +
+                                $"({antalGrundmenyRatter} beställningar × 100p).\n\n" +
+                                $"Betalning avbruten.",
+                                "För få poäng",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
+                            return;
+                        }
+
+                        // Använd poäng
+                        _lojalitetsController.AnvandPoang(Bokning.KundID, poangAttAnvanda, null,
+                            $"Poäng använd för middag ({antalGrundmenyRatter} beställningar)");
 
                         MessageBox.Show(
                             $"✅ Betalning genomförd!\n\n" +
-                            $"Kunden betalade med 100 lojalitetspoäng.\n" +
-                            $"Nytt saldo: {kundPoang - 100} poäng\n\n" +
+                            $"Kunden betalade med {poangAttAnvanda} lojalitetspoäng " +
+                            $"({antalGrundmenyRatter} beställningar × 100p).\n" +
+                            $"Nytt saldo: {kundPoang - poangAttAnvanda} poäng\n\n" +
                             $"Bord {Bord?.Bordkod} är nu ledigt.",
                             "Betalning klar",
                             MessageBoxButton.OK,
@@ -452,15 +475,76 @@ namespace PresentationsLager.ViewModels
                     }
                 }
 
-                // Spara beställningen med dricks INNAN checkout
+                // Spara beställningen med dricks
                 SparaBestallning();
 
-                _bokningsController.CheckOutBokning(Bokning.BokningsID, InloggadAnvandare.AnvandarID);
+                // Uppdatera bokningsstatus till "Betalt" (checkout sker manuellt senare)
+                var bokningController = new BokningsController();
+                var bokning = bokningController.HamtaBokningMedId(Bokning.BokningsID);
+                if (bokning != null)
+                {
+                    bokning.Status = "Betalt";
+
+                    // Uppdatera även bordstatus
+                    var unitOfWork = new DataLager.UnitOfWork();
+                    var bord = unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                    if (bord != null)
+                    {
+                        bord.Status = "Betalt";
+                    }
+                    unitOfWork.Save();
+                }
+
                 OperationCompleted?.Invoke();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Fel vid betalning: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void SkickaTillKok()
+        {
+            try
+            {
+                if (Bokning?.BokningsID == null || Bestallning.Count == 0)
+                {
+                    MessageBox.Show("Det finns ingen beställning att skicka till köket", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Spara beställningen först
+                SparaBestallning();
+
+                // Generera köksbong
+                var pdfService = new AffärsLager.Services.PDFService();
+                string bordnummer = Bord?.Bordkod ?? "N/A";
+                string specialinfo = Bokning.Specialinformation;
+
+                var dtoList = Bestallning.Select(b => new BestallningsRadDto
+                {
+                    MenyID = b.MenyID,
+                    Rattnamn = b.Rattnamn,
+                    Pris = b.Pris,
+                    Antal = b.Antal
+                }).ToList();
+
+                string koksbongPath = pdfService.GenereraKoksbong(
+                    bordnummer,
+                    DateTime.Now,
+                    dtoList,
+                    specialinfo);
+
+                MessageBox.Show($"Köksbong skickad till köket!\n\nSparad i: Logg-mappen\nFilnamn: {Path.GetFileName(koksbongPath)}",
+                    "Skickat",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid skapande av köksbong: {ex.Message}", "Fel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

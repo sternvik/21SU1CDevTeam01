@@ -329,5 +329,104 @@ namespace AffärsLager.Services
 
             return filePath;
         }
+
+        /// <summary>
+        /// Genererar köksbong för en beställning och sparar i Logg-mappen
+        /// </summary>
+        public string GenereraKoksbong(
+            string bordnummer,
+            DateTime tid,
+            List<BestallningsRadDto> ratter,
+            string? specialinformation = null)
+        {
+            // Spara i Logg-mappen i projektroten
+            string projectRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..");
+            string loggMapp = Path.Combine(projectRoot, "Logg");
+
+            // Skapa mappen om den inte finns
+            Directory.CreateDirectory(loggMapp);
+
+            string fileName = $"Koksbong_{bordnummer}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            string filePath = Path.Combine(loggMapp, fileName);
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A5); // Mindre format för köket
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(14).FontFamily("Arial"));
+
+                    page.Content()
+                        .Column(x =>
+                        {
+                            x.Spacing(15);
+
+                            // BORD - Stort och tydligt
+                            x.Item()
+                                .AlignCenter()
+                                .Text($"BORD {bordnummer}")
+                                .Bold()
+                                .FontSize(48)
+                                .FontColor(Colors.Black);
+
+                            // TID
+                            x.Item()
+                                .AlignCenter()
+                                .Text($"{tid:HH:mm}")
+                                .SemiBold()
+                                .FontSize(20);
+
+                            // Separator
+                            x.Item()
+                                .PaddingVertical(5)
+                                .LineHorizontal(2)
+                                .LineColor(Colors.Black);
+
+                            // RÄTTER
+                            x.Item().Table(table =>
+                            {
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(40);  // Antal
+                                    columns.RelativeColumn();    // Rätt
+                                });
+
+                                foreach (var ratt in ratter)
+                                {
+                                    table.Cell().Padding(5).Text($"{ratt.Antal}x").Bold().FontSize(18);
+                                    table.Cell().Padding(5).Text(ratt.Rattnamn).FontSize(18);
+                                }
+                            });
+
+                            // Specialinformation
+                            if (!string.IsNullOrWhiteSpace(specialinformation))
+                            {
+                                x.Item()
+                                    .PaddingTop(10)
+                                    .Border(2)
+                                    .BorderColor(Colors.Red.Medium)
+                                    .Padding(10)
+                                    .Text($"⚠️ {specialinformation}")
+                                    .FontSize(14)
+                                    .Bold()
+                                    .FontColor(Colors.Red.Darken1);
+                            }
+
+                            // Footer
+                            x.Item()
+                                .PaddingTop(20)
+                                .AlignCenter()
+                                .Text($"Beställning: {DateTime.Now:yyyy-MM-dd HH:mm:ss}")
+                                .FontSize(10)
+                                .FontColor(Colors.Grey.Darken1);
+                        });
+                });
+            })
+            .GeneratePdf(filePath);
+
+            return filePath;
+        }
     }
 }

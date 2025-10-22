@@ -419,13 +419,35 @@ namespace PresentationsLager.ViewModels
 
                         if (result == MessageBoxResult.Yes)
                         {
-                            // Använd 100 poäng
-                            _lojalitetsController.AnvandPoang(ValdKund.KundID, 100, null, $"{ValdBestallningsTyp} betald med poäng");
+                            // Räkna antal beställningar från grundmenyn (ej alkohol)
+                            int antalGrundmenyRatter = Bestallning
+                                .Where(b => !b.Kategori.ToLower().Contains("dryck"))
+                                .Sum(b => b.Antal);
+
+                            int poangAttAnvanda = antalGrundmenyRatter * 100;
+
+                            // Kontrollera att kunden har tillräckligt med poäng
+                            if (kundPoang < poangAttAnvanda)
+                            {
+                                MessageBox.Show(
+                                    $"Kunden har bara {kundPoang} poäng men behöver {poangAttAnvanda} poäng " +
+                                    $"({antalGrundmenyRatter} beställningar × 100p).\n\n" +
+                                    $"Betalning avbruten.",
+                                    "För få poäng",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
+                                return;
+                            }
+
+                            // Använd poäng
+                            _lojalitetsController.AnvandPoang(ValdKund.KundID, poangAttAnvanda, null,
+                                $"{ValdBestallningsTyp} betald med poäng ({antalGrundmenyRatter} beställningar)");
 
                             MessageBox.Show(
                                 $"✅ Betalning genomförd!\n\n" +
-                                $"Kunden betalade med 100 lojalitetspoäng.\n" +
-                                $"Nytt saldo: {kundPoang - 100} poäng",
+                                $"Kunden betalade med {poangAttAnvanda} lojalitetspoäng " +
+                                $"({antalGrundmenyRatter} beställningar × 100p).\n" +
+                                $"Nytt saldo: {kundPoang - poangAttAnvanda} poäng",
                                 "Betalning klar",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);

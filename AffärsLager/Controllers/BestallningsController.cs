@@ -27,7 +27,7 @@ namespace AffärsLager.Controllers
         }
 
         public Bestallning SkapaEllerUppdateraBestallning(int? bokningsId, int kundId, int restaurangId, int anvandarId,
-            List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null, decimal dricks = 0)
+            List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null, decimal dricks = 0, bool betald = true)
         {
             try
             {
@@ -97,9 +97,24 @@ namespace AffärsLager.Controllers
                     totalSumma += nyRad.Summa;
                 }
 
-                // Uppdatera totalsumma och dricks
+                // Uppdatera totalsumma, dricks och betald-status
                 befintligBestallning.TotalSumma = totalSumma;
                 befintligBestallning.Dricks = dricks;
+                befintligBestallning.Betald = betald;
+
+                // Om beställningen är betald och kopplad till en bokning, uppdatera bordstatus till "Betalt"
+                if (betald && befintligBestallning.BokningsID.HasValue)
+                {
+                    var bokning = _unitOfWork.BokningRepository.FirstOrDefault(b => b.BokningsID == befintligBestallning.BokningsID.Value);
+                    if (bokning != null)
+                    {
+                        var bord = _unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                        if (bord != null)
+                        {
+                            bord.Status = "Betalt";
+                        }
+                    }
+                }
 
                 _unitOfWork.Save();
 
