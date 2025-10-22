@@ -1,3 +1,4 @@
+using AffärsLager.Services;
 using EntitetsLager;
 using DataLager;
 using System;
@@ -9,6 +10,7 @@ namespace AffärsLager.Controllers
     public class BestallningsController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
+        private LoggService _loggService = new LoggService();
 
         public Bestallning? HamtaBefintligBestallningForBokning(int bokningsId)
         {
@@ -100,6 +102,15 @@ namespace AffärsLager.Controllers
                 befintligBestallning.Dricks = dricks;
 
                 _unitOfWork.Save();
+
+                // Logga beställning
+                var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == kundId);
+                _loggService.LoggaHandelse(
+                    anvandarId,
+                    "Beställning",
+                    $"Registrerade beställning #{befintligBestallning.BestallningsID} för {kund?.Namn ?? "Okänd kund"}",
+                    $"Typ: {bestallningsTyp}, Summa: {totalSumma:C}, Dricks: {dricks:C}, Antal rader: {bestallningsrader.Count}");
+
                 return befintligBestallning;
             }
             catch (Exception ex)

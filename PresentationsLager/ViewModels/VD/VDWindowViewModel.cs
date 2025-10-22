@@ -7,6 +7,7 @@ using PresentationsLager.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using LiveCharts;
@@ -21,6 +22,8 @@ namespace PresentationsLager.ViewModels
         private readonly PDFService _pdfService;
         private readonly MailService _mailService;
         private readonly LoggService _loggService;
+        private readonly KundExportService _kundExportService;
+        private readonly BokföringsService _bokföringsService;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
@@ -107,6 +110,8 @@ namespace PresentationsLager.ViewModels
             _pdfService = new PDFService();
             _mailService = new MailService();
             _loggService = new LoggService();
+            _kundExportService = new KundExportService();
+            _bokföringsService = new BokföringsService();
 
             // Konfigurera SMTP för Gmail
             _mailService.ConfigureSMTP(
@@ -342,6 +347,12 @@ namespace PresentationsLager.ViewModels
             {
                 if (InloggadAnvandare != null)
                 {
+                    // Logga utloggning
+                    _loggService.LoggaHandelse(
+                        InloggadAnvandare.AnvandarID,
+                        "Utloggning",
+                        $"Användare '{InloggadAnvandare.Namn}' ({InloggadAnvandare.Roll}) loggade ut");
+
                     _anvandareController.LoggaUtAnvandare(InloggadAnvandare.AnvandarID);
                 }
 
@@ -441,12 +452,79 @@ namespace PresentationsLager.ViewModels
                 MessageBox.Show($"Systemlogg för koncernen genererad!\n\nFilen sparad: {loggFilPath}", "Framgång",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Öppna loggfilen
-                Process.Start(new ProcessStartInfo(loggFilPath) { UseShellExecute = true });
+                // Öppna i Anteckningar
+                Process.Start("notepad.exe", loggFilPath);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Fel vid generering av systemlogg: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ExporteraKundlista()
+        {
+            try
+            {
+                // Exportera alla kunder för koncernen
+                string csvFilPath = _kundExportService.ExporteraAllaKunder();
+
+                // Logga exporten
+                if (InloggadAnvandare != null)
+                {
+                    _loggService.LoggaHandelse(
+                        InloggadAnvandare.AnvandarID,
+                        "Kundexport",
+                        "Exporterade kundlista för hela koncernen",
+                        $"Fil: {Path.GetFileName(csvFilPath)}");
+                }
+
+                MessageBox.Show($"Kundlista exporterad för marknadsavdelningen!\n\nFil: {csvFilPath}\n\nInkluderar: Email, Lojalitetsnivå, Region, Hemmarestaurang",
+                    "Framgång",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Öppna i Anteckningar
+                Process.Start("notepad.exe", csvFilPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid export av kundlista: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void GeneraBokföring()
+        {
+            try
+            {
+                // Fråga användaren vilket datum (default = idag)
+                DateTime valtDatum = DateTime.Today;
+
+                // Generera bokföringsfil för koncernen
+                string bokföringsFilPath = _bokföringsService.GeneraBokföringKoncern(valtDatum);
+
+                // Logga genereringen
+                if (InloggadAnvandare != null)
+                {
+                    _loggService.LoggaHandelse(
+                        InloggadAnvandare.AnvandarID,
+                        "Bokföring",
+                        $"Genererade bokföringsunderlag för koncernen ({valtDatum:yyyy-MM-dd})",
+                        $"Fil: {Path.GetFileName(bokföringsFilPath)}");
+                }
+
+                MessageBox.Show($"Bokföringsunderlag genererat!\n\nFil: {bokföringsFilPath}\n\nSkicka till: ekonomi@restonation.se",
+                    "Framgång",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Öppna i Anteckningar
+                Process.Start("notepad.exe", bokföringsFilPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid generering av bokföring: {ex.Message}", "Fel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

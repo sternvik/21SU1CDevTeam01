@@ -1,3 +1,4 @@
+using AffärsLager.Services;
 using DataLager;
 using EntitetsLager;
 using System;
@@ -9,6 +10,7 @@ namespace AffärsLager.Controllers
     public class BokningsController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
+        private LoggService _loggService = new LoggService();
 
         public List<TimeSpan> HamtaTillgangligaTider()
         {
@@ -164,6 +166,15 @@ namespace AffärsLager.Controllers
                 _unitOfWork.BokningRepository.Add(bokning);
                 _unitOfWork.Save();
 
+                // Logga bokning
+                var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == bokning.KundID);
+                var bord = _unitOfWork.BordRepository.GetQuery().FirstOrDefault(b => b.BordID == bokning.BordID);
+                _loggService.LoggaHandelse(
+                    bokning.AnvandarID ?? 0,
+                    "Bokning",
+                    $"Skapade bokning #{bokning.BokningsID} för {kund?.Namn ?? "Okänd kund"}",
+                    $"Bord: {bord?.Bordkod ?? "Okänt"}, Datum: {bokning.Datum:yyyy-MM-dd}, Tid: {bokning.Tid:hh\\:mm}, Gäster: {bokning.AntalGaster}");
+
                 return true;
             }
             catch (Exception ex)
@@ -244,6 +255,15 @@ namespace AffärsLager.Controllers
                 bokning.Status = "På plats";
 
                 _unitOfWork.Save();
+
+                // Logga check-in
+                var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == bokning.KundID);
+                _loggService.LoggaHandelse(
+                    anvandarId,
+                    "Bokning",
+                    $"Check-in bokning #{bokningsId} för {kund?.Namn ?? "Okänd kund"}",
+                    $"Datum: {bokning.Datum:yyyy-MM-dd}, Tid: {bokning.Tid:hh\\:mm}");
+
                 return true;
             }
             catch (Exception ex)
@@ -266,6 +286,15 @@ namespace AffärsLager.Controllers
                 bokning.Status = "Avslutad";
 
                 _unitOfWork.Save();
+
+                // Logga check-out
+                var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == bokning.KundID);
+                _loggService.LoggaHandelse(
+                    anvandarId,
+                    "Bokning",
+                    $"Check-out bokning #{bokningsId} för {kund?.Namn ?? "Okänd kund"}",
+                    $"Datum: {bokning.Datum:yyyy-MM-dd}, Tid: {bokning.Tid:hh\\:mm}");
+
                 return true;
             }
             catch (Exception ex)
@@ -297,6 +326,15 @@ namespace AffärsLager.Controllers
                 bokning.Status = "Avbokad";
 
                 _unitOfWork.Save();
+
+                // Logga avbokning
+                var kund = _unitOfWork.KundRepository.GetQuery().FirstOrDefault(k => k.KundID == bokning.KundID);
+                _loggService.LoggaHandelse(
+                    anvandarId,
+                    "Bokning",
+                    $"Avbokade bokning #{bokningsId} för {kund?.Namn ?? "Okänd kund"}",
+                    $"Datum: {bokning.Datum:yyyy-MM-dd}, Tid: {bokning.Tid:hh\\:mm}");
+
                 return true;
             }
             catch (Exception ex)

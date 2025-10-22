@@ -1,4 +1,5 @@
 using AffärsLager.Controllers;
+using AffärsLager.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PresentationsLager.Models;
@@ -11,6 +12,7 @@ namespace PresentationsLager.ViewModels
     public partial class LoginWindowViewModel : ObservableObject
     {
         private readonly AnvandareController _anvandareController;
+        private readonly LoggService _loggService;
 
         [ObservableProperty]
         private string anvandarnamn = string.Empty;
@@ -27,6 +29,7 @@ namespace PresentationsLager.ViewModels
         public LoginWindowViewModel()
         {
             _anvandareController = new AnvandareController();
+            _loggService = new LoggService();
         }
 
         [RelayCommand]
@@ -52,6 +55,13 @@ namespace PresentationsLager.ViewModels
                         var anvandareModel = AnvandareModel.FromEntity(anvandare);
                         StatusMessage = $"Välkommen {anvandareModel.Namn}!";
 
+                        // Logga lyckad inloggning
+                        _loggService.LoggaHandelse(
+                            anvandare.AnvandarID,
+                            "Inloggning",
+                            $"Användare '{anvandare.Namn}' ({anvandare.Roll}) loggade in",
+                            $"Användarnamn: {Anvandarnamn}");
+
                         NavigateBasedOnRole(anvandareModel);
                         CloseAction?.Invoke();
                     }
@@ -59,6 +69,13 @@ namespace PresentationsLager.ViewModels
                 else
                 {
                     StatusMessage = "Felaktigt användarnamn eller lösenord";
+
+                    // Logga misslyckad inloggning (utan användar-ID eftersom vi inte är autentiserade)
+                    _loggService.LoggaHandelse(
+                        0,
+                        "Inloggning",
+                        $"Misslyckad inloggning för användarnamn: {Anvandarnamn}",
+                        "Felaktigt lösenord");
                 }
             }
             catch (Exception ex)

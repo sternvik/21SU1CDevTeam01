@@ -261,6 +261,50 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
+        /// Exportera kunder för en specifik restaurang (för restaurangchefer)
+        /// </summary>
+        public string ExporteraKunderPerRestaurang(int restaurangId)
+        {
+            var kunder = _unitOfWork.KundRepository.GetAll()
+                .Where(k => k.HemmarestaurangID == restaurangId)
+                .ToList();
+
+            var restaurangNamn = _unitOfWork.RestaurangRepository
+                .FirstOrDefault(r => r.RestaurangID == restaurangId)?.Restaurangnamn ?? $"Restaurang{restaurangId}";
+
+            var filnamn = $"Kundlista_{restaurangNamn}_{DateTime.Now:yyyy-MM-dd_HHmmss}.csv";
+            var filSokväg = Path.Combine(_exportMapp, filnamn);
+
+            var csv = new StringBuilder();
+            csv.AppendLine("KundID;Namn;Email;Telefon;LojalitetsNiva;LojalitetsPoang;Region;Skapad;AntalBesok");
+
+            foreach (var kund in kunder)
+            {
+                var regionNamn = _unitOfWork.RegionRepository
+                    .FirstOrDefault(r => r.RegionID == kund.RegionID)?.Regionnamn ?? "Okänd";
+
+                // Räkna antal bokningar för kunden på denna restaurang
+                var antalBesok = _unitOfWork.BokningRepository.GetAll()
+                    .Count(b => b.KundID == kund.KundID &&
+                               b.RestaurangID == restaurangId &&
+                               b.Status != "Avbokad");
+
+                csv.AppendLine($"{kund.KundID};" +
+                              $"{EscapeCsv(kund.Namn)};" +
+                              $"{EscapeCsv(kund.Email ?? "")};" +
+                              $"{EscapeCsv(kund.Telefon ?? "")};" +
+                              $"{kund.LojalitetsNiva};" +
+                              $"{kund.LojalitetsPoang};" +
+                              $"{regionNamn};" +
+                              $"{kund.SkapadDatum:yyyy-MM-dd};" +
+                              $"{antalBesok}");
+            }
+
+            File.WriteAllText(filSokväg, csv.ToString(), Encoding.UTF8);
+            return filSokväg;
+        }
+
+        /// <summary>
         /// Hämta statistik om kundbasen
         /// </summary>
         public Dictionary<string, int> HamtaKundStatistik()

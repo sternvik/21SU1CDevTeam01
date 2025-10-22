@@ -143,6 +143,32 @@
                             Foreground="White"
                             BorderThickness="0"
                             Padding="15,0"
+                            Margin="0,0,10,0"
+                            Cursor="Hand"/>
+
+                    <Button Content="📧 KUNDLISTA"
+                            Command="{Binding ExporteraKundlistaCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#2D6A4F"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
+                            Margin="0,0,10,0"
+                            Cursor="Hand"/>
+
+                    <Button Content="📊 BOKFÖRING"
+                            Command="{Binding GeneraBokföringCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#1B4D3E"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
                             Margin="0,0,20,0"
                             Cursor="Hand"/>
 
