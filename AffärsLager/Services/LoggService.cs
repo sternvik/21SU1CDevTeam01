@@ -139,5 +139,99 @@ namespace AffärsLager.Services
         {
             return HamtaLoggar(franDatum, tillDatum, anvandarId: anvandarId);
         }
+
+        /// <summary>
+        /// Generera och öppna loggfil för hela koncernen
+        /// </summary>
+        public string GeneraLoggfilKoncern(DateTime? franDatum = null, DateTime? tillDatum = null)
+        {
+            var loggar = HamtaLoggar(franDatum, tillDatum);
+            return GeneraLoggfil(loggar, "Koncern");
+        }
+
+        /// <summary>
+        /// Generera och öppna loggfil för en specifik restaurang
+        /// </summary>
+        public string GeneraLoggfilRestaurang(int restaurangId, DateTime? franDatum = null, DateTime? tillDatum = null)
+        {
+            // Hämta alla användare som är kopplade till restaurangen
+            var anvandare = _unitOfWork.AnvandareRepository.GetQuery()
+                .Where(a => a.HemmarestaurangID == restaurangId)
+                .Select(a => a.AnvandarID)
+                .ToList();
+
+            // Hämta loggar för dessa användare
+            var loggar = _unitOfWork.SystemloggRepository.GetQuery()
+                .Where(l => l.AnvandarID.HasValue && anvandare.Contains(l.AnvandarID.Value));
+
+            if (franDatum.HasValue)
+                loggar = loggar.Where(l => l.Datum >= franDatum.Value.Date);
+
+            if (tillDatum.HasValue)
+                loggar = loggar.Where(l => l.Datum <= tillDatum.Value.Date);
+
+            var loggLista = loggar
+                .OrderByDescending(l => l.Datum)
+                .ThenByDescending(l => l.Tid)
+                .ToList();
+
+            // Hämta restaurangnamn
+            var restaurang = _unitOfWork.RestaurangRepository.GetQuery().FirstOrDefault(r => r.RestaurangID == restaurangId);
+            var restaurangNamn = restaurang?.Restaurangnamn ?? $"Restaurang_{restaurangId}";
+
+            return GeneraLoggfil(loggLista, restaurangNamn);
+        }
+
+        private string GeneraLoggfil(List<Systemlogg> loggar, string beskrivning)
+        {
+            var exportMapp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LoggExport");
+            if (!Directory.Exists(exportMapp))
+            {
+                Directory.CreateDirectory(exportMapp);
+            }
+
+            var filnamn = $"Systemlogg_{beskrivning}_{DateTime.Now:yyyy-MM-dd_HHmmss}.txt";
+            var filPath = Path.Combine(exportMapp, filnamn);
+
+            using (var writer = new StreamWriter(filPath, false, Encoding.UTF8))
+            {
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+                writer.WriteLine($"                         SYSTEMLOGG - {beskrivning.ToUpper()}");
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+                writer.WriteLine($"Genererad: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                writer.WriteLine($"Antal händelser: {loggar.Count}");
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+                writer.WriteLine();
+
+                if (!loggar.Any())
+                {
+                    writer.WriteLine("Inga loggposter hittades för vald period.");
+                }
+                else
+                {
+                    foreach (var logg in loggar)
+                    {
+                        var anvandare = _unitOfWork.AnvandareRepository.GetQuery().FirstOrDefault(a => a.AnvandarID == (logg.AnvandarID ?? 0));
+                        var anvandarNamn = anvandare?.Namn ?? "System";
+
+                        writer.WriteLine($"[{logg.Datum:yyyy-MM-dd} {logg.Tid:hh\\:mm\\:ss}]");
+                        writer.WriteLine($"  Personal: {anvandarNamn} (ID: {logg.AnvandarID ?? 0})");
+                        writer.WriteLine($"  Modul: {logg.Modul}");
+                        writer.WriteLine($"  Händelse: {logg.Handelse}");
+                        if (!string.IsNullOrWhiteSpace(logg.IPAdress))
+                        {
+                            writer.WriteLine($"  IP-adress: {logg.IPAdress}");
+                        }
+                        writer.WriteLine();
+                    }
+                }
+
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+                writer.WriteLine("                              SLUT PÅ RAPPORT");
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+            }
+
+            return filPath;
+        }
     }
 }

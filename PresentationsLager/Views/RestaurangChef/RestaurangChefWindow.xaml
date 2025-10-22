@@ -114,6 +114,19 @@
                             Foreground="White"
                             BorderThickness="0"
                             Padding="15,0"
+                            Margin="0,0,10,0"
+                            Cursor="Hand"/>
+
+                    <Button Content="📋 LOGG"
+                            Command="{Binding VisaSystemloggCommand}"
+                            Height="35"
+                            FontFamily="Inter"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#3A5A40"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="15,0"
                             Margin="0,0,20,0"
                             Cursor="Hand"/>
 

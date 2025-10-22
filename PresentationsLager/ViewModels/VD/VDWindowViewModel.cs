@@ -20,6 +20,7 @@ namespace PresentationsLager.ViewModels
         private readonly AnvandareController _anvandareController;
         private readonly PDFService _pdfService;
         private readonly MailService _mailService;
+        private readonly LoggService _loggService;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
@@ -105,6 +106,7 @@ namespace PresentationsLager.ViewModels
             _anvandareController = new AnvandareController();
             _pdfService = new PDFService();
             _mailService = new MailService();
+            _loggService = new LoggService();
 
             // Konfigurera SMTP för Gmail
             _mailService.ConfigureSMTP(
@@ -424,6 +426,27 @@ namespace PresentationsLager.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Fel vid skickande av mail: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void VisaSystemlogg()
+        {
+            try
+            {
+                // Generera loggfil för hela koncernen
+                string loggFilPath = _loggService.GeneraLoggfilKoncern();
+
+                MessageBox.Show($"Systemlogg för koncernen genererad!\n\nFilen sparad: {loggFilPath}", "Framgång",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Öppna loggfilen
+                Process.Start(new ProcessStartInfo(loggFilPath) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid generering av systemlogg: {ex.Message}", "Fel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

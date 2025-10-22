@@ -20,6 +20,7 @@ namespace PresentationsLager.ViewModels
         private readonly AnvandareController _anvandareController;
         private readonly PDFService _pdfService;
         private readonly MailService _mailService;
+        private readonly LoggService _loggService;
 
         [ObservableProperty]
         private Anvandare? inloggadAnvandare;
@@ -109,6 +110,7 @@ namespace PresentationsLager.ViewModels
             _anvandareController = new AnvandareController();
             _pdfService = new PDFService();
             _mailService = new MailService();
+            _loggService = new LoggService();
 
             // Konfigurera SMTP för Gmail
             _mailService.ConfigureSMTP(
@@ -393,6 +395,36 @@ namespace PresentationsLager.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Fel vid skickande av mail: {ex.Message}", "Fel",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void VisaSystemlogg()
+        {
+            try
+            {
+                if (InloggadAnvandare == null || !InloggadAnvandare.HemmarestaurangID.HasValue)
+                {
+                    MessageBox.Show("Ingen hemmarestaurang kopplad till användaren", "Fel",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                int restaurangId = InloggadAnvandare.HemmarestaurangID.Value;
+
+                // Generera loggfil för restaurangen
+                string loggFilPath = _loggService.GeneraLoggfilRestaurang(restaurangId);
+
+                MessageBox.Show($"Systemlogg genererad!\n\nFilen sparad: {loggFilPath}", "Framgång",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Öppna loggfilen
+                Process.Start(new ProcessStartInfo(loggFilPath) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fel vid generering av systemlogg: {ex.Message}", "Fel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
