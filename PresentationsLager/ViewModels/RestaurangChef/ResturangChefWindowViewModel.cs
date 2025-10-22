@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace PresentationsLager.ViewModels
 {
@@ -83,6 +85,13 @@ namespace PresentationsLager.ViewModels
 
         [ObservableProperty]
         private double alkoholBredd; // 0-800 pixels
+
+        // Chart data för visualiseringar
+        [ObservableProperty]
+        private SeriesCollection servitorChartSeries = new();
+
+        [ObservableProperty]
+        private string[] servitorLabels = Array.Empty<string>();
 
         // Perioder
         public ObservableCollection<string> TillgangligaPerioder { get; } = new()
@@ -215,6 +224,8 @@ namespace PresentationsLager.ViewModels
                         Namn = servitor.Namn,
                         AntalTransaktioner = servitor.AntalTransaktioner,
                         TotalForsaljning = servitor.TotalForsaljning,
+                        MatSumma = servitor.MatSumma,
+                        AlkoholSumma = servitor.AlkoholSumma,
                         TotalDricks = servitor.TotalDricks,
                         AntalBokningar = personalData?.AntalBokningar ?? 0,
                         AntalBord = personalData?.AntalBordHanterade ?? 0,
@@ -243,6 +254,9 @@ namespace PresentationsLager.ViewModels
                     MatBredd = 400;
                     AlkoholBredd = 400;
                 }
+
+                // Uppdatera chart-data för servitörer (Top 5)
+                UppdateraServitorChart();
             }
             catch (Exception ex)
             {
@@ -403,6 +417,38 @@ namespace PresentationsLager.ViewModels
             StartDatum = new DateTime(today.Year, today.Month, 1);
             SlutDatum = StartDatum.AddMonths(1).AddSeconds(-1);
         }
+
+        private void UppdateraServitorChart()
+        {
+            // Ta Top 5 servitörer baserat på försäljning
+            var topServitorer = ServitorStatistik.OrderByDescending(s => s.TotalForsaljning).Take(5).ToList();
+
+            // Skapa labels (servitörnamn)
+            ServitorLabels = topServitorer.Select(s => s.Namn).ToArray();
+
+            // Skapa chart series för Mat, Alkohol och Dricks
+            ServitorChartSeries = new SeriesCollection
+            {
+                new ColumnSeries
+                {
+                    Title = "Mat (kr)",
+                    Values = new ChartValues<decimal>(topServitorer.Select(s => s.MatSumma)),
+                    Fill = System.Windows.Media.Brushes.SandyBrown
+                },
+                new ColumnSeries
+                {
+                    Title = "Alkohol (kr)",
+                    Values = new ChartValues<decimal>(topServitorer.Select(s => s.AlkoholSumma)),
+                    Fill = System.Windows.Media.Brushes.DarkOrange
+                },
+                new ColumnSeries
+                {
+                    Title = "Dricks (kr)",
+                    Values = new ChartValues<decimal>(topServitorer.Select(s => s.TotalDricks)),
+                    Fill = System.Windows.Media.Brushes.Green
+                }
+            };
+        }
     }
 
     // ViewModel-klasser för statistik
@@ -419,6 +465,8 @@ namespace PresentationsLager.ViewModels
         public string Namn { get; set; } = string.Empty;
         public int AntalTransaktioner { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal MatSumma { get; set; }
+        public decimal AlkoholSumma { get; set; }
         public decimal TotalDricks { get; set; }
         public int AntalBokningar { get; set; }
         public int AntalBord { get; set; }

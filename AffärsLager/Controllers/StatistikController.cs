@@ -9,16 +9,53 @@ namespace AffärsLager.Controllers
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
         /// <summary>
-        /// Hjälpmetod för att avgöra om en kategori är alkohol/dryck
+        /// Hjälpmetod för att avgöra om en rätt är alkoholhaltig
         /// </summary>
-        private bool IsAlkoholKategori(string kategori)
+        private bool IsAlkoholKategori(string kategori, string rattnamn = "")
         {
             if (string.IsNullOrEmpty(kategori)) return false;
 
             var lowerKategori = kategori.ToLower();
+            var lowerRattnamn = rattnamn?.ToLower() ?? "";
 
             // Exclude non-alcoholic drinks
-            if (lowerKategori.Contains("alkoholfri")) return false;
+            if (lowerKategori.Contains("alkoholfri") || lowerRattnamn.Contains("alkoholfri")) return false;
+
+            // Explicit non-alcoholic items in "Dryck" category
+            if (lowerKategori == "dryck")
+            {
+                // Check if it's a non-alcoholic drink by name
+                if (lowerRattnamn.Contains("läsk") ||
+                    lowerRattnamn.Contains("kaffe") ||
+                    lowerRattnamn.Contains("te") ||
+                    lowerRattnamn.Contains("vatten") ||
+                    lowerRattnamn.Contains("juice") ||
+                    lowerRattnamn.Contains("smoothie"))
+                {
+                    return false;
+                }
+
+                // Check if it's an alcoholic drink by name
+                if (lowerRattnamn.Contains("vin") ||
+                    lowerRattnamn.Contains("öl") ||
+                    lowerRattnamn.Contains("sprit") ||
+                    lowerRattnamn.Contains("whisky") ||
+                    lowerRattnamn.Contains("vodka") ||
+                    lowerRattnamn.Contains("gin") ||
+                    lowerRattnamn.Contains("rom") ||
+                    lowerRattnamn.Contains("cognac") ||
+                    lowerRattnamn.Contains("likör") ||
+                    lowerRattnamn.Contains("cider") ||
+                    lowerRattnamn.Contains("champagne") ||
+                    lowerRattnamn.Contains("prosecco"))
+                {
+                    return true;
+                }
+
+                // If category is "Dryck" and we can't determine from name, assume it's alcoholic
+                // (safer to over-report than under-report alcohol sales)
+                return true;
+            }
 
             // Include alcoholic categories
             return lowerKategori.Contains("alkoholhaltig") ||
@@ -49,7 +86,7 @@ namespace AffärsLager.Controllers
             {
                 foreach (var rad in bestallning.BestallningsRader)
                 {
-                    if (IsAlkoholKategori(rad.Meny.Kategori))
+                    if (IsAlkoholKategori(rad.Meny.Kategori, rad.Meny.Rattnamn))
                     {
                         alkoholSumma += rad.Summa;
                     }
@@ -152,17 +189,45 @@ namespace AffärsLager.Controllers
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
                 .Where(b => b.RestaurangID == restaurangId && b.Datum >= startDatum && b.Datum <= slutDatum)
                 .Include(b => b.AnvandareBeh)
+                .Include(b => b.BestallningsRader)
+                .ThenInclude(br => br.Meny)
                 .ToList();
 
             var servitorStatistik = bestallningar
                 .GroupBy(b => new { b.AnvandarID, b.AnvandareBeh.Namn })
-                .Select(g => new ServitorStatistik
+                .Select(g =>
                 {
-                    AnvandarID = g.Key.AnvandarID,
-                    Namn = g.Key.Namn,
-                    AntalTransaktioner = g.Count(),
-                    TotalForsaljning = g.Sum(b => b.TotalSumma),
-                    TotalDricks = g.Sum(b => b.Dricks)
+                    var bestallningarForServitor = g.ToList();
+
+                    // Räkna mat vs alkohol
+                    decimal matSumma = 0;
+                    decimal alkoholSumma = 0;
+
+                    foreach (var best in bestallningarForServitor)
+                    {
+                        foreach (var rad in best.BestallningsRader)
+                        {
+                            if (IsAlkoholKategori(rad.Meny.Kategori, rad.Meny.Rattnamn))
+                            {
+                                alkoholSumma += rad.Summa;
+                            }
+                            else
+                            {
+                                matSumma += rad.Summa;
+                            }
+                        }
+                    }
+
+                    return new ServitorStatistik
+                    {
+                        AnvandarID = g.Key.AnvandarID,
+                        Namn = g.Key.Namn,
+                        AntalTransaktioner = g.Count(),
+                        TotalForsaljning = g.Sum(b => b.TotalSumma),
+                        MatSumma = matSumma,
+                        AlkoholSumma = alkoholSumma,
+                        TotalDricks = g.Sum(b => b.Dricks)
+                    };
                 })
                 .OrderByDescending(s => s.TotalForsaljning)
                 .ToList();
@@ -210,7 +275,7 @@ namespace AffärsLager.Controllers
             {
                 foreach (var rad in bestallning.BestallningsRader)
                 {
-                    if (IsAlkoholKategori(rad.Meny.Kategori))
+                    if (IsAlkoholKategori(rad.Meny.Kategori, rad.Meny.Rattnamn))
                     {
                         alkoholSumma += rad.Summa;
                     }
@@ -255,7 +320,7 @@ namespace AffärsLager.Controllers
                     {
                         foreach (var rad in best.BestallningsRader)
                         {
-                            if (IsAlkoholKategori(rad.Meny.Kategori))
+                            if (IsAlkoholKategori(rad.Meny.Kategori, rad.Meny.Rattnamn))
                                 alkoholSumma += rad.Summa;
                             else
                                 matSumma += rad.Summa;
@@ -373,7 +438,7 @@ namespace AffärsLager.Controllers
                     {
                         foreach (var rad in best.BestallningsRader)
                         {
-                            if (IsAlkoholKategori(rad.Meny.Kategori))
+                            if (IsAlkoholKategori(rad.Meny.Kategori, rad.Meny.Rattnamn))
                                 alkoholSumma += rad.Summa;
                             else
                                 matSumma += rad.Summa;
@@ -427,6 +492,8 @@ namespace AffärsLager.Controllers
         public string Namn { get; set; }
         public int AntalTransaktioner { get; set; }
         public decimal TotalForsaljning { get; set; }
+        public decimal MatSumma { get; set; }
+        public decimal AlkoholSumma { get; set; }
         public decimal TotalDricks { get; set; }
     }
 

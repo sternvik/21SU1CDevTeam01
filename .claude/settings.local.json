@@ -25,7 +25,10 @@
       "Bash(powershell:*)",
       "Bash(for:*)",
       "Bash(do powershell -Command \"(Get-Content ''$file'') -replace ''Height=\"\"[0-9]+\"\" Width=\"\"[0-9]+\"\"'', ''WindowState=\"\"Maximized\"\"'' -replace ''WindowStartupLocation=\"\"CenterScreen\"\"'', '''' | Set-Content ''$file''\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(del \"C:\\Users\\victo\\source\\repos\\sternvik\\21SU1CDevTeam01\\PresentationsLager\\Views\\RestaurangChef\\ResturangChefWindow.xaml.cs\")"
     ],
     "deny": [],
     "ask": []

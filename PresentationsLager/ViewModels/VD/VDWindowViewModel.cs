@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace PresentationsLager.ViewModels
 {
@@ -79,6 +81,13 @@ namespace PresentationsLager.ViewModels
 
         [ObservableProperty]
         private double alkoholBredd; // 0-800 pixels
+
+        // Chart data för visualiseringar
+        [ObservableProperty]
+        private SeriesCollection regionChartSeries = new();
+
+        [ObservableProperty]
+        private string[] regionLabels = Array.Empty<string>();
 
         // Perioder
         public ObservableCollection<string> TillgangligaPerioder { get; } = new()
@@ -248,6 +257,9 @@ namespace PresentationsLager.ViewModels
                         MatBredd = 400;
                         AlkoholBredd = 400;
                     }
+
+                    // Uppdatera chart-data för regioner
+                    UppdateraRegionChart();
                 }
                 else
                 {
@@ -435,6 +447,35 @@ namespace PresentationsLager.ViewModels
             var today = DateTime.Today;
             StartDatum = new DateTime(today.Year, today.Month, 1);
             SlutDatum = StartDatum.AddMonths(1).AddSeconds(-1);
+        }
+
+        private void UppdateraRegionChart()
+        {
+            // Skapa labels (regionnamn)
+            RegionLabels = RegionStatistik.Select(r => r.RegionNamn).ToArray();
+
+            // Skapa chart series för Mat, Alkohol och Dricks per region
+            RegionChartSeries = new SeriesCollection
+            {
+                new ColumnSeries
+                {
+                    Title = "Mat (kr)",
+                    Values = new ChartValues<decimal>(RegionStatistik.Select(r => r.MatSumma)),
+                    Fill = System.Windows.Media.Brushes.SandyBrown
+                },
+                new ColumnSeries
+                {
+                    Title = "Alkohol (kr)",
+                    Values = new ChartValues<decimal>(RegionStatistik.Select(r => r.AlkoholSumma)),
+                    Fill = System.Windows.Media.Brushes.DarkOrange
+                },
+                new ColumnSeries
+                {
+                    Title = "Dricks (kr)",
+                    Values = new ChartValues<decimal>(RegionStatistik.Select(r => r.TotalDricks)),
+                    Fill = System.Windows.Media.Brushes.Green
+                }
+            };
         }
     }
 
