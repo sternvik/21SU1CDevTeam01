@@ -293,7 +293,14 @@ namespace PresentationsLager.ViewModels
         {
             try
             {
-                // Om bordet är bokat, visa bokningsdetaljer
+                // Om bordet är "Betalt" (rosa), gör snabb checkout direkt
+                if (!bordViewModel.ArLedigt && bordViewModel.StatusText == "Betalt")
+                {
+                    SnabbCheckout(bordViewModel);
+                    return;
+                }
+
+                // Om bordet är bokat (men inte betalt), visa bokningsdetaljer
                 if (!bordViewModel.ArLedigt)
                 {
                     VisaBokningsDetaljer(bordViewModel);
@@ -447,6 +454,85 @@ namespace PresentationsLager.ViewModels
             catch (Exception ex)
             {
                 StatusMessage = $"Fel vid visning av bokningsdetaljer: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private void SnabbCheckout(BordViewModel bordViewModel)
+        {
+            try
+            {
+                // Endast tillåt snabb checkout för bord med status "Betalt"
+                if (bordViewModel.StatusText != "Betalt")
+                {
+                    StatusMessage = "Snabb checkout är endast tillgänglig för betalda bord (rosa)";
+                    return;
+                }
+
+                if (!ValtDatum.HasValue || _valdRestaurangId <= 0)
+                {
+                    StatusMessage = "Kan inte checka ut - saknar datum information";
+                    return;
+                }
+
+                TimeSpan bokningsTid;
+                if (bordViewModel.BokadTid.HasValue)
+                {
+                    bokningsTid = bordViewModel.BokadTid.Value;
+                }
+                else if (ValdTid != null)
+                {
+                    bokningsTid = ValdTid.Tid;
+                }
+                else
+                {
+                    StatusMessage = "Kan inte checka ut - saknar tid information";
+                    return;
+                }
+
+                // Hämta bokningen
+                var freshBokningsController = new BokningsController();
+                var bokning = freshBokningsController.HamtaBokningForBord(
+                    bordViewModel.BordID,
+                    ValtDatum.Value,
+                    bokningsTid);
+
+                if (bokning == null || _inloggadAnvandare == null)
+                {
+                    StatusMessage = "Kunde inte hitta bokning för checkout";
+                    return;
+                }
+
+                // Bekräfta checkout
+                var result = MessageBox.Show(
+                    $"Checka ut bord {bordViewModel.Bordkod}?\n\nDetta frigör bordet för nya bokningar.",
+                    "Bekräfta checkout",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    bool success = freshBokningsController.CheckOutBokning(
+                        bokning.BokningsID,
+                        _inloggadAnvandare.AnvandarID);
+
+                    if (success)
+                    {
+                        MessageBox.Show(
+                            $"Bord {bordViewModel.Bordkod} har checkats ut.\nBordet är nu ledigt för nya bokningar.",
+                            "Checkout genomförd",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+
+                        // Uppdatera bordvyn
+                        UpdateLedigaBord();
+                        StatusMessage = string.Empty;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fel vid checkout: {ex.Message}";
             }
         }
 

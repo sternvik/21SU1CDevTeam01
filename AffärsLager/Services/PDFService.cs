@@ -18,6 +18,37 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
+        /// Hittar Logg-mappen genom att söka uppåt från BaseDirectory
+        /// </summary>
+        private string FindLoggFolder()
+        {
+            // Starta från BaseDirectory (vanligtvis bin/Debug/net6.0-windows)
+            DirectoryInfo? currentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+
+            // Sök uppåt max 10 nivåer för att hitta Logg-mappen
+            for (int i = 0; i < 10 && currentDir != null; i++)
+            {
+                string loggPath = Path.Combine(currentDir.FullName, "Logg");
+                if (Directory.Exists(loggPath))
+                {
+                    return loggPath;
+                }
+                currentDir = currentDir.Parent;
+            }
+
+            // Om vi inte hittar Logg-mappen, skapa den i projektroten
+            // (gå upp 4 nivåer från bin/Debug/net6.0-windows till PresentationsLager, sen till projektroten)
+            currentDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            for (int i = 0; i < 4 && currentDir != null; i++)
+            {
+                currentDir = currentDir.Parent;
+            }
+
+            string fallbackLoggPath = Path.Combine(currentDir?.FullName ?? AppDomain.CurrentDomain.BaseDirectory, "Logg");
+            return fallbackLoggPath;
+        }
+
+        /// <summary>
         /// Genererar PDF-rapport för restaurangchef
         /// </summary>
         public string GenerateRestaurangchefRapport(
@@ -339,9 +370,8 @@ namespace AffärsLager.Services
             List<BestallningsRadDto> ratter,
             string? specialinformation = null)
         {
-            // Spara i Logg-mappen i projektroten
-            string projectRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..");
-            string loggMapp = Path.Combine(projectRoot, "Logg");
+            // Hitta projektroten genom att söka uppåt från BaseDirectory
+            string loggMapp = FindLoggFolder();
 
             // Skapa mappen om den inte finns
             Directory.CreateDirectory(loggMapp);

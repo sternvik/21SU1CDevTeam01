@@ -527,98 +527,111 @@
 
         <!-- Action Buttons -->
         <Border Grid.Row="2" Background="#2E2E2E">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Check-in Button -->
-                <Button Content="CHECK IN"
-                        Command="{Binding CheckInCommand}"
-                        Height="40"
-                        Width="120"
-                        FontFamily="Montserrat"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Background="#F4B942"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Margin="0,0,10,0"
-                        Visibility="{Binding VisaCheckIn, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+                <!-- Left side buttons (Check-in, Check-out, Skicka till kök, Avboka, Stäng) -->
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
 
-                <!-- Check-out Button -->
-                <Button Content="CHECK OUT"
-                        Command="{Binding CheckOutCommand}"
-                        Height="40"
-                        Width="120"
-                        FontFamily="Montserrat"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Background="#102c48"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Margin="0,0,10,0"
-                        Visibility="{Binding VisaCheckOut, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+                    <!-- Check-in Button -->
+                    <Button Content="CHECK IN"
+                            Command="{Binding CheckInCommand}"
+                            Height="40"
+                            Width="120"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#F4B942"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"
+                            Visibility="{Binding VisaCheckIn, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
 
-                <!-- Skicka till kök Button -->
-                <Button Content="📄 SKICKA TILL KÖK"
-                        Command="{Binding SkickaTillKokCommand}"
-                        Height="40"
+                    <!-- Check-out Button -->
+                    <Button Content="CHECK OUT"
+                            Command="{Binding CheckOutCommand}"
+                            Height="40"
+                            Width="120"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#102c48"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"
+                            Visibility="{Binding VisaCheckOut, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                    <!-- Skicka till kök Button -->
+                    <Button Content="📄 SKICKA TILL KÖK"
+                            Command="{Binding SkickaTillKokCommand}"
+                            Height="40"
+                            Width="150"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#9B59B6"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"
+                            Visibility="{Binding VisaMeny, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                    <!-- Avboka Button -->
+                    <Button Content="AVBOKA"
+                            Command="{Binding AvbokaCommand}"
+                            Height="40"
+                            Width="120"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#E74C3C"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,10,0"
+                            Visibility="{Binding VisaAvboka, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
+
+                    <!-- Close Button -->
+                    <Button Content="STÄNG"
+                            Command="{Binding StängCommand}"
+                            Height="40"
+                            Width="80"
+                            FontFamily="Montserrat"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Background="#A3B18A"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+
+                <!-- Right side - BETALA Button (längst till höger!) -->
+                <Button Grid.Column="1"
+                        Content="💳 BETALA"
+                        Command="{Binding BetalaCommand}"
+                        Height="50"
                         Width="150"
                         FontFamily="Montserrat"
-                        FontSize="12"
+                        FontSize="14"
                         FontWeight="Bold"
-                        Background="#9B59B6"
+                        Background="#E91E63"
                         Foreground="White"
                         BorderThickness="0"
                         Cursor="Hand"
-                        Margin="0,0,10,0"
-                        Visibility="{Binding VisaMeny, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
-
-                <!-- Betala Button -->
-                <Button Content="💳 BETALA"
-                        Command="{Binding BetalaCommand}"
-                        Height="40"
-                        Width="120"
-                        FontFamily="Montserrat"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Background="#27AE60"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Margin="0,0,10,0"
-                        Visibility="{Binding VisaBetala, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
-
-                <!-- Avboka Button -->
-                <Button Content="AVBOKA"
-                        Command="{Binding AvbokaCommand}"
-                        Height="40"
-                        Width="120"
-                        FontFamily="Montserrat"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Background="#E74C3C"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Margin="0,0,10,0"
-                        Visibility="{Binding VisaAvboka, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"/>
-
-                <!-- Close Button -->
-                <Button Content="STÄNG"
-                        Command="{Binding StängCommand}"
-                        Height="40"
-                        Width="80"
-                        FontFamily="Montserrat"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        Background="#A3B18A"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Cursor="Hand"/>
-            </StackPanel>
+                        Visibility="{Binding VisaBetala, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                    <Button.Effect>
+                        <DropShadowEffect Color="Black" Direction="315" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+            </Grid>
         </Border>
     </Grid>
 </Window>

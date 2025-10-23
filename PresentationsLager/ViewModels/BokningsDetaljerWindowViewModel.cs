@@ -197,6 +197,14 @@ namespace PresentationsLager.ViewModels
                 VisaBetala = true;  // Visa betala-knappen när kunden är på plats
                 VisaAvboka = false;
             }
+            else if (Bokning?.Status == "Betalt")
+            {
+                // När kunden har betalat - visa checkout-knappen för att frigöra bordet
+                VisaCheckIn = false;
+                VisaCheckOut = true;
+                VisaBetala = false;
+                VisaAvboka = false;
+            }
             else if (Bokning?.Status == "Avslutad" || Bokning?.Status == "Avbokad")
             {
                 // Avslutade/avbokade bokningar - visa inga åtgärdsknappar
@@ -475,27 +483,38 @@ namespace PresentationsLager.ViewModels
                     }
                 }
 
-                // Spara beställningen med dricks
-                SparaBestallning();
+                // Spara beställningen med dricks som BETALD
+                SparaBestallning(betald: true);
 
                 // Uppdatera bokningsstatus till "Betalt" (checkout sker manuellt senare)
-                var bokningController = new BokningsController();
-                var bokning = bokningController.HamtaBokningMedId(Bokning.BokningsID);
+                var unitOfWork = new DataLager.UnitOfWork();
+                var bokning = unitOfWork.BokningRepository.FirstOrDefault(b => b.BokningsID == Bokning.BokningsID);
                 if (bokning != null)
                 {
                     bokning.Status = "Betalt";
 
                     // Uppdatera även bordstatus
-                    var unitOfWork = new DataLager.UnitOfWork();
                     var bord = unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
                     if (bord != null)
                     {
                         bord.Status = "Betalt";
                     }
+
+                    // Spara både bokning OCH bord i samma transaktion
                     unitOfWork.Save();
                 }
 
+                // Uppdatera lokal bokning och knappsynlighet
+                if (Bokning != null)
+                {
+                    Bokning.Status = "Betalt";
+                    UpdateButtonVisibility();
+                }
+
                 OperationCompleted?.Invoke();
+
+                // Stäng fönstret automatiskt efter betalning så bordvyn uppdateras
+                CloseAction?.Invoke();
             }
             catch (Exception ex)
             {
@@ -551,11 +570,16 @@ namespace PresentationsLager.ViewModels
 
         private void UpdateMenyVisibility()
         {
+            // Visa menyn endast när kunden är "På plats" (inte betalt)
             VisaMeny = Bokning?.Status == "På plats";
 
-            if (VisaMeny && Bokning?.RestaurangID != null)
+            // Men ladda befintliga beställningar både för "På plats" OCH "Betalt"
+            if (Bokning?.RestaurangID != null && (Bokning?.Status == "På plats" || Bokning?.Status == "Betalt"))
             {
-                LoadMeny(Bokning.RestaurangID);
+                if (VisaMeny)
+                {
+                    LoadMeny(Bokning.RestaurangID);
+                }
                 LoadBefintligBestallning();
             }
         }
@@ -721,7 +745,7 @@ namespace PresentationsLager.ViewModels
             }
         }
 
-        private void SparaBestallning()
+        private void SparaBestallning(bool betald = false)
         {
             try
             {
@@ -747,7 +771,8 @@ namespace PresentationsLager.ViewModels
                     dtoList,
                     "Middag",
                     null,
-                    Dricks);
+                    Dricks,
+                    betald);  // Använd parametern istället för default
             }
             catch (Exception ex)
             {
