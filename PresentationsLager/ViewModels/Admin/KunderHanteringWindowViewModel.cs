@@ -129,7 +129,7 @@ namespace PresentationsLager.ViewModels.Admin
             {
                 StatusMessage = string.Empty;
 
-                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon))
+                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon) || string.IsNullOrWhiteSpace(NyKundEmail))
                 {
                     NyStatusMessage = "Alla fält markerade med * är obligatoriska.";
                     return;

@@ -115,7 +115,7 @@
                         <TextBlock Text="Telefonnummer: *"/>
                         <TextBox Text="{Binding NyKundTelefon, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="E-post:"/>
+                        <TextBlock Text="E-post: *"/>
                         <TextBox Text="{Binding NyKundEmail, UpdateSourceTrigger=PropertyChanged}" Height="35" Margin="0,0,0,15"/>
 
                         <TextBlock Text="Region:"/>
