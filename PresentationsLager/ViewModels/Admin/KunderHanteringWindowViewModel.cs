@@ -6,6 +6,7 @@ using PresentationsLager.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace PresentationsLager.ViewModels.Admin
@@ -127,11 +128,29 @@ namespace PresentationsLager.ViewModels.Admin
         {
             try
             {
+                NyKundTelefon = NyKundTelefon.Trim();
+                NyKundTelefon = NyKundTelefon.Replace(" ", "");
                 StatusMessage = string.Empty;
+                string errorMessages = "";
 
-                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundTelefon) || string.IsNullOrWhiteSpace(NyKundEmail))
+                if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
                 {
-                    NyStatusMessage = "Alla fält markerade med * är obligatoriska.";
+                    errorMessages = "Fyll i de obligatoriska fälten";
+                }
+
+                if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit))
+                {
+                    errorMessages += "\n\nOgiltigt telefonnummer! Skriv bara siffror (7–15 tecken).";
+                }
+
+                if (!Regex.IsMatch(NyKundEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    errorMessages += "\n\nOgiltig e-postadress! Ange en giltig adress, t.ex. namn@domän.se.";
+                }
+
+                if (!string.IsNullOrEmpty(errorMessages))
+                {
+                    MessageBox.Show(errorMessages, "Fel", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -146,19 +165,29 @@ namespace PresentationsLager.ViewModels.Admin
                     SkapadDatum = DateTime.Now
                 };
 
-                if (_kundController.SkapaKund(nyKund))
+                bool skapad = _kundController.SkapaKund(nyKund);
+
+                if (skapad)
                 {
-                    NyStatusMessage = $"Användare '{nyKund.Namn}' skapad.";
-                    NyKundNamn = NyKundTelefon = NyKundEmail = string.Empty;
+                    StatusMessage = $"Kund '{nyKund.Namn}' har skapats framgångsrikt";
+
+                    NyKundNamn = string.Empty;
+                    NyKundTelefon = string.Empty;
+                    NyKundEmail = string.Empty;
                     ValdRegion = null;
                     ValdRestaurang = null;
 
                     if (!string.IsNullOrWhiteSpace(SokTelefon) ||
                         !string.IsNullOrWhiteSpace(SokNamn) ||
                         !string.IsNullOrWhiteSpace(SokEmail))
+                    {
                         SokKund();
+                    }
                 }
-                else NyStatusMessage = "Kunde inte skapa användare.";
+                else
+                {
+                    StatusMessage = "Kunde inte skapa kunden. Kontrollera att telefonnumret inte redan finns.";
+                }
             }
             catch (Exception ex)
             {
