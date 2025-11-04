@@ -29,38 +29,51 @@ namespace AffärsLager.Services
 
         /// <summary>
         /// Generera bokföringsfil för en specifik restaurang och datum
+        /// Skapar en TXT-fil med försäljningsdata uppdelat på Mat/Alkohol för ekonomiavdelningen
         /// </summary>
+        /// <param name="restaurangId">ID för restaurangen som ska rapporteras</param>
+        /// <param name="datum">Vilket datum bokföringen gäller för</param>
+        /// <returns>Sökväg till den skapade filen</returns>
         public string GeneraBokföringRestaurang(int restaurangId, DateTime datum)
         {
+            // Hämta restaurangnamn från databasen
             var restaurang = _unitOfWork.RestaurangRepository.GetQuery()
                 .FirstOrDefault(r => r.RestaurangID == restaurangId);
             var restaurangNamn = restaurang?.Restaurangnamn ?? $"Restaurang_{restaurangId}";
 
-            // Hämta alla beställningar för dagen
+            // Hämta alla beställningar för den valda dagen
+            // Vi filtrerar på restaurang-ID och datum
             var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                 .Where(b => b.RestaurangID == restaurangId &&
                            b.Datum.Date == datum.Date)
                 .ToList();
 
-            decimal matSumma = 0;
-            decimal alkoholSumma = 0;
-            decimal totalDricks = 0;
+            // Initiera variabler för att samla ihop försäljningen
+            decimal matSumma = 0;           // Summa för mat och alkoholfria drycker
+            decimal alkoholSumma = 0;       // Summa för alkoholhaltiga drycker (viktigt för moms)
+            decimal totalDricks = 0;        // Total dricks (moms räknas inte på dricks)
 
+            // Gå igenom varje beställning och summera försäljningen
             foreach (var bestallning in bestallningar)
             {
+                // Samla ihop dricks från alla beställningar
                 totalDricks += bestallning.Dricks;
 
+                // Hämta alla beställningsrader (enskilda maträtter) för denna beställning
                 var rader = _unitOfWork.BestallningsRadRepository.GetAll()
                     .Where(br => br.BestallningsID == bestallning.BestallningsID)
                     .ToList();
 
+                // Gå igenom varje rad och klassificera som mat eller alkohol
                 foreach (var rad in rader)
                 {
+                    // Hämta menyobjektet för att se vilken kategori det tillhör
                     var meny = _unitOfWork.MenyRepository.GetQuery()
                         .FirstOrDefault(m => m.MenyID == rad.MenyID);
 
                     if (meny != null)
                     {
+                        // Kontrollera om rätten är alkoholhaltig (olika moms gäller)
                         if (IsAlkoholKategori(meny.Kategori, meny.Rattnamn))
                         {
                             alkoholSumma += rad.Summa;
@@ -73,16 +86,20 @@ namespace AffärsLager.Services
                 }
             }
 
-            decimal totalOmsattning = matSumma + alkoholSumma;
-            decimal totalInklDricks = totalOmsattning + totalDricks;
-            int antalTransaktioner = bestallningar.Count;
-            decimal genomsnittKop = antalTransaktioner > 0 ? totalOmsattning / antalTransaktioner : 0;
+            // Beräkna sammanställning och statistik
+            decimal totalOmsattning = matSumma + alkoholSumma;  // Total försäljning (exkl. dricks)
+            decimal totalInklDricks = totalOmsattning + totalDricks;  // Total inkl. dricks
+            int antalTransaktioner = bestallningar.Count;  // Antal beställningar under dagen
+            decimal genomsnittKop = antalTransaktioner > 0 ? totalOmsattning / antalTransaktioner : 0;  // Genomsnittlig beställning
 
+            // Skapa filnamn: Bokföring_RestaurangNamn_2025-01-04.txt
             var filnamn = $"Bokföring_{restaurangNamn.Replace(" ", "_")}_{datum:yyyy-MM-dd}.txt";
             var filPath = Path.Combine(_exportMapp, filnamn);
 
+            // Skapa och skriv till fil med UTF-8 encoding för svenska tecken
             using (var writer = new StreamWriter(filPath, false, Encoding.UTF8))
             {
+                // Skriv rubrik och header-information
                 writer.WriteLine("╔═══════════════════════════════════════════════════════════════════════════════╗");
                 writer.WriteLine("║                       DAGLIG BOKFÖRINGSUNDERLAG                               ║");
                 writer.WriteLine("╚═══════════════════════════════════════════════════════════════════════════════╝");
@@ -94,18 +111,22 @@ namespace AffärsLager.Services
                 writer.WriteLine();
                 writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
                 writer.WriteLine();
+
+                // Sektion 1: Försäljningssammanställning (viktigast för ekonomi)
                 writer.WriteLine("💰 FÖRSÄLJNINGSSAMMANSTÄLLNING");
                 writer.WriteLine();
                 writer.WriteLine($"   Mat (ex. alkohol):          {matSumma,15:N2} kr");
                 writer.WriteLine($"   Alkoholhaltiga drycker:     {alkoholSumma,15:N2} kr");
                 writer.WriteLine($"   ────────────────────────────────────────────");
                 writer.WriteLine($"   Summa försäljning:          {totalOmsattning,15:N2} kr");
-                writer.WriteLine($"   Dricks (ej moms):           {totalDricks,15:N2} kr");
+                writer.WriteLine($"   Dricks (ej moms):           {totalDricks,15:N2} kr");  // Dricks är momsbefriad
                 writer.WriteLine($"   ────────────────────────────────────────────");
                 writer.WriteLine($"   TOTALT INKL. DRICKS:        {totalInklDricks,15:N2} kr");
                 writer.WriteLine();
                 writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
                 writer.WriteLine();
+
+                // Sektion 2: Transaktionsstatistik (nyckeltal för analys)
                 writer.WriteLine("📊 TRANSAKTIONSSTATISTIK");
                 writer.WriteLine();
                 writer.WriteLine($"   Antal transaktioner:        {antalTransaktioner,15}");
@@ -114,6 +135,8 @@ namespace AffärsLager.Services
                 writer.WriteLine();
                 writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
                 writer.WriteLine();
+
+                // Sektion 3: Kassastatus
                 writer.WriteLine("💳 KASSASTATUS");
                 writer.WriteLine();
                 writer.WriteLine($"   Förväntat kassasaldo:       {totalOmsattning,15:N2} kr");
@@ -121,11 +144,15 @@ namespace AffärsLager.Services
                 writer.WriteLine();
                 writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
                 writer.WriteLine();
+
+                // Sektion 4: CSV-format för import i bokföringssystem (Fortnox, Visma, etc.)
                 writer.WriteLine("📄 CSV-FORMAT FÖR IMPORT I BOKFÖRINGSSYSTEM:");
                 writer.WriteLine();
                 writer.WriteLine("Datum;Restaurang;RestaurangID;Mat;Alkohol;Summa;Dricks;Total;AntalTransaktioner");
                 writer.WriteLine($"{datum:yyyy-MM-dd};{restaurangNamn};{restaurangId};{matSumma:F2};{alkoholSumma:F2};{totalOmsattning:F2};{totalDricks:F2};{totalInklDricks:F2};{antalTransaktioner}");
                 writer.WriteLine();
+
+                // Footer
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
                 writer.WriteLine();
                 writer.WriteLine("   📧 För frågor kontakta: ekonomi@restonation.se");
@@ -134,7 +161,7 @@ namespace AffärsLager.Services
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
             }
 
-            return filPath;
+            return filPath;  // Returnera sökväg så användaren kan öppna filen
         }
 
         /// <summary>
@@ -302,19 +329,28 @@ namespace AffärsLager.Services
         }
 
         /// <summary>
-        /// Hjälpmetod för att avgöra om en rätt är alkoholhaltig (kopierad från StatistikController)
+        /// Hjälpmetod för att avgöra om en rätt är alkoholhaltig
+        /// Detta är viktigt för momsbokföringen eftersom alkohol och mat har olika momssatser
         /// </summary>
+        /// <param name="kategori">Kategori från menyn (t.ex. "Dryck", "Mat")</param>
+        /// <param name="rattnamn">Rättens namn (används för att detektera alkohol i namnet)</param>
+        /// <returns>True om rätten är alkoholhaltig, annars false</returns>
         private bool IsAlkoholKategori(string kategori, string rattnamn = "")
         {
+            // Om kategori saknas, anta att det inte är alkohol
             if (string.IsNullOrEmpty(kategori)) return false;
 
+            // Konvertera till lowercase för säker jämförelse
             var lowerKategori = kategori.ToLower();
             var lowerRattnamn = rattnamn?.ToLower() ?? "";
 
+            // Om det specifikt står "alkoholfri" så är det INTE alkohol
             if (lowerKategori.Contains("alkoholfri") || lowerRattnamn.Contains("alkoholfri")) return false;
 
+            // Om kategorin är "Dryck" behöver vi kolla rättnamnet för att avgöra om det är alkohol
             if (lowerKategori == "dryck")
             {
+                // Lista över alkoholfria drycker (kaffe, läsk, juice, etc.)
                 if (lowerRattnamn.Contains("läsk") ||
                     lowerRattnamn.Contains("kaffe") ||
                     lowerRattnamn.Contains("te") ||
@@ -322,9 +358,10 @@ namespace AffärsLager.Services
                     lowerRattnamn.Contains("juice") ||
                     lowerRattnamn.Contains("smoothie"))
                 {
-                    return false;
+                    return false;  // Det är INTE alkohol
                 }
 
+                // Lista över alkoholhaltiga drycker (vin, öl, sprit, etc.)
                 if (lowerRattnamn.Contains("vin") ||
                     lowerRattnamn.Contains("öl") ||
                     lowerRattnamn.Contains("sprit") ||
@@ -338,12 +375,13 @@ namespace AffärsLager.Services
                     lowerRattnamn.Contains("champagne") ||
                     lowerRattnamn.Contains("prosecco"))
                 {
-                    return true;
+                    return true;  // Det ÄR alkohol
                 }
 
-                return true;
+                return true;  // Om osäker, anta alkohol (säkrare för moms)
             }
 
+            // Kolla om kategorin innehåller ord som indikerar alkohol
             return lowerKategori.Contains("alkoholhaltig") ||
                    lowerKategori.Contains("öl") ||
                    lowerKategori.Contains("vin") ||

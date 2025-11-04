@@ -3,9 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLager
 {
+    /// <summary>
+    /// Unit of Work-mönster för att hantera alla repositories och transaktioner
+    /// Denna klass samlar alla dataåtkomstoperationer och säkerställer att allt sparas tillsammans
+    /// </summary>
     public class UnitOfWork : IDisposable
     {
         private readonly ApplikationDbContext _context;
+
+        // Alla repositories för de olika tabellerna i databasen
         public Repository<Kund> KundRepository { get; set; }
         public Repository<Region> RegionRepository { get; set; }
         public Repository<Restaurang> RestaurangRepository { get; set; }
@@ -20,13 +26,18 @@ namespace DataLager
         public Repository<LojalitetsTransaktion> LojalitetsTransaktionRepository { get; set; }
         public Repository<Systemlogg> SystemloggRepository { get; set; }
 
+        /// <summary>
+        /// Konstruktor - skapar databaskopplingen och alla repositories
+        /// </summary>
         public UnitOfWork()
         {
+            // Skapa en ny databaskoppling
             _context = new ApplikationDbContext();
 
-            // Skapa databasen + tabeller om de inte finns
+            // Skapa databasen + tabeller om de inte finns (endast för utveckling/test)
             _context.Database.EnsureCreated();
 
+            // Initiera alla repositories med samma context (viktig för Unit of Work)
             KundRepository = new Repository<Kund>(_context);
             RegionRepository = new Repository<Region>(_context);
             RestaurangRepository = new Repository<Restaurang>(_context);
@@ -41,32 +52,48 @@ namespace DataLager
             LojalitetsTransaktionRepository = new Repository<LojalitetsTransaktion>(_context);
             SystemloggRepository = new Repository<Systemlogg>(_context);
 
-            // Lägg till testdata om tabellen är tom
+            // Lägg till testdata om databasen är tom (första gången systemet körs)
             if (KundRepository.IsEmpty())
             {
                 Fill();
             }
         }
 
+        /// <summary>
+        /// Spara alla ändringar till databasen (synkront)
+        /// VIKTIGT: Anropa denna metod för att faktiskt spara ändringar!
+        /// </summary>
         public void Save()
         {
             _context.SaveChanges();
         }
 
+        /// <summary>
+        /// Spara alla ändringar till databasen (asynkront)
+        /// Används för bättre prestanda i vissa situationer
+        /// </summary>
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Rensa EF Core's cache och hämta färsk data från databasen
+        /// Använd detta om data har ändrats utanför denna UnitOfWork-instans
+        /// </summary>
         public void RefreshContext()
         {
             // Rensa alla tracked entities för att tvinga EF att hämta färska data från databasen
             _context.ChangeTracker.Clear();
         }
 
+        /// <summary>
+        /// Fyller databasen med testdata vid första körningen
+        /// Detta inkluderar: Regioner, Restauranger, Bord, Grundmeny, Testanvändare, Testkunder
+        /// </summary>
         private void Fill()
         {
-            // Ny användare: 1/1 "Servitör"
+            // Säkerhetskontroll - fyll bara om databasen är tom
             if (!KundRepository.IsEmpty())
                 return;
 
