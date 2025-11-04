@@ -4,13 +4,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AffärsLager.Controllers
 {
+    /// <summary>
+    /// StatistikController - Hanterar statistikberäkningar för restauranger och koncernen
+    /// Innehåller metoder för både Restaurangchef (en restaurang) och VD (hela koncernen)
+    /// Beräknar försäljning, personalstatistik, menystatistik etc.
+    /// OBS: Skiljer på Mat och Alkohol för bokföring (olika moms)
+    /// </summary>
     public class StatistikController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
         /// <summary>
         /// Hjälpmetod för att avgöra om en rätt är alkoholhaltig
+        /// Detta är VIKTIGT för bokföring eftersom alkohol har annan moms än mat
         /// </summary>
+        /// <param name="kategori">Rättens kategori (t.ex. "Dryck", "Mat", "Alkohol")</param>
+        /// <param name="rattnamn">Rättens namn (används för att avgöra om det är öl, vin etc.)</param>
+        /// <returns>True om rätten är alkohol, False annars</returns>
         private bool IsAlkoholKategori(string kategori, string rattnamn = "")
         {
             if (string.IsNullOrEmpty(kategori)) return false;
@@ -69,7 +79,13 @@ namespace AffärsLager.Controllers
 
         /// <summary>
         /// Hämtar försäljningsstatistik för en specifik restaurang
+        /// Visar total försäljning, dricks, och uppdelat på Mat/Alkohol för bokföring
+        /// Används av Restaurangchefer för att följa upp sin restaurang
         /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <returns>Försäljningsstatistik med Mat/Alkohol-uppdelning</returns>
         public ForsaljningsStatistik GetForsaljningRestaurang(int restaurangId, DateTime startDatum, DateTime slutDatum)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
@@ -108,8 +124,15 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar mest sålda rätter för en restaurang
+        /// Hämtar de mest sålda rätterna för en restaurang
+        /// Visar vilka rätter som är mest populära bland gästerna
+        /// Används för att se vad som fungerar bra på menyn
         /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <param name="antal">Hur många rätter att visa (default 10)</param>
+        /// <returns>Lista med de mest sålda rätterna</returns>
         public List<RattStatistik> GetMestSaldaRatter(int restaurangId, DateTime startDatum, DateTime slutDatum, int antal = 10)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
@@ -137,8 +160,15 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar minst sålda rätter för en restaurang (inkluderar rätter med 0 försäljning)
+        /// Hämtar de minst sålda rätterna för en restaurang
+        /// VIKTIGT: Inkluderar även rätter med 0 försäljning!
+        /// Används för att identifiera rätter som bör tas bort från menyn
         /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <param name="antal">Hur många rätter att visa (default 10)</param>
+        /// <returns>Lista med de minst sålda rätterna</returns>
         public List<RattStatistik> GetMinstSaldaRatter(int restaurangId, DateTime startDatum, DateTime slutDatum, int antal = 10)
         {
             // Hämta alla menyer för restaurangen
@@ -182,8 +212,14 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar försäljning per servitör för en restaurang
+        /// Hämtar försäljningsstatistik per servitör för en restaurang
+        /// Visar hur mycket varje servitör sålt, dricks, mat/alkohol-uppdelning
+        /// Används av Restaurangchef för att följa upp personalen
         /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <returns>Lista med försäljning per servitör</returns>
         public List<ServitorStatistik> GetForsaljningPerServitor(int restaurangId, DateTime startDatum, DateTime slutDatum)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
@@ -257,8 +293,13 @@ namespace AffärsLager.Controllers
         #region VD Statistik
 
         /// <summary>
-        /// Hämtar försäljningsstatistik för hela koncernen
+        /// Hämtar försäljningsstatistik för hela koncernen (alla 18 restauranger)
+        /// Visar total försäljning, dricks, och uppdelat på Mat/Alkohol
+        /// Används av VD för att få överblick över hela verksamheten
         /// </summary>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <returns>Försäljningsstatistik för hela koncernen</returns>
         public ForsaljningsStatistik GetForsaljningKoncern(DateTime startDatum, DateTime slutDatum)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
@@ -297,8 +338,13 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar försäljning per region
+        /// Hämtar försäljningsstatistik per region (Norr, Öst, Väst, Syd)
+        /// Visar vilka regioner som presterar bäst
+        /// Används av VD för att jämföra de 4 regionerna
         /// </summary>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <returns>Lista med försäljning per region</returns>
         public List<RegionStatistik> GetForsaljningPerRegion(DateTime startDatum, DateTime slutDatum)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()
@@ -416,8 +462,13 @@ namespace AffärsLager.Controllers
         }
 
         /// <summary>
-        /// Hämtar försäljning per restaurang för hela koncernen
+        /// Hämtar försäljningsstatistik per restaurang för hela koncernen
+        /// Visar hur alla 18 restauranger presterar individuellt
+        /// Används av VD för att jämföra restauranger och se vilka som presterar bäst/sämst
         /// </summary>
+        /// <param name="startDatum">Startdatum för perioden</param>
+        /// <param name="slutDatum">Slutdatum för perioden</param>
+        /// <returns>Lista med försäljning per restaurang</returns>
         public List<RestaurangStatistik> GetForsaljningPerRestaurang(DateTime startDatum, DateTime slutDatum)
         {
             var bestallningar = _unitOfWork.BestallningRepository.GetQuery()

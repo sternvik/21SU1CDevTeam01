@@ -7,10 +7,22 @@ using System.Linq;
 
 namespace AffärsLager.Controllers
 {
+    /// <summary>
+    /// KundController - Hanterar all kundrelaterad logik
+    /// Ansvarar för kundsökning, skapa/uppdatera kunder och lojalitetspoäng
+    /// </summary>
     public class KundController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
+        /// <summary>
+        /// Söker efter kunder baserat på telefon, namn eller email
+        /// Kan kombinera flera sökkriterier för att filtrera resultatet
+        /// </summary>
+        /// <param name="telefon">Telefonnummer att söka efter (valfritt)</param>
+        /// <param name="namn">Namn att söka efter (valfritt)</param>
+        /// <param name="email">Email att söka efter (valfritt)</param>
+        /// <returns>Lista med matchande kunder, sorterad på namn</returns>
         public List<Kund> SokKunder(string? telefon = null, string? namn = null, string? email = null)
         {
             try
@@ -40,6 +52,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar en specifik kund baserat på telefonnummer
+        /// Telefonnummer är unikt per kund i systemet
+        /// </summary>
+        /// <param name="telefon">Telefonnummer</param>
+        /// <returns>Kunden om den finns, annars null</returns>
         public Kund? HamtaKundMedTelefon(string telefon)
         {
             try
@@ -56,6 +74,11 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar en specifik kund baserat på kund-ID
+        /// </summary>
+        /// <param name="kundId">Kundens ID</param>
+        /// <returns>Kunden om den finns, annars null</returns>
         public Kund? HamtaKundMedId(int kundId)
         {
             try
@@ -69,6 +92,13 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Skapar en ny kund i systemet
+        /// Validerar att namn och telefon finns, och att telefonnumret inte redan används
+        /// Sätter automatiskt standardvärden (Brons-nivå, 0 poäng, skapad-datum)
+        /// </summary>
+        /// <param name="kund">Kundobjekt med uppgifter</param>
+        /// <returns>True om kunden skapades, annars exception</returns>
         public bool SkapaKund(Kund kund)
         {
             try
@@ -127,6 +157,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Uppdaterar en befintlig kunds uppgifter
+        /// Kan uppdatera namn, telefon, email, region, hemmarestaurang och lojalitetsinfo
+        /// </summary>
+        /// <param name="kund">Kundobjekt med nya uppgifter (måste ha giltigt KundID)</param>
+        /// <returns>True om uppdateringen lyckades</returns>
         public bool UppdateraKund(Kund kund)
         {
             try
@@ -156,6 +192,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Tar bort en kund från systemet
+        /// OBS: Detta kan påverka bokningar och beställningar kopplat till kunden
+        /// </summary>
+        /// <param name="kundId">ID för kunden som ska tas bort</param>
+        /// <returns>True om borttagningen lyckades</returns>
         public bool TaBortKund(int kundId)
         {
             try
@@ -174,6 +216,13 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Lägger till lojalitetspoäng till en kund
+        /// Uppdaterar automatiskt kundens lojalitetsnivå (Brons/Silver/Guld) baserat på nya totalen
+        /// </summary>
+        /// <param name="kundId">Kundens ID</param>
+        /// <param name="poang">Antal poäng att lägga till (15 för middag, 10 för lunch)</param>
+        /// <returns>True om poängen lades till</returns>
         public bool LaggTillLojalitetsPoang(int kundId, int poang)
         {
             try
@@ -196,6 +245,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar alla kunder som har en specifik restaurang som hemmarestaurang
+        /// Används för att se vilka stamkunder en restaurang har
+        /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <returns>Lista med kunder sorterade på namn</returns>
         public List<Kund> HamtaKunderForRestaurang(int restaurangId)
         {
             try

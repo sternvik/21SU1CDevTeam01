@@ -10,7 +10,10 @@ using System.Text;
 namespace AffärsLager.Services
 {
     /// <summary>
-    /// Service för att exportera kundlistor till CSV för marknadsavdelningen
+    /// KundExportService - Exporterar kundlistor till CSV-format
+    /// Används av marknadsavdelningen för att skicka nyhetsbrev och kampanjer
+    /// Kan filtrera på: Region, Lojalitetsnivå, Restaurang, Datum
+    /// Använder svensk CSV-standard (semikolon som separator, UTF-8 encoding)
     /// </summary>
     public class KundExportService
     {
@@ -22,6 +25,7 @@ namespace AffärsLager.Services
             _unitOfWork = new UnitOfWork();
 
             // Skapa exportmapp om den inte finns
+            // CSV-filer sparas i en "KundExport"-mapp
             _exportMapp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "KundExport");
             if (!Directory.Exists(_exportMapp))
             {

@@ -7,11 +7,21 @@ using System.Linq;
 
 namespace AffärsLager.Controllers
 {
+    /// <summary>
+    /// BestallningsController - Hanterar mat- och dryckesbeställningar
+    /// Ansvarar för att skapa beställningar, lägga till rätter och registrera betalningar
+    /// </summary>
     public class BestallningsController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
         private LoggService _loggService = new LoggService();
 
+        /// <summary>
+        /// Hämtar en befintlig OBETALD beställning för en bokning
+        /// Används för att se om kunden redan har en öppen beställning
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <returns>Beställningen om den finns, annars null</returns>
         public Bestallning? HamtaBefintligBestallningForBokning(int bokningsId)
         {
             try
@@ -26,6 +36,20 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Skapar en ny beställning eller uppdaterar en befintlig
+        /// Detta är huvudfunktionen för att registrera vad kunden beställer
+        /// </summary>
+        /// <param name="bokningsId">Boknings-ID (null för lunch)</param>
+        /// <param name="kundId">Vilken kund</param>
+        /// <param name="restaurangId">Vilken restaurang</param>
+        /// <param name="anvandarId">Vem som tar beställningen (personal)</param>
+        /// <param name="bestallningsrader">Lista med alla rätter (MenyID, Antal, Pris)</param>
+        /// <param name="bestallningsTyp">Middag, Lunch, Avhämtning eller Utkörning</param>
+        /// <param name="utkorare">För utkörning: Foodora, Wolt etc.</param>
+        /// <param name="dricks">Dricksbelopp</param>
+        /// <param name="betald">Om beställningen är betald direkt</param>
+        /// <returns>Den skapade/uppdaterade beställningen</returns>
         public Bestallning SkapaEllerUppdateraBestallning(int? bokningsId, int kundId, int restaurangId, int anvandarId,
             List<BestallningsRadDto> bestallningsrader, string bestallningsTyp = "Middag", string? utkorare = null, decimal dricks = 0, bool betald = true)
         {
@@ -143,6 +167,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar alla beställningsrader för en bokning
+        /// Används för att visa vad kunden har beställt i UI
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <returns>Lista med alla rätter (namn, pris, antal)</returns>
         public List<BestallningsRadDto> HamtaBestallningsraderForBokning(int bokningsId)
         {
             try
@@ -176,6 +206,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Tar bort en obetald beställning
+        /// Används om kunden ångrar sig innan betalning
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <returns>True om borttagningen lyckades</returns>
         public bool TaBortBestallning(int bokningsId)
         {
             try
@@ -207,12 +243,25 @@ namespace AffärsLager.Controllers
         }
     }
 
+    /// <summary>
+    /// Hjälpklass för att skicka beställningsrader mellan lager
+    /// Innehåller information om en rätt i beställningen (vad, hur många, pris)
+    /// </summary>
     public class BestallningsRadDto
     {
+        /// <summary>ID för menyrätten</summary>
         public int MenyID { get; set; }
+
+        /// <summary>Namn på rätten (t.ex. "Pizza Margherita")</summary>
         public string Rattnamn { get; set; } = string.Empty;
+
+        /// <summary>Pris per styck</summary>
         public decimal Pris { get; set; }
+
+        /// <summary>Antal portioner</summary>
         public int Antal { get; set; }
+
+        /// <summary>Totalpris för denna rad (Pris * Antal)</summary>
         public decimal Totalpris => Pris * Antal;
     }
 }

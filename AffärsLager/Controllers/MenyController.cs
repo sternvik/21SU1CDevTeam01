@@ -6,10 +6,19 @@ using System.Linq;
 
 namespace AffärsLager.Controllers
 {
+    /// <summary>
+    /// MenyController - Hanterar menyvaror (rätter och drycker)
+    /// Ansvarar för grundmenyn och restaurangspecifika menyer
+    /// </summary>
     public class MenyController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
 
+        /// <summary>
+        /// Hämtar alla menyvaror i grundmenyn
+        /// Sorterar på kategori (Mat, Alkohol, Alkoholfritt) och sedan rättnamn
+        /// </summary>
+        /// <returns>Lista med alla menyvaror</returns>
         public List<Meny> HamtaAllaMenyvaror()
         {
             try
@@ -26,6 +35,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar menyvaror som är tillgängliga på en specifik restaurang
+        /// Inkluderar både grundmeny och restaurangspecifika rätter
+        /// </summary>
+        /// <param name="restaurangId">Restaurangens ID</param>
+        /// <returns>Lista med menyvaror för restaurangen</returns>
         public List<Meny> HamtaMenyvarorForRestaurang(int restaurangId)
         {
             try
@@ -51,6 +66,11 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar en specifik menyvaror baserat på ID
+        /// </summary>
+        /// <param name="menyId">Menyvarans ID</param>
+        /// <returns>Menyn om den finns, annars null</returns>
         public Meny? HamtaMenyMedId(int menyId)
         {
             try
@@ -63,6 +83,13 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Söker efter menyvaror baserat på rättnamn och/eller kategori
+        /// Används för att hitta specifika rätter i admin-gränssnitt
+        /// </summary>
+        /// <param name="rattnamn">Rättnamn att söka efter (valfritt)</param>
+        /// <param name="kategori">Kategori att filtrera på (valfritt)</param>
+        /// <returns>Lista med matchande menyvaror</returns>
         public List<Meny> SokMeny(string? rattnamn = null, string? kategori = null)
         {
             try
@@ -85,6 +112,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Skapar en ny menyvaror i grundmenyn
+        /// Validerar att rättnamn, pris och kategori finns
+        /// </summary>
+        /// <param name="meny">Menyobjekt med alla uppgifter</param>
+        /// <returns>True om menyn skapades</returns>
         public bool SkapaMeny(Meny meny)
         {
             try
@@ -113,8 +146,12 @@ namespace AffärsLager.Controllers
             }
         }
 
-
-
+        /// <summary>
+        /// Uppdaterar en befintlig menyvaror
+        /// Kan ändra rättnamn, beskrivning, pris, kategori och aktiv-status
+        /// </summary>
+        /// <param name="meny">Menyobjekt med nya uppgifter</param>
+        /// <returns>True om uppdateringen lyckades</returns>
         public bool UppdateraMeny(Meny meny)
         {
             try
@@ -126,6 +163,7 @@ namespace AffärsLager.Controllers
                 if (befintlig == null)
                     throw new InvalidOperationException("Menyn finns inte i databasen");
 
+                // Uppdatera alla fält
                 befintlig.Rattnamn = meny.Rattnamn;
                 befintlig.Beskrivning = meny.Beskrivning;
                 befintlig.Pris = meny.Pris;
@@ -143,6 +181,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Tar bort en menyvaror permanent från databasen
+        /// OBS: Detta påverkar alla restauranger som har rätten
+        /// </summary>
+        /// <param name="menyId">ID för menyn som ska tas bort</param>
+        /// <returns>True om borttagningen lyckades</returns>
         public bool TaBortMeny(int menyId)
         {
             try
@@ -161,8 +205,5 @@ namespace AffärsLager.Controllers
                 throw new Exception($"Fel vid borttagning av meny: {ex.Message}", ex);
             }
         }
-
-
-
     }
 }

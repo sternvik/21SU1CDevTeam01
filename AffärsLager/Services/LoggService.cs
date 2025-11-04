@@ -9,7 +9,9 @@ using System.Text;
 namespace AffärsLager.Services
 {
     /// <summary>
-    /// Service för att hantera loggning till både databas och textfil
+    /// LoggService - Hanterar systemloggning till både databas OCH textfil
+    /// Loggar alla viktiga händelser i systemet för säkerhet och felsökning
+    /// Dubbel lagring (databas + textfil) ger redundans om databasen skulle gå ner
     /// </summary>
     public class LoggService
     {
@@ -21,13 +23,14 @@ namespace AffärsLager.Services
             _unitOfWork = new UnitOfWork();
 
             // Skapa loggmapp om den inte finns
+            // Loggarna sparas i en "Loggar"-mapp i projektets bas
             var loggMapp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Loggar");
             if (!Directory.Exists(loggMapp))
             {
                 Directory.CreateDirectory(loggMapp);
             }
 
-            // Skapa loggfil med dagens datum
+            // Skapa en ny loggfil för varje dag (SystemLogg_2025-01-15.txt)
             var filnamn = $"SystemLogg_{DateTime.Now:yyyy-MM-dd}.txt";
             _loggFilePath = Path.Combine(loggMapp, filnamn);
         }

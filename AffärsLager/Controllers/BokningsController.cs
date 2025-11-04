@@ -7,11 +7,21 @@ using System.Linq;
 
 namespace AffärsLager.Controllers
 {
+    /// <summary>
+    /// BokningsController - Hanterar all logik för bordsreservationer
+    /// Ansvarar för att skapa bokningar, kontrollera tillgänglighet och hantera check-in/check-out
+    /// </summary>
     public class BokningsController
     {
         private UnitOfWork _unitOfWork = new UnitOfWork();
         private LoggService _loggService = new LoggService();
 
+        /// <summary>
+        /// Hämtar alla tillgängliga tidsslots för bokningar
+        /// Restaurangen har middagstider från 16:00 till 21:00
+        /// Varje bokning är 2 timmar lång
+        /// </summary>
+        /// <returns>Lista med alla tider man kan boka (16:00, 17:00, 18:00, 19:00, 20:00, 21:00)</returns>
         public List<TimeSpan> HamtaTillgangligaTider()
         {
             // Tillgängliga tider: 16:00-21:00 (sista bokning 21:00 för 2h slot till 23:00)
@@ -26,6 +36,15 @@ namespace AffärsLager.Controllers
             };
         }
 
+        /// <summary>
+        /// Hämtar alla bord för en restaurang med status (Ledigt/Bokat/På plats)
+        /// Används för att visa bordöversikt och hjälpa användaren välja rätt bord
+        /// </summary>
+        /// <param name="restaurangId">Vilken restaurang (t.ex. 1 för RestoNation N1)</param>
+        /// <param name="datum">Vilket datum (t.ex. 2025-01-15)</param>
+        /// <param name="tid">Vilken tid (t.ex. 18:00)</param>
+        /// <param name="antalGaster">Antal gäster (används för att markera lämpliga bord)</param>
+        /// <returns>Lista med alla bord och deras status</returns>
         public List<BordMedStatus> HamtaAllaBordMedStatus(int restaurangId, DateTime datum, TimeSpan tid, int antalGaster)
         {
             try
@@ -86,6 +105,15 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar endast LEDIGA bord som är lämpliga för antal gäster
+        /// Filtrerar bort bokade bord och sorterar för att föreslå minsta lämpliga bord först
+        /// </summary>
+        /// <param name="restaurangId">Vilken restaurang</param>
+        /// <param name="datum">Vilket datum</param>
+        /// <param name="tid">Vilken tid</param>
+        /// <param name="antalGaster">Antal gäster (endast bord med plats för dessa visas)</param>
+        /// <returns>Lista med lediga bord, sorterade efter storlek (minsta först)</returns>
         public List<Bord> HamtaLedigaBord(int restaurangId, DateTime datum, TimeSpan tid, int antalGaster)
         {
             try
@@ -121,6 +149,12 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Skapar en ny bordsbokning i systemet
+        /// Validerar att bordet är ledigt, att datum/tid är okej, och sparar bokningen
+        /// </summary>
+        /// <param name="bokning">Bokningsobjekt med alla uppgifter (kund, bord, datum, tid, antal gäster)</param>
+        /// <returns>True om bokningen skapades, annars kastas exception</returns>
         public bool SkapaBokning(Bokning bokning)
         {
             try
@@ -195,6 +229,13 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar alla bokningar för en restaurang
+        /// Kan filtreras på ett specifikt datum, annars hämtas alla bokningar
+        /// </summary>
+        /// <param name="restaurangId">Vilken restaurang</param>
+        /// <param name="datum">Valfritt: Filtrera på ett specifikt datum, annars null för alla</param>
+        /// <returns>Lista med bokningar sorterade på datum och tid</returns>
         public List<Bokning> HamtaBokningarForRestaurang(int restaurangId, DateTime? datum = null)
         {
             try
@@ -215,6 +256,11 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar en specifik bokning baserat på boknings-ID
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <returns>Bokningen om den finns, annars null</returns>
         public Bokning? HamtaBokningMedId(int bokningsId)
         {
             try
@@ -227,6 +273,14 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Hämtar bokning för ett specifikt bord vid en viss tid
+        /// Kontrollerar om bordet är bokat under den angivna 2-timmarsperioden
+        /// </summary>
+        /// <param name="bordId">Vilket bord</param>
+        /// <param name="datum">Vilket datum</param>
+        /// <param name="tid">Vilken starttid</param>
+        /// <returns>Bokningen om bordet är bokat, annars null</returns>
         public Bokning? HamtaBokningForBord(int bordId, DateTime datum, TimeSpan tid)
         {
             try
@@ -250,6 +304,14 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Check-in: Markerar att kunden har anlänt
+        /// Ändrar bokningsstatus från "Bokad" till "På plats"
+        /// Ändrar bordsstatus från "Bokat" till "Aktivt"
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <param name="anvandarId">Vem som gör check-in (personal)</param>
+        /// <returns>True om check-in lyckades</returns>
         public bool CheckInBokning(int bokningsId, int anvandarId)
         {
             try
@@ -291,6 +353,14 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Check-out: Markerar att kunden har lämnat restaurangen
+        /// Ändrar bokningsstatus till "Avslutad"
+        /// Ändrar bordsstatus till "Ledigt" så att det kan bokas igen
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <param name="anvandarId">Vem som gör check-out (personal)</param>
+        /// <returns>True om check-out lyckades</returns>
         public bool CheckOutBokning(int bokningsId, int anvandarId)
         {
             try
@@ -329,6 +399,13 @@ namespace AffärsLager.Controllers
             }
         }
 
+        /// <summary>
+        /// Avbokar en bokning (kunden ringer och säger upp)
+        /// Kan endast avboka bokningar som inte är incheckade eller avslutade
+        /// </summary>
+        /// <param name="bokningsId">ID för bokningen</param>
+        /// <param name="anvandarId">Vem som gör avbokningen (personal)</param>
+        /// <returns>True om avbokningen lyckades</returns>
         public bool AvbokaBokning(int bokningsId, int anvandarId)
         {
             try
@@ -370,16 +447,37 @@ namespace AffärsLager.Controllers
         }
     }
 
+    /// <summary>
+    /// Hjälpklass för att visa bord med extra statusinformation
+    /// Används för att visa bordöversikt i UI med färgkodning
+    /// </summary>
     public class BordMedStatus
     {
+        /// <summary>Bordets ID</summary>
         public int BordID { get; set; }
+
+        /// <summary>Bordets kod (t.ex. "R001_B01")</summary>
         public string Bordkod { get; set; } = string.Empty;
+
+        /// <summary>Hur många platser bordet har</summary>
         public int AntalPlatser { get; set; }
+
+        /// <summary>Om bordet är ledigt vid vald tid</summary>
         public bool ArLedigt { get; set; }
+
+        /// <summary>Om bordet är lämpligt för antal gäster (tillräckligt stort)</summary>
         public bool ArLampligt { get; set; }
+
+        /// <summary>Om bordet är bokat, vilken tid det är bokat till</summary>
         public TimeSpan? BokadTid { get; set; }
-        public string BordStatus { get; set; } = "Ledigt"; // Ledigt, Bokat, På plats
+
+        /// <summary>Status: Ledigt, Bokat eller På plats</summary>
+        public string BordStatus { get; set; } = "Ledigt";
+
+        /// <summary>Om bordet är bokat, ID för bokningen</summary>
         public int? BokningsID { get; set; }
+
+        /// <summary>Om bordet är bokat, hela bokningsobjektet</summary>
         public Bokning? Bokning { get; set; }
     }
 }

@@ -9,11 +9,20 @@ using AffärsLager.Controllers;
 
 namespace AffärsLager.Services
 {
+    /// <summary>
+    /// PDFService - Genererar PDF-rapporter och köksbongar
+    /// Använder QuestPDF-biblioteket för att skapa professionella PDF-dokument
+    /// Genererar 3 typer av PDF:er:
+    /// 1. Restaurangchef-rapporter (statistik för en restaurang)
+    /// 2. VD-rapporter (koncernöversikt över alla 18 restauranger)
+    /// 3. Köksbongar (beställningar för köket)
+    /// </summary>
     public class PDFService
     {
         public PDFService()
         {
-            // Aktivera QuestPDF licens för utveckling (community license är gratis)
+            // Aktivera QuestPDF licens för utveckling
+            // Community license är gratis för icke-kommersiellt bruk
             QuestPDF.Settings.License = LicenseType.Community;
         }
 

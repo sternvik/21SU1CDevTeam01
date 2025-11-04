@@ -7,17 +7,23 @@ using System.Threading.Tasks;
 
 namespace AffärsLager.Services
 {
+    /// <summary>
+    /// MailService - Hanterar e-postutskick via SMTP (Gmail)
+    /// Används för att skicka bokföringsrapporter, statistik-PDF:er, och andra rapporter
+    /// Använder MailKit/MimeKit för att skicka HTML-email med bilagor
+    /// </summary>
     public class MailService
     {
-        // SMTP-konfiguration med nya credentials
+        // SMTP-konfiguration för Gmail
+        // OBS: Använder app-specifikt lösenord (inte vanligt Gmail-lösenord)
         private string _smtpHost = "smtp.gmail.com";
         private int _smtpPort = 587;
         private string _smtpUsername = "victorberg66@gmail.com";
-        private string _smtpPassword = "rtci btcl twqc nzbx";
+        private string _smtpPassword = "rtci btcl twqc nzbx";  // App-specifikt lösenord från Google
         private string _fromEmail = "victorberg66@gmail.com";
         private string _fromName = "RestoNation System";
 
-        // Lagra senaste felmeddelandet
+        // Lagra senaste felmeddelandet för felsökning
         public string? LastError { get; private set; }
 
         /// <summary>
