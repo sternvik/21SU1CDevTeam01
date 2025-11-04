@@ -74,49 +74,63 @@ namespace AffärsLager.Services
             }
 
             decimal totalOmsattning = matSumma + alkoholSumma;
+            decimal totalInklDricks = totalOmsattning + totalDricks;
             int antalTransaktioner = bestallningar.Count;
+            decimal genomsnittKop = antalTransaktioner > 0 ? totalOmsattning / antalTransaktioner : 0;
 
-            var filnamn = $"Bokföring_{restaurangNamn}_{datum:yyyy-MM-dd}.csv";
+            var filnamn = $"Bokföring_{restaurangNamn.Replace(" ", "_")}_{datum:yyyy-MM-dd}.txt";
             var filPath = Path.Combine(_exportMapp, filnamn);
 
             using (var writer = new StreamWriter(filPath, false, Encoding.UTF8))
             {
+                writer.WriteLine("╔═══════════════════════════════════════════════════════════════════════════════╗");
+                writer.WriteLine("║                       DAGLIG BOKFÖRINGSUNDERLAG                               ║");
+                writer.WriteLine("╚═══════════════════════════════════════════════════════════════════════════════╝");
+                writer.WriteLine();
+                writer.WriteLine($"📅 Datum:           {datum:dddd, dd MMMM yyyy}", new System.Globalization.CultureInfo("sv-SE"));
+                writer.WriteLine($"🏢 Restaurang:      {restaurangNamn}");
+                writer.WriteLine($"📋 Restaurang-ID:   {restaurangId}");
+                writer.WriteLine($"🕐 Genererad:       {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                writer.WriteLine();
+                writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
+                writer.WriteLine();
+                writer.WriteLine("💰 FÖRSÄLJNINGSSAMMANSTÄLLNING");
+                writer.WriteLine();
+                writer.WriteLine($"   Mat (ex. alkohol):          {matSumma,15:N2} kr");
+                writer.WriteLine($"   Alkoholhaltiga drycker:     {alkoholSumma,15:N2} kr");
+                writer.WriteLine($"   ────────────────────────────────────────────");
+                writer.WriteLine($"   Summa försäljning:          {totalOmsattning,15:N2} kr");
+                writer.WriteLine($"   Dricks (ej moms):           {totalDricks,15:N2} kr");
+                writer.WriteLine($"   ────────────────────────────────────────────");
+                writer.WriteLine($"   TOTALT INKL. DRICKS:        {totalInklDricks,15:N2} kr");
+                writer.WriteLine();
+                writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
+                writer.WriteLine();
+                writer.WriteLine("📊 TRANSAKTIONSSTATISTIK");
+                writer.WriteLine();
+                writer.WriteLine($"   Antal transaktioner:        {antalTransaktioner,15}");
+                writer.WriteLine($"   Genomsnittligt köpvärde:    {genomsnittKop,15:N2} kr");
+                writer.WriteLine($"   Mat/Alkohol-fördelning:     {(totalOmsattning > 0 ? (matSumma / totalOmsattning * 100) : 0),14:N1}% / {(totalOmsattning > 0 ? (alkoholSumma / totalOmsattning * 100) : 0):N1}%");
+                writer.WriteLine();
+                writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
+                writer.WriteLine();
+                writer.WriteLine("💳 KASSASTATUS");
+                writer.WriteLine();
+                writer.WriteLine($"   Förväntat kassasaldo:       {totalOmsattning,15:N2} kr");
+                writer.WriteLine($"   Dricks att fördela:         {totalDricks,15:N2} kr");
+                writer.WriteLine();
+                writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
+                writer.WriteLine();
+                writer.WriteLine("📄 CSV-FORMAT FÖR IMPORT I BOKFÖRINGSSYSTEM:");
+                writer.WriteLine();
+                writer.WriteLine("Datum;Restaurang;RestaurangID;Mat;Alkohol;Summa;Dricks;Total;AntalTransaktioner");
+                writer.WriteLine($"{datum:yyyy-MM-dd};{restaurangNamn};{restaurangId};{matSumma:F2};{alkoholSumma:F2};{totalOmsattning:F2};{totalDricks:F2};{totalInklDricks:F2};{antalTransaktioner}");
+                writer.WriteLine();
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine($"                    DAGLIG BOKFÖRING - {restaurangNamn.ToUpper()}");
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine($"Datum: {datum:yyyy-MM-dd}");
-                writer.WriteLine($"Restaurang: {restaurangNamn}");
-                writer.WriteLine($"Genererad: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
                 writer.WriteLine();
-                writer.WriteLine("FÖRSÄLJNING:");
-                writer.WriteLine($"  Mat:                     {matSumma,12:N2} kr");
-                writer.WriteLine($"  Alkohol:                 {alkoholSumma,12:N2} kr");
-                writer.WriteLine($"  Dricks:                  {totalDricks,12:N2} kr");
-                writer.WriteLine($"  ─────────────────────────────────────");
-                writer.WriteLine($"  TOTAL OMSÄTTNING:        {totalOmsattning,12:N2} kr");
+                writer.WriteLine("   📧 För frågor kontakta: ekonomi@restonation.se");
+                writer.WriteLine("   ✅ Detta underlag är genererat automatiskt från RestoNation System");
                 writer.WriteLine();
-                writer.WriteLine("TRANSAKTIONER:");
-                writer.WriteLine($"  Antal transaktioner:     {antalTransaktioner,12}");
-                writer.WriteLine($"  Genomsnittligt köp:      {(antalTransaktioner > 0 ? totalOmsattning / antalTransaktioner : 0),12:N2} kr");
-                writer.WriteLine();
-                writer.WriteLine("KASSASTATUS:");
-                writer.WriteLine($"  Kassa (förväntat):       {totalOmsattning,12:N2} kr");
-                writer.WriteLine($"  Kassa (räknat):          {"TBD",12}    (Kassafunktion ej implementerad)");
-                writer.WriteLine($"  Avvikelse:               {"TBD",12}");
-                writer.WriteLine();
-                writer.WriteLine("KOMMENTAR:");
-                writer.WriteLine("  Kassaavstämning implementeras i framtida version.");
-                writer.WriteLine("  Betalmetoder (Kontant/Kort/Swish) implementeras i framtida version.");
-                writer.WriteLine();
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine();
-                writer.WriteLine("CSV-FORMAT FÖR BOKFÖRINGSSYSTEM:");
-                writer.WriteLine("Datum;Restaurang;Mat;Alkohol;Dricks;TotalOmsättning;AntalTransaktioner;KassaFörväntat;Status");
-                writer.WriteLine($"{datum:yyyy-MM-dd};{restaurangNamn};{matSumma:F2};{alkoholSumma:F2};{totalDricks:F2};{totalOmsattning:F2};{antalTransaktioner};{totalOmsattning:F2};OK");
-                writer.WriteLine();
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine("                      SKICKA TILL: ekonomi@restonation.se");
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
             }
 
@@ -128,9 +142,9 @@ namespace AffärsLager.Services
         /// </summary>
         public string GeneraBokföringKoncern(DateTime datum)
         {
-            var restauranger = _unitOfWork.RestaurangRepository.GetAll().ToList();
+            var restauranger = _unitOfWork.RestaurangRepository.GetAll().OrderBy(r => r.Restaurangnamn).ToList();
 
-            var filnamn = $"Bokföring_Koncern_{datum:yyyy-MM-dd}.csv";
+            var filnamn = $"Bokföring_KONCERN_{datum:yyyy-MM-dd}.txt";
             var filPath = Path.Combine(_exportMapp, filnamn);
 
             decimal totalMatSumma = 0;
@@ -141,15 +155,21 @@ namespace AffärsLager.Services
 
             using (var writer = new StreamWriter(filPath, false, Encoding.UTF8))
             {
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine("              DAGLIG BOKFÖRING - HELA KONCERNEN");
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine($"Datum: {datum:yyyy-MM-dd}");
-                writer.WriteLine($"Genererad: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                writer.WriteLine("╔═══════════════════════════════════════════════════════════════════════════════╗");
+                writer.WriteLine("║                    KONCERNBOKFÖRING - RESTONATION                            ║");
+                writer.WriteLine("╚═══════════════════════════════════════════════════════════════════════════════╝");
+                writer.WriteLine();
+                writer.WriteLine($"📅 Datum:        {datum:dddd, dd MMMM yyyy}", new System.Globalization.CultureInfo("sv-SE"));
+                writer.WriteLine($"🕐 Genererad:    {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                writer.WriteLine($"🏢 Restauranger: {restauranger.Count} st");
+                writer.WriteLine();
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
                 writer.WriteLine();
 
-                foreach (var restaurang in restauranger.OrderBy(r => r.Restaurangnamn))
+                writer.WriteLine("📋 RESTAURANGSPECIFIK UPPDELNING:");
+                writer.WriteLine();
+
+                foreach (var restaurang in restauranger)
                 {
                     var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                         .Where(b => b.RestaurangID == restaurang.RestaurangID &&
@@ -190,12 +210,12 @@ namespace AffärsLager.Services
                     decimal restaurangOmsattning = matSumma + alkoholSumma;
                     int antalTransaktioner = bestallningar.Count;
 
-                    writer.WriteLine($"[ {restaurang.Restaurangnamn} ]");
-                    writer.WriteLine($"  Mat:           {matSumma,12:N2} kr");
-                    writer.WriteLine($"  Alkohol:       {alkoholSumma,12:N2} kr");
-                    writer.WriteLine($"  Dricks:        {dricks,12:N2} kr");
-                    writer.WriteLine($"  Omsättning:    {restaurangOmsattning,12:N2} kr");
-                    writer.WriteLine($"  Transaktioner: {antalTransaktioner,12}");
+                    writer.WriteLine($"   🏪 {restaurang.Restaurangnamn,-25}");
+                    writer.WriteLine($"      Mat:             {matSumma,15:N2} kr");
+                    writer.WriteLine($"      Alkohol:         {alkoholSumma,15:N2} kr");
+                    writer.WriteLine($"      Summa:           {restaurangOmsattning,15:N2} kr");
+                    writer.WriteLine($"      Dricks:          {dricks,15:N2} kr");
+                    writer.WriteLine($"      Transaktioner:   {antalTransaktioner,15}");
                     writer.WriteLine();
 
                     totalMatSumma += matSumma;
@@ -205,21 +225,32 @@ namespace AffärsLager.Services
                     totalAntalTransaktioner += antalTransaktioner;
                 }
 
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine("KONCERNSAMMANFATTNING:");
-                writer.WriteLine($"  Mat:                     {totalMatSumma,12:N2} kr");
-                writer.WriteLine($"  Alkohol:                 {totalAlkoholSumma,12:N2} kr");
-                writer.WriteLine($"  Dricks:                  {totalDricks,12:N2} kr");
-                writer.WriteLine($"  ─────────────────────────────────────");
-                writer.WriteLine($"  TOTAL OMSÄTTNING:        {totalOmsattning,12:N2} kr");
-                writer.WriteLine($"  Totalt transaktioner:    {totalAntalTransaktioner,12}");
-                writer.WriteLine();
-                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine();
-                writer.WriteLine("CSV-FORMAT FÖR BOKFÖRINGSSYSTEM:");
-                writer.WriteLine("Datum;Enhet;Mat;Alkohol;Dricks;TotalOmsättning;AntalTransaktioner;Status");
+                decimal totalInklDricks = totalOmsattning + totalDricks;
+                decimal genomsnittPerRestaurang = restauranger.Count > 0 ? totalOmsattning / restauranger.Count : 0;
 
-                foreach (var restaurang in restauranger.OrderBy(r => r.Restaurangnamn))
+                writer.WriteLine("─────────────────────────────────────────────────────────────────────────────────");
+                writer.WriteLine();
+                writer.WriteLine("💰 KONCERNSAMMANFATTNING:");
+                writer.WriteLine();
+                writer.WriteLine($"   Mat (ex. alkohol):          {totalMatSumma,15:N2} kr");
+                writer.WriteLine($"   Alkoholhaltiga drycker:     {totalAlkoholSumma,15:N2} kr");
+                writer.WriteLine($"   ────────────────────────────────────────────");
+                writer.WriteLine($"   Summa försäljning:          {totalOmsattning,15:N2} kr");
+                writer.WriteLine($"   Dricks (ej moms):           {totalDricks,15:N2} kr");
+                writer.WriteLine($"   ────────────────────────────────────────────");
+                writer.WriteLine($"   TOTALT INKL. DRICKS:        {totalInklDricks,15:N2} kr");
+                writer.WriteLine();
+                writer.WriteLine($"   Totalt transaktioner:       {totalAntalTransaktioner,15}");
+                writer.WriteLine($"   Genomsnitt per restaurang:  {genomsnittPerRestaurang,15:N2} kr");
+                writer.WriteLine($"   Mat/Alkohol-fördelning:     {(totalOmsattning > 0 ? (totalMatSumma / totalOmsattning * 100) : 0),14:N1}% / {(totalOmsattning > 0 ? (totalAlkoholSumma / totalOmsattning * 100) : 0):N1}%");
+                writer.WriteLine();
+                writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+                writer.WriteLine();
+                writer.WriteLine("📄 CSV-FORMAT FÖR IMPORT I BOKFÖRINGSSYSTEM:");
+                writer.WriteLine();
+                writer.WriteLine("Datum;Enhet;Mat;Alkohol;Summa;Dricks;Total;AntalTransaktioner");
+
+                foreach (var restaurang in restauranger)
                 {
                     var bestallningar = _unitOfWork.BestallningRepository.GetAll()
                         .Where(b => b.RestaurangID == restaurang.RestaurangID &&
@@ -253,13 +284,17 @@ namespace AffärsLager.Services
                     }
 
                     decimal restaurangOmsattning = matSumma + alkoholSumma;
-                    writer.WriteLine($"{datum:yyyy-MM-dd};{restaurang.Restaurangnamn};{matSumma:F2};{alkoholSumma:F2};{dricks:F2};{restaurangOmsattning:F2};{bestallningar.Count};OK");
+                    decimal restaurangTotal = restaurangOmsattning + dricks;
+                    writer.WriteLine($"{datum:yyyy-MM-dd};{restaurang.Restaurangnamn};{matSumma:F2};{alkoholSumma:F2};{restaurangOmsattning:F2};{dricks:F2};{restaurangTotal:F2};{bestallningar.Count}");
                 }
 
-                writer.WriteLine($"{datum:yyyy-MM-dd};KONCERN TOTALT;{totalMatSumma:F2};{totalAlkoholSumma:F2};{totalDricks:F2};{totalOmsattning:F2};{totalAntalTransaktioner};OK");
+                writer.WriteLine($"{datum:yyyy-MM-dd};KONCERN TOTALT;{totalMatSumma:F2};{totalAlkoholSumma:F2};{totalOmsattning:F2};{totalDricks:F2};{totalInklDricks:F2};{totalAntalTransaktioner}");
                 writer.WriteLine();
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-                writer.WriteLine("                      SKICKA TILL: ekonomi@restonation.se");
+                writer.WriteLine();
+                writer.WriteLine("   📧 För frågor kontakta: ekonomi@restonation.se");
+                writer.WriteLine("   ✅ Detta underlag är genererat automatiskt från RestoNation System");
+                writer.WriteLine();
                 writer.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
             }
 

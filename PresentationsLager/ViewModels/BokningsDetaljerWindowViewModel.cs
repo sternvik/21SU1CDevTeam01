@@ -487,22 +487,24 @@ namespace PresentationsLager.ViewModels
                 SparaBestallning(betald: true);
 
                 // Uppdatera bokningsstatus till "Betalt" (checkout sker manuellt senare)
-                var unitOfWork = new DataLager.UnitOfWork();
-                var bokning = unitOfWork.BokningRepository.FirstOrDefault(b => b.BokningsID == Bokning.BokningsID);
-                if (bokning != null)
+                using (var unitOfWork = new DataLager.UnitOfWork())
                 {
-                    bokning.Status = "Betalt";
-
-                    // Uppdatera även bordstatus
-                    var bord = unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
-                    if (bord != null)
+                    var bokning = unitOfWork.BokningRepository.FirstOrDefault(b => b.BokningsID == Bokning.BokningsID);
+                    if (bokning != null)
                     {
-                        bord.Status = "Betalt";
-                    }
+                        bokning.Status = "Betalt";
 
-                    // Spara både bokning OCH bord i samma transaktion
-                    unitOfWork.Save();
-                }
+                        // Uppdatera även bordstatus
+                        var bord = unitOfWork.BordRepository.FirstOrDefault(b => b.BordID == bokning.BordID);
+                        if (bord != null)
+                        {
+                            bord.Status = "Betalt";
+                        }
+
+                        // Spara både bokning OCH bord i samma transaktion
+                        unitOfWork.Save();
+                    }
+                } // UnitOfWork dispose'as här, vilket säkerställer att ändringar committas
 
                 // Uppdatera lokal bokning och knappsynlighet
                 if (Bokning != null)
