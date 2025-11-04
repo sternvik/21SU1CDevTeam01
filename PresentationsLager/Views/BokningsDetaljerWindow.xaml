@@ -94,20 +94,9 @@
                                     <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Bordkod:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding BordStatus.Bordkod}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Platser:" FontFamily="Inter" FontSize="12" FontWeight="Bold" Margin="0,0,0,5"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BordStatus.AntalPlatser}" FontFamily="Inter" FontSize="12" Margin="0,0,0,5"/>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Status:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BordStatus.Status}" FontFamily="Inter" FontSize="12" FontWeight="Bold" Foreground="#F4B942"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Bordkod:" FontFamily="Inter" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Bord.Bordkod}" FontFamily="Inter" FontSize="12"/>
                             </Grid>
                         </StackPanel>
                     </Border>
