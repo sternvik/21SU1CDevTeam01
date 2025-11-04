@@ -169,7 +169,7 @@ namespace PresentationsLager.ViewModels
                 
                 if (string.IsNullOrWhiteSpace(NyKundNamn) || string.IsNullOrWhiteSpace(NyKundEmail))
                 {
-                    errorMessages = "Namn och email får inte vara tomma.";
+                    errorMessages = "Fyll i de obligatoriska fälten";
                 }
                 
                 if (NyKundTelefon.Length < 7 || NyKundTelefon.Length > 15 || !NyKundTelefon.All(char.IsDigit))
