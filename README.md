@@ -4,17 +4,12 @@
 
 RestoNation är ett restauranghanteringssystem utvecklat för att hantera en koncern med flera restauranger. Systemet hanterar bokningar, beställningar, kunder, lojalitetsprogram och bokföring.
 
-**Kursinformation:**
-- Kurs: 21SU1C Dev Team 01
-- Skola: Högskolan i Borås
-- Teknik: C# .NET 8.0, WPF, Entity Framework Core, SQL Server
-
 ---
 
 ## Systemöversikt
 
 ### Arkitektur
-Projektet använder en **tre-lagers arkitektur** för att separera ansvar:
+Projektet använder en **fyra-lagers arkitektur** för att separera ansvar:
 
 1. **PresentationsLager** - WPF användargränssnitt med MVVM-mönster
 2. **AffärsLager** - Affärslogik med controllers och services
@@ -63,35 +58,16 @@ Projektet använder en **tre-lagers arkitektur** för att separera ansvar:
 
 ---
 
-## Installation
 
-### Krav
-- Windows 10/11
-- .NET 8.0 SDK
-- Visual Studio 2022
-- SQL Server åtkomst (sqlutb2-db.hb.se)
+### Inloggningsuppgifter (Test)
 
-### Steg
-
-1. **Klona projektet**
-   ```bash
-   git clone [repository-url]
    ```
+   
+   VD:              vd / vd
+   Restaurangchef:  chef / chef (Hemma 
+   Servitör:        s / s
+   Admin:           a / a
 
-2. **Öppna i Visual Studio**
-   - Öppna `21SU1CDevTeam01.sln`
-   - Vänta på NuGet-paket att installeras
-
-3. **Kör programmet**
-   - Första körningen skapar databasen automatiskt
-   - Testdata seedas (18 restauranger, grundmeny, testanvändare)
-
-4. **Logga in**
-   ```
-   VD:              vd / password
-   Restaurangchef:  chef / password
-   Personal:        servitor / password
-   Admin:           admin / password
    ```
 
 ---
@@ -236,39 +212,3 @@ Projektet använder en **tre-lagers arkitektur** för att separera ansvar:
 - **Repository.cs** - Generisk dataåtkomst
 
 ---
-
-## Vanliga Frågor
-
-**Q: Hur bokar kunder bord?**
-A: Via telefon eller på plats - personal registrerar i systemet
-
-**Q: Fungerar lojalitetspoäng på alla restauranger?**
-A: Ja, poäng följer kunden och kan användas överallt
-
-**Q: Vad är skillnaden på "Betald" för beställning vs bord?**
-A: Beställning Betald = kunden betalat. Bord Betalt = redo för nya gäster
-
-**Q: Hur exporteras bokföring?**
-A: Automatisk TXT-fil med CSV-format för import i ekonomisystem
-
----
-
-## Kända Begränsningar
-
-- Lösenord i plaintext (endast för utbildning)
-- Ingen online-bokning för kunder
-- Endast Windows desktop (ingen webb/mobil)
-- Session timeout 30 minuter
-
----
-
-## Support
-
-**GitHub:** [repository-url]/issues
-**Email:** dev-team@restonation.se
-**Utvecklingsteam:** 21SU1C Dev Team 01, Högskolan i Borås
-
----
-
-**Version:** 1.0
-**Senast uppdaterad:** 2025-01-04

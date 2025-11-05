@@ -385,7 +385,12 @@ namespace AffärsLager.Services
             // Skapa mappen om den inte finns
             Directory.CreateDirectory(loggMapp);
 
-            string fileName = $"Koksbong_{bordnummer}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            // Räkna antal befintliga köksbongar för detta bord idag för att få löpnummer
+            string today = DateTime.Now.ToString("yyyyMMdd");
+            var existingFiles = Directory.GetFiles(loggMapp, $"{today}_Koksbong_{bordnummer}_*.pdf");
+            int lopnummer = existingFiles.Length + 1;
+
+            string fileName = $"{today}_Koksbong_{bordnummer}_{lopnummer:D3}.pdf";
             string filePath = Path.Combine(loggMapp, fileName);
 
             Document.Create(container =>
