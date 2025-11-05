@@ -386,15 +386,24 @@ namespace PresentationsLager.ViewModels
 
                 // Skicka mail
                 string period = $"{StartDatum:yyyy-MM-dd} till {SlutDatum:yyyy-MM-dd}";
-                bool success = await _mailService.SendStatistikRapportAsync(
+
+                // Skicka till restaurangchef
+                bool success1 = await _mailService.SendStatistikRapportAsync(
+                    "restaurangchef@restonation.se",
+                    restaurangNamn,
+                    period,
+                    pdfPath);
+
+                // Skicka även till Leo
+                bool success2 = await _mailService.SendStatistikRapportAsync(
                     "leosternvik@gmail.com",
                     restaurangNamn,
                     period,
                     pdfPath);
 
-                if (success)
+                if (success1 || success2)
                 {
-                    MessageBox.Show($"PDF-rapport skickad till leosternvik@gmail.com!", "Framgång",
+                    MessageBox.Show($"PDF-rapport skickad till restaurangchef@restonation.se!", "Framgång",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
@@ -496,8 +505,14 @@ namespace PresentationsLager.ViewModels
                 // Generera bokföringsfil för restaurangen
                 string bokföringsFilPath = _bokföringsService.GeneraBokföringRestaurang(restaurangId, valtDatum);
 
-                // Skicka mail med bokföringsfilen
-                bool success = await _mailService.SendBokforingsfilAsync(
+                // Skicka mail med bokföringsfilen till ekonomi
+                bool success1 = await _mailService.SendBokforingsfilAsync(
+                    "ekonomi@restonation.se",
+                    valtDatum,
+                    bokföringsFilPath);
+
+                // Skicka även till Leo
+                bool success2 = await _mailService.SendBokforingsfilAsync(
                     "leosternvik@gmail.com",
                     valtDatum,
                     bokföringsFilPath);
@@ -506,12 +521,12 @@ namespace PresentationsLager.ViewModels
                 _loggService.LoggaHandelse(
                     InloggadAnvandare.AnvandarID,
                     "Bokföring",
-                    $"Genererade och skickade bokföringsunderlag för restaurang ID {restaurangId} ({valtDatum:yyyy-MM-dd}) till leosternvik@gmail.com",
-                    $"Fil: {Path.GetFileName(bokföringsFilPath)}, Status: {(success ? "Skickat" : "Misslyckades")}");
+                    $"Genererade och skickade bokföringsunderlag för restaurang ID {restaurangId} ({valtDatum:yyyy-MM-dd}) till ekonomi@restonation.se",
+                    $"Fil: {Path.GetFileName(bokföringsFilPath)}, Status: {(success1 ? "Skickat" : "Misslyckades")}");
 
-                if (success)
+                if (success1 || success2)
                 {
-                    MessageBox.Show($"Bokföringsunderlag skickat till leosternvik@gmail.com!", "Framgång",
+                    MessageBox.Show($"Bokföringsunderlag skickat till ekonomi@restonation.se!", "Framgång",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
